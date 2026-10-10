@@ -1,0 +1,50 @@
+                    GNU GENERAL PUBLIC LICENSE
+                       Version 3, 29 June 2007
+
+ Copyright (C) 2026 Claww / DyPlugin
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+ ============================================================================
+ ADDITIONAL TERMS (pursuant to Section 7 of the GPL v3)
+ ============================================================================
+
+ 1. ATTRIBUTION REQUIREMENT
+    All copies, forks, or derivative works of this software must
+    retain the original project name "DyDiscord" in a visible and
+    prominent location, including but not limited to:
+    - The plugin description (plugin.yml or equivalent)
+    - The project README or documentation
+    - Any public distribution page (Modrinth, Spigot, GitHub, etc.)
+
+ 2. NON-COMMERCIAL DISTRIBUTION
+    You may NOT sell this software or any derivative work for monetary
+    compensation. This includes but is not limited to:
+    - Selling compiled builds (.jar files)
+    - Offering paid downloads
+    - Requiring payment or donation to access the software
+    - Bundling with other paid products
+
+    Free distribution is permitted and encouraged.
+
+ 3. OPEN SOURCE REQUIREMENT
+    Any fork, modification, or derivative work of this software must
+    be made publicly available under the same license terms (GPL v3
+    with these additional terms). You may not distribute closed-source
+    versions of this software.
+
+ ============================================================================
+
+ For the full text of the GNU General Public License v3, visit:
+ https://www.gnu.org/licenses/gpl-3.0.en.html

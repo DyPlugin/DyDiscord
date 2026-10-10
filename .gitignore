@@ -1,0 +1,46 @@
+# Build outputs and local dependencies
+/build/
+/target/
+/.gradle/
+node_modules/
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+!src/main/resources/META-INF/licenses/trove4j/core-3.1.0-sources.jar
+
+# Local servers, runtime data, backups and working notes
+/.local/
+/run/
+/plugins/
+/logs/
+/AGENTS.md
+/CHANGELOG.md
+/MODRINTH-DESCRIPTION.md
+/MODRINTH-SUMMARY.txt
+/docs/acceptance.md
+/docs/live-verification.md
+/docs/security-audit-*.md
+/docs/bug-review-*.md
+/docs/verification/
+*.db
+*.db-*
+*.log
+*.log.*
+*.tmp
+*.bak
+*.backup-*
+*.zip
+*.7z
+
+# IDE and operating system files
+/.vscode/
+/.idea/
+*.iml
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local environment settings
+.env
+.env.*
+!.env.example

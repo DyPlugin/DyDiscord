@@ -1,0 +1,96 @@
+# Editable Discord templates. Keep {placeholders}; Markdown is supported. Reload after editing.
+# {server_name} - Link Your Account
+panel-title: "{server_name} - Link Your Account"
+# To connect your Minecraft and Discord accounts, get your code in-game with `/discord link`, then select **Link Account** below and enter you
+panel-description: "To connect your Minecraft and Discord accounts, get your code in-game with `/discord link`, then select **Link Account** below and enter your code.\n\n**Link Account:** Connects your accounts using your in-game code.\n\n**My Account:** Shows your linked Minecraft and Discord accounts.\n\n**Unlink:** Removes your existing link."
+# Only you can see your account details. Keep your code private.
+panel-privacy: "Only you can see your account details. Keep your code private."
+# Link Account
+link: "Link Account"
+# My Account
+account-button: "My Account"
+# Unlink
+unlink: "Unlink"
+# Linking code
+code-label: "Linking code"
+# Link Your Account
+modal-title: "Link Your Account"
+# Use the account panel to link, view or unlink your own account. Generate a code in Minecraft with /discord link. Codes expire and do not sur
+help: "Use the account panel to link, view or unlink your own account. Generate a code in Minecraft with /discord link. Codes expire and do not survive a server restart."
+# DyDiscord v{version}: {state}
+status: "DyDiscord v{version}: {state}"
+# Disabled
+state-disabled: "Disabled"
+# Connecting
+state-starting: "Connecting"
+# Connected
+state-connected: "Connected"
+# Partially available
+state-degraded: "Partially available"
+# Stopping
+state-stopping: "Stopping"
+# Connection failed
+state-failed: "Connection failed"
+# **Minecraft:** {name} **Discord:** {discord}
+account: "**Minecraft:** {name}\n**Discord:** {discord}"
+# Your account is not linked.
+not-linked: "Your account is not linked."
+# **Accounts linked!** Minecraft account **{name}** is now linked to Discord account **{discord}**.
+linked: "**Accounts linked!**\nMinecraft account **{name}** is now linked to Discord account **{discord}**."
+# Your account has been unlinked.
+unlinked: "Your account has been unlinked."
+# That code is invalid or expired. Generate a new code in Minecraft.
+invalid-code: "That code is invalid or expired. Generate a new code in Minecraft."
+# An account is already linked. Unlink it first.
+already-linked: "An account is already linked. Unlink it first."
+# Too many attempts. Please try again later.
+rate-limit: "Too many attempts. Please try again later."
+# Account data is unavailable. Contact the server administrator.
+data-unavailable: "Account data is unavailable. Contact the server administrator."
+# You cannot perform this action.
+no-permission: "You cannot perform this action."
+# This confirmation is invalid or expired.
+confirmation-invalid: "This confirmation is invalid or expired."
+# Unlink your account? Confirm within {seconds} seconds.
+confirm: "Unlink your account? Confirm within {seconds} seconds."
+# Confirm
+confirm-button: "Confirm"
+# Cancel
+cancel-button: "Cancel"
+# Confirmation cancelled.
+cancelled: "Confirmation cancelled."
+# Open the account panel to continue privately: {url}
+private-prompt: "Open the account panel to continue privately: {url}"
+# The account panel is unavailable. Contact the server administrator.
+panel-missing: "The account panel is unavailable. Contact the server administrator."
+# Console request rejected. Check the private console setup and your access.
+console-rejected: "Console request rejected. Check the private console setup and your access."
+# Use bot commands outside the console channel.
+console-prefix: "Use bot commands outside the console channel."
+# The service is busy. Please try again shortly.
+busy: "The service is busy. Please try again shortly."
+# The operation failed. Event {event}; contact the server administrator.
+failed: "The operation failed. Event {event}; contact the server administrator."
+# Show DyDiscord help
+slash-help: "Show DyDiscord help"
+# Open the private account linking form
+slash-link: "Open the private account linking form"
+# Show your own linked account
+slash-account: "Show your own linked account"
+# Unlink your own account with confirmation
+slash-unlink: "Unlink your own account with confirmation"
+# Show the bot connection state
+slash-status: "Show the bot connection state"
+
+# Normal Minecraft chat. {rank} includes bold text and a trailing space when present.
+chat-to-discord: "{rank}{name} **»** {message}"
+# Minecraft colors apply only to this template; {role} adds a space only when present.
+chat-to-minecraft: "&9[Discord] &7{role}&f{name} &7» &f{message}"
+# Public join event. Keep {name} unchanged.
+chat-join: "{name} joined the server."
+# Public quit event. Keep {name} unchanged.
+chat-quit: "{name} left the server."
+# Existing death reason, safely escaped; it is not automatically translated.
+chat-death: "{death}"
+# Normal server shutdown only, before the process has fully stopped.
+server-stopping: "The server is shutting down."

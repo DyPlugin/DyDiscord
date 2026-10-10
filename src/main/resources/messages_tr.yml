@@ -1,0 +1,153 @@
+# Editable Minecraft text. Keep {placeholders}; & color codes are supported. Reload after editing.
+# You do not have permission to use this command!
+no-permission: "&cBu komutu kullanma izniniz yok!"
+# Only players can use this command!
+player-only: "&cBu komutu sadece oyuncular kullanabilir!"
+# Configuration reloaded successfully!
+reload-success: "&aYapılandırma başarıyla yeniden yüklendi!"
+# Configuration could not be reloaded. Previous settings remain active.
+reload-invalid: "&cAyarlar yüklenemedi. Önceki ayarlarla devam ediliyor."
+# Bot restart required to apply connection settings.
+restart-required: "&eBağlantı ayarlarını uygulamak için bot yeniden başlatılmalı."
+# Join our Discord: {invite_url}
+invite: "&7Discord sunucumuza katılın: &b{invite_url}"
+# The Discord invite has not been configured yet.
+invite-not-set: "&eDiscord davet bağlantısı henüz ayarlanmadı."
+# Your linking code: {code}
+link-code: "&7Eşleştirme kodunuz: &e{code}"
+# Linking panel: {url}
+panel-link: "&7Eşleme paneli: &b{url}"
+# Discord is temporarily unavailable. Please try again shortly.
+bot-unavailable: "&eDiscord bağlantısı geçici olarak kullanılamıyor. Lütfen biraz sonra tekrar deneyin."
+# Set token and guild-id in bot.yml, then run /dydiscord admin reload before enabling the bot.
+bot-setup-incomplete: "&eBotu açmadan önce bot.yml içinde token ve guild-id ayarlayın, sonra /dydiscord admin yenile çalıştırın."
+# Discord is not connected; channel and role access will be checked before use after connection.
+discord-validation-pending: "&eDiscord bağlı değil; kanal ve rol erişimi bağlantıdan sonra kullanım öncesinde doğrulanacak."
+# Account linking is disabled.
+linking-disabled: "&eHesap eşleme kapalı."
+# Account data is unavailable. Contact the server administrator.
+data-unavailable: "&cHesap verilerine erişilemiyor. Sunucu yöneticisine başvurun."
+# An account is already linked. Unlink it first.
+already-linked: "&eBu hesap zaten eşleştirilmiş. Önce mevcut eşleştirmeyi kaldırın."
+# Your account is not linked.
+not-linked: "&7Hesaplarınız henüz eşleştirilmemiş."
+# Minecraft: {name} | Discord: {discord}
+account: "&7Minecraft: &f{name} &7| Discord: &f{discord}"
+# Discord account
+discord-account: "Discord hesabı"
+# Accounts linked! Minecraft: {name} | Discord: {discord}
+linked: "&aHesaplarınız eşleştirildi! &f{name} &7Minecraft hesabınız, &f{discord} &7Discord hesabınızla eşleştirildi."
+# Account unlinked successfully.
+unlinked: "&aHesap eşleştirmeniz kaldırıldı."
+# Confirm within {seconds} seconds: /dydiscord confirm {token}
+confirm: "&e{seconds} saniye içinde onaylayın: &6/dydiscord onayla {token}"
+# That confirmation is invalid or expired.
+confirmation-invalid: "&cBu onay artık geçerli değil. İşlemi yeniden başlatın."
+# Pending confirmation cancelled.
+cancelled: "&7İşlem iptal edildi."
+# Please wait before generating another code.
+cooldown: "&eYeni kod almak için biraz bekleyin."
+# The service is busy. Please try again shortly.
+busy: "&eŞu anda yoğunluk var. Biraz sonra tekrar deneyin."
+# That linking code is invalid or expired.
+invalid-code: "&cKod yanlış veya süresi dolmuş. Oyundan yeni bir kod alın."
+# Too many attempts. Please try again later.
+rate-limit: "&eÇok fazla deneme. Lütfen daha sonra tekrar deneyin."
+# Invalid command arguments. Use /dydiscord help.
+usage: "&eKomutu doğru yazdığınızdan emin olun. Yardım için /dydiscord yardım yazın."
+# Settings saved successfully.
+saved: "&aAyarlar başarıyla kaydedildi."
+# Language preference saved: {language}
+language-saved: "&aDil tercihiniz kaydedildi: &f{language}"
+# Your preference is stored; the server currently forces {language}.
+language-forced: "&eTercihiniz kaydedildi. Sunucunun dil ayarı şu anda {language}; tercihiniz sunucu dili otomatik olduğunda kullanılacak."
+# Operation failed. Event {event}; see the local server log.
+failed: "&cİşlem tamamlanamadı. Sunucu yöneticisine şu hata kodunu iletin: {event}"
+# {status}
+status-line: "&7{status}"
+# Help
+help: "Yardım"
+# Administrator commands
+help-admin: "Yönetici komutları"
+# Show the Discord invite
+help-invite-show: "Discord davetini göster"
+# players only
+help-player-only: "sadece oyuncular"
+# Confirm your pending unlink
+help-confirm: "Bekleyen eşleme kaldırmayı onayla"
+# Cancel your pending confirmation
+help-cancel: "Bekleyen onayı iptal et"
+# Show available commands
+help-help: "Kullanılabilir komutları göster"
+# Link your Minecraft account
+help-link: "Hesaplarınızı eşleştirmek için kod alın"
+# Show your linked account
+help-status: "Eşlenen hesabınızı göster"
+# Unlink your account with confirmation
+help-unlink: "Hesap eşleştirmenizi kaldırın"
+# Save your language preference
+help-language: "Dil tercihinizi kaydedin"
+# Set the Discord invite
+help-invite: "Discord davetini ayarla"
+# Set the server language
+help-global-language: "Sunucu dilini ayarla"
+# Validate and reload settings
+help-reload: "Ayarları doğrula ve yeniden yükle"
+# Show bot, data, panel and console health
+help-admin-status: "Botun, hesap kayıtlarının, panelin ve konsolun durumunu göster"
+# Check setup and permissions
+help-doctor: "Kurulumu ve izinleri kontrol et"
+# Enable the Discord bot
+help-bot-enable: "Discord botunu aç"
+# Disable the Discord bot
+help-bot-disable: "Discord botunu kapat"
+# Restart the Discord bot
+help-bot-restart: "Discord botunu yeniden başlat"
+# Set the linking channel
+help-panel-channel: "Eşleme kanalını ayarla"
+# Create or update the single panel
+help-panel-send: "Hesap panelini oluştur veya güncelle"
+# Repair the existing panel
+help-panel-refresh: "Mevcut paneli onar"
+# Set the private console channel
+help-console-channel: "Özel konsol kanalını ayarla"
+# Enable log relay
+help-console-enable: "Log aktarımını aç"
+# Disable log relay
+help-console-disable: "Log aktarımını kapat"
+# Enable remote console commands
+help-commands-enable: "Uzaktan konsol komutlarını aç"
+# Disable remote console commands
+help-commands-disable: "Uzaktan konsol komutlarını kapat"
+# Authorize a trusted administrator role
+help-role-add: "Güvenilen yönetici rolüne izin ver"
+# Remove an authorized role
+help-role-remove: "İzin verilen rolü kaldır"
+# List authorized role IDs
+help-role-list: "İzin verilen rolleri listele"
+# Allow Discord Administrators
+help-administrator-on: "Discord Administrator yetkisini kabul et"
+# Require an authorized role
+help-administrator-off: "İzinli rol gerektir"
+# Unlink a target UUID with reason and confirmation
+help-admin-unlink: "Oyuncunun hesap eşleştirmesini gerekçe belirterek kaldır"
+# English
+language-name-en: "İngilizce"
+# Turkish
+language-name-tr: "Türkçe"
+# Automatic
+language-name-auto: "Otomatik"
+# Disabled
+state-disabled: "Kapalı"
+# Connecting
+state-starting: "Bağlanıyor"
+# Connected
+state-connected: "Bağlı"
+# Partially available
+state-degraded: "Bağlantı kısıtlı"
+# Stopping
+state-stopping: "Kapatılıyor"
+# Connection failed
+state-failed: "Bağlantı kurulamadı"
+# DyDiscord {version} is available: {url}
+update-available: "&eDyDiscord {version} çıktı. İndirme sayfası: &b{url}"

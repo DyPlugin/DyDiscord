@@ -1,0 +1,34 @@
+# DyDiscord settings. Reload after editing; unknown future schemas are rejected.
+# Managed schema version. Do not edit.
+config-version: 2
+# Chat prefix. Minecraft color codes such as &9 are supported.
+prefix: "&7[&9DyDiscord&7]"
+# auto uses each player's preference/client language; en or tr forces one language.
+lang: auto
+# Displayed server name on the account panel.
+server-name: "Minecraft Server"
+# Discord invitation shown by the root command.
+discord:
+  # HTTPS discord.gg or discord.com/invite link; blank disables the invitation.
+  invite-url: ""
+# Account linking rules; UUID and current online session identify the player.
+linking:
+  # Works with either online-mode value. On offline servers, your login system
+  # must block all DyDiscord commands until authentication completes.
+  enabled: true
+  # Random code length (8-16); existing explicit values are preserved on upgrade.
+  code-length: 12
+  # Code lifetime in seconds (30-900).
+  code-expiry-seconds: 300
+  # Minimum wait before requesting another code, in seconds (5-300).
+  generation-cooldown-seconds: 30
+  # Maximum failed code attempts per Discord user (1-10).
+  max-attempts: 5
+  # Failed-attempt window in seconds (30-900).
+  attempt-window-seconds: 300
+  # Time allowed to confirm unlinking, in seconds (10-120).
+  confirmation-timeout-seconds: 30
+# Optional version notices from the public Modrinth project dydiscord.
+updates:
+  # Checks compatible plugin versions every six hours; never downloads a JAR.
+  enabled: true

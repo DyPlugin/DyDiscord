@@ -1,0 +1,66 @@
+# Token, guild, bot language and message-content settings require bot restart.
+# Managed schema version. Do not edit.
+config-version: 2
+# Connect the configured bot; false keeps Minecraft commands available.
+enabled: false
+# Bot secret from Developer Portal. Never share it; environment token takes priority.
+token: ""
+# Discord server ID, quoted as text. One guild is supported.
+guild-id: ""
+# Discord language and message commands are independent from Minecraft language.
+bot:
+  # Bot/panel language: en or tr. Restart the bot after changing this.
+  language: en
+  # Message command prefix; the supported value is dy!.
+  prefix: "dy!"
+  # Enable message commands; requires Message Content intent and bot restart.
+  prefix-commands-enabled: true
+# One persistent account panel; refresh updates its existing message.
+panel:
+  # Text channel ID, quoted as text; must differ from console and chat channels.
+  channel-id: ""
+  # Blank uses the Discord server icon. Optional HTTPS image URL; panel refresh applies it.
+  image-url: ""
+# Optional private server-console channel; only trusted administrators may view it.
+console:
+  # Relay actual INFO/WARN/ERROR server output to Discord.
+  enabled: false
+  # Private text channel ID, quoted as text; deny View Channel for @everyone.
+  channel-id: ""
+  # These users receive full Minecraft console power; linking does not grant access.
+  commands:
+    # Allow new authorized messages to run Minecraft commands; requires bot restart.
+    enabled: false
+    # Let Discord Administrators use the console in addition to allowed roles.
+    allow-administrator: true
+    # Trusted Discord role IDs as quoted strings; role names are not authorization.
+    allowed-role-ids: []
+
+# Optional public chat bridge. This channel must differ from panel and console.
+chat:
+  # Public guild text channel ID, quoted as text; blank disables all chat delivery.
+  channel-id: ""
+  # Forward public Minecraft chat. Unknown chat listeners pause this direction.
+  minecraft-to-discord: false
+  # Forward new human Discord messages; enabling requires Message Content/bot restart.
+  discord-to-minecraft: false
+  # Small event embeds; each event can be enabled independently.
+  events:
+    # Public joins only; hidden players and suppressed join messages are excluded.
+    join:
+      # Announce joins in the chat channel.
+      enabled: false
+      # Embed accent as a six-digit RGB hex color.
+      color: "#55AA55"
+    # Public quits only; hidden players and suppressed quit messages are excluded.
+    quit:
+      # Announce quits in the chat channel.
+      enabled: false
+      # Embed accent as a six-digit RGB hex color.
+      color: "#AAAAAA"
+    # Keep the existing death reason; suppressed death messages are excluded.
+    death:
+      # Announce deaths in the chat channel.
+      enabled: false
+      # Embed accent as a six-digit RGB hex color.
+      color: "#FF5555"

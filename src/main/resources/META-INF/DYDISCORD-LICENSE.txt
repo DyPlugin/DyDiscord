@@ -1,0 +1,11 @@
+DyDiscord
+Copyright (C) 2026 Claww / DyPlugin
+
+Project terms: GPL v3 with the owner's additional attribution,
+non-commercial distribution and public-source requirements.
+See META-INF/LICENSE-DYDISCORD.txt for those terms and
+META-INF/LICENSE-GPL-3.0.txt for the complete underlying GPL v3 text.
+This combined project notice is not the unmodified standard GPL license.
+
+Corresponding source: https://github.com/DyPlugin/DyDiscord
+Dependency license notices apply independently.

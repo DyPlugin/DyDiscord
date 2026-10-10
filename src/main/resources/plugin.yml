@@ -1,0 +1,99 @@
+name: DyDiscord
+version: '${version}'
+main: dev.dydiscord.DyDiscord
+api-version: '1.20'
+author: Claww
+softdepend: [LuckPerms, Vault]
+description: Discord account linking and an optional private server console by DyPlugin.
+commands:
+  dydiscord:
+    description: DyDiscord account and administration commands
+    aliases: [discord]
+    usage: /dydiscord help
+  dylink:
+    description: Generate a private account linking code
+    aliases: [link, esle, eşle, hesap-esle, hesap-eşle]
+    usage: /dydiscord link
+permissions:
+  dydiscord.player:
+    default: true
+    children:
+      dydiscord.invite: true
+      dydiscord.help: true
+      dydiscord.link: true
+      dydiscord.status: true
+      dydiscord.unlink: true
+      dydiscord.language: true
+      dydiscord.chat.send: true
+      dydiscord.chat.receive: true
+  dydiscord.admin:
+    default: op
+    children:
+      dydiscord.player: true
+      dydiscord.admin.invite: true
+      dydiscord.admin.language: true
+      dydiscord.admin.reload: true
+      dydiscord.admin.status: true
+      dydiscord.admin.doctor: true
+      dydiscord.admin.bot: true
+      dydiscord.admin.panel.channel: true
+      dydiscord.admin.panel.send: true
+      dydiscord.admin.panel.refresh: true
+      dydiscord.admin.console.channel: true
+      dydiscord.admin.console.toggle: true
+      dydiscord.admin.console.commands: true
+      dydiscord.admin.console.roles: true
+      dydiscord.admin.console.administrator: true
+      dydiscord.admin.unlink: true
+      dydiscord.admin.update: true
+  dydiscord.invite:
+    default: false
+  dydiscord.help:
+    default: false
+  dydiscord.link:
+    default: false
+  dydiscord.status:
+    default: false
+  dydiscord.unlink:
+    default: false
+  dydiscord.language:
+    default: false
+  dydiscord.admin.invite:
+    default: false
+  dydiscord.admin.language:
+    default: false
+  dydiscord.admin.reload:
+    default: false
+  dydiscord.admin.status:
+    default: false
+  dydiscord.admin.doctor:
+    default: false
+  dydiscord.admin.bot:
+    default: false
+  dydiscord.admin.panel.channel:
+    default: false
+  dydiscord.admin.panel.send:
+    default: false
+  dydiscord.admin.panel.refresh:
+    default: false
+  dydiscord.admin.console.channel:
+    default: false
+  dydiscord.admin.console.toggle:
+    default: false
+  dydiscord.admin.console.commands:
+    default: false
+  dydiscord.admin.console.roles:
+    default: false
+  dydiscord.admin.console.administrator:
+    default: false
+  dydiscord.admin.unlink:
+    default: false
+  dydiscord.admin.update:
+    description: Receive compatible Modrinth update notifications
+    default: false
+  dydiscord.chat.send:
+    description: Forward your public Minecraft chat to Discord
+    default: false
+  dydiscord.chat.receive:
+    description: Receive public Discord chat in Minecraft
+    default: false
