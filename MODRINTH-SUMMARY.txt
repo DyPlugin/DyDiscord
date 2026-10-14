@@ -1,1 +1,1 @@
-Minecraft-Discord integration with account linking, chat, role sync, boost rewards, and EN/TR support.
+A configurable Discord integration plugin for Minecraft servers, with English and Turkish support.
