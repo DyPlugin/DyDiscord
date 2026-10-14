@@ -20,6 +20,30 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BotInteractionTest {
+    @Test void disabledPanelRejectsButtonsButSlashStillOpensPrivateModal()throws Exception{
+        var off=Settings.read(Map.of(),Map.of("guild-id",settings.guild(),"panel",Map.of("enabled",false,"channel-id",settings.panelChannel())),null);when(host.settings()).thenReturn(off);
+        var button=button("link","423456789012345678");var reply=mock(ReplyCallbackAction.class);when(button.reply(anyString())).thenReturn(reply);when(reply.setEphemeral(true)).thenReturn(reply);when(reply.setAllowedMentions(any())).thenReturn(reply);
+        listener.onButtonInteraction(button);verify(button,never()).replyModal(any());
+        var slash=mock(net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent.class);Guild guild=mock(Guild.class);User user=mock(User.class);when(slash.isFromGuild()).thenReturn(true);when(slash.getGuild()).thenReturn(guild);when(guild.getId()).thenReturn(settings.guild());when(slash.getMember()).thenReturn(mock(Member.class));when(slash.getUser()).thenReturn(user);when(user.getId()).thenReturn("523456789012345678");when(slash.getName()).thenReturn("link");when(slash.replyModal(any())).thenReturn(mock(ModalCallbackAction.class));
+        listener.onSlashCommandInteraction(slash);verify(slash).replyModal(any());
+    }
+    @org.junit.jupiter.params.ParameterizedTest @org.junit.jupiter.params.provider.ValueSource(booleans={false,true})
+    void reconnectDoesNotUpsertAlreadyCorrectOwnedSlashCommands(boolean changedDescription)throws Exception{
+        Guild guild=mock(Guild.class);doReturn(guild).when(bot).guild();when(guild.getId()).thenReturn(settings.guild());
+        var retrieval=mock(net.dv8tion.jda.api.requests.RestAction.class);doReturn(retrieval).when(guild).retrieveCommands();List<net.dv8tion.jda.api.interactions.commands.Command> existing=new ArrayList<>();Set<String> owned=new HashSet<>();
+        for(String function:List.of("help","link","account","unlink","status","server")){var command=mock(net.dv8tion.jda.api.interactions.commands.Command.class);String id="72345678901234567"+existing.size();String description=host.messages().get(true,settings.botLanguage(),"slash-"+function);owned.add(id);when(command.getId()).thenReturn(id);when(command.getName()).thenReturn(dev.dydiscord.command.Words.display(function,settings.botLanguage()));when(command.getDescription()).thenReturn(description);when(command.getType()).thenReturn(net.dv8tion.jda.api.interactions.commands.Command.Type.SLASH);existing.add(command);}
+        doReturn(existing).when(bot).await(retrieval);when(host.store().commands(settings.guild())).thenReturn(owned);
+        if(changedDescription)when(existing.get(0).getDescription()).thenReturn("Old description");
+        var action=mock(net.dv8tion.jda.api.requests.restaction.CommandCreateAction.class);when(guild.upsertCommand(any(net.dv8tion.jda.api.interactions.commands.build.CommandData.class))).thenReturn(action);when(action.setCheck(any())).thenReturn(action);doReturn(existing.get(0),existing.get(1),existing.get(2),existing.get(3),existing.get(4),existing.get(5)).when(bot).await(action);
+        var method=Bot.class.getDeclaredMethod("register",long.class);method.setAccessible(true);method.invoke(bot,0L);
+        verify(guild,times(changedDescription?1:0)).upsertCommand(any(net.dv8tion.jda.api.interactions.commands.build.CommandData.class));
+    }
+    @Test void uncachedMemberUpdateSignalsFreshBoostReconciliation(){
+        var bridge=mock(dev.dydiscord.boost.BoostBridge.class);when(host.boosts()).thenReturn(bridge);
+        var event=mock(net.dv8tion.jda.api.events.guild.member.GuildMemberUpdateEvent.class);Guild guild=mock(Guild.class);User user=mock(User.class);
+        when(event.getGuild()).thenReturn(guild);when(guild.getId()).thenReturn(settings.guild());when(event.getUser()).thenReturn(user);when(user.getId()).thenReturn("423456789012345678");
+        listener.onGuildMemberUpdate(event);verify(bridge).signal("423456789012345678");
+    }
     @TempDir Path folder;
     DyDiscord host; Bot bot; ListenerAdapter listener; Settings settings;
     @BeforeEach void setup()throws Exception{
@@ -53,20 +77,21 @@ class BotInteractionTest {
             assertEquals(original,store.byUuid(uuid).orElseThrow());var response=ArgumentCaptor.forClass(MessageEmbed[].class);verify(hook).editOriginalEmbeds(response.capture());assertEquals("This confirmation is invalid or expired.",response.getValue()[0].getDescription());verify(edit).setComponents(List.of());verify(host,never()).error(any());
         }
     }
-    @org.junit.jupiter.params.ParameterizedTest @org.junit.jupiter.params.provider.ValueSource(strings={"channel","message","current","slash"})
+    @org.junit.jupiter.params.ParameterizedTest @org.junit.jupiter.params.provider.ValueSource(strings={"channel","message","current","slash","disabled","slash-disabled"})
     void modalRetainsOpeningPanelContextAndAllowsCurrentPanel(String change)throws Exception{
         String actor="423456789012345678";var form=ArgumentCaptor.forClass(Modal.class);
-        if(change.equals("slash")){var opening=mock(net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent.class,RETURNS_DEEP_STUBS);when(opening.isFromGuild()).thenReturn(true);when(opening.getGuild().getId()).thenReturn(settings.guild());when(opening.getUser().getId()).thenReturn(actor);when(opening.getName()).thenReturn("link");listener.onSlashCommandInteraction(opening);verify(opening).replyModal(form.capture());}
+        if(change.startsWith("slash")){var opening=mock(net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent.class,RETURNS_DEEP_STUBS);when(opening.isFromGuild()).thenReturn(true);when(opening.getGuild().getId()).thenReturn(settings.guild());when(opening.getUser().getId()).thenReturn(actor);when(opening.getName()).thenReturn("link");listener.onSlashCommandInteraction(opening);verify(opening).replyModal(form.capture());}
         else {var opening=button("link",actor);listener.onButtonInteraction(opening);verify(opening).replyModal(form.capture());}
         if(change.equals("channel")){var c=TestSupport.config(folder.resolve("new-policy"));c.change("bot.yml","guild-id",settings.guild());c.change("bot.yml","panel.channel-id","723456789012345678");when(host.settings()).thenReturn(c.active().settings());}
         if(change.equals("message")){var field=PanelService.class.getDeclaredField("current");field.setAccessible(true);field.set(bot.panel(),new Store.Panel(settings.guild(),settings.panelChannel(),"823456789012345678"));}
+        if(change.equals("disabled")||change.equals("slash-disabled"))when(host.settings()).thenReturn(Settings.read(Map.of(),Map.of("guild-id",settings.guild(),"panel",Map.of("enabled",false,"channel-id",settings.panelChannel())),null));
         try(Store store=new Store(folder.resolve("panel-context.db"))){
             var linking=new dev.dydiscord.linking.Linking(store,host.clock(),new java.security.SecureRandom());when(host.linking()).thenReturn(linking);when(host.store()).thenReturn(store);UUID uuid=UUID.randomUUID();String code=linking.issue(uuid,"Alice",1,host.settings(),true).code();
             when(host.sessionValid(any())).thenReturn(true);when(host.validOwner(any())).thenReturn(true);doReturn(mock(Guild.class,RETURNS_DEEP_STUBS)).when(bot).guild();doReturn(mock(Member.class)).when(bot).await(any());
             doAnswer(call->{try{return java.util.concurrent.CompletableFuture.completedFuture(((java.util.concurrent.Callable<?>)call.getArgument(0)).call());}catch(Exception failure){return java.util.concurrent.CompletableFuture.failedFuture(failure);}}).when(host).submit(any());
             var modal=mock(ModalInteractionEvent.class,RETURNS_DEEP_STUBS);when(modal.getModalId()).thenReturn(form.getValue().getId());when(modal.isFromGuild()).thenReturn(true);when(modal.getGuild().getId()).thenReturn(settings.guild());when(modal.getUser().getId()).thenReturn(actor);when(modal.getUser().getName()).thenReturn("DiscordAlice");when(modal.getValue("code").getAsString()).thenReturn(code);
             var hook=mock(net.dv8tion.jda.api.interactions.InteractionHook.class);var edit=mock(net.dv8tion.jda.api.requests.restaction.WebhookMessageEditAction.class,RETURNS_SELF);when(hook.editOriginalEmbeds(any(MessageEmbed[].class))).thenReturn(edit);var deferred=modal.deferReply(true);doAnswer(call->{((java.util.function.Consumer<net.dv8tion.jda.api.interactions.InteractionHook>)call.getArgument(0)).accept(hook);return null;}).when(deferred).queue(any(),any());
-            listener.onModalInteraction(modal);boolean rejected=Set.of("channel","message").contains(change);assertEquals(rejected,store.byUuid(uuid).isEmpty());assertEquals(rejected,linking.inspect(code).isPresent());if(rejected)verify(host,never()).notifyLinked(any());else verify(host).notifyLinked(any());verify(host,never()).error(any());
+            listener.onModalInteraction(modal);boolean rejected=Set.of("channel","message","disabled").contains(change);assertEquals(rejected,store.byUuid(uuid).isEmpty());assertEquals(rejected,linking.inspect(code).isPresent());if(rejected)verify(host,never()).notifyLinked(any());else verify(host).notifyLinked(any());verify(host,never()).error(any());
         }
     }
     @Test void interactionLimitIsPerActionAndUserAndExpires(){

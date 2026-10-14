@@ -8,12 +8,14 @@ public record Settings(String prefix, String language, String serverName, String
         int confirmationTimeout, boolean botEnabled, String token, String tokenSource, String guild,
         String botLanguage, String botPrefix, boolean prefixEnabled, String activity, String panelChannel,
         boolean consoleEnabled, String consoleChannel, boolean commandsEnabled, boolean administrator,
-        Set<String> roles,String panelImage,boolean updateChecks,ChatSettings chat) {
+        Set<String> roles,String panelImage,boolean updateChecks,ChatSettings chat,RoleSettings roleSync,BoostSettings boostRewards,boolean panelEnabled) {
     @Override public String toString() { return "Settings[language="+language+", botLanguage="+botLanguage+", token=REDACTED]"; }
     public boolean needsRestart(Settings other) {
         return !token.equals(other.token) || !guild.equals(other.guild) || !botLanguage.equals(other.botLanguage)
-            || prefixEnabled != other.prefixEnabled || commandsEnabled != other.commandsEnabled || chat.toMinecraft()!=other.chat.toMinecraft();
+            || prefixEnabled != other.prefixEnabled || commandsEnabled != other.commandsEnabled || chat.toMinecraft()!=other.chat.toMinecraft()
+            || memberIntentRequested()!=other.memberIntentRequested();
     }
+    public boolean memberIntentRequested(){return roleSync.enabled()&&roleSync.memberEvents()||boostRewards.enabled();}
     public static Settings read(Map<String,Object> c, Map<String,Object> b, String environment) {
         number(c,"config-version",1,1,2); number(b,"config-version",1,1,2);
         String lang=choice(c,"lang","auto",Set.of("en","tr","auto"));
@@ -27,12 +29,12 @@ public record Settings(String prefix, String language, String serverName, String
         if(environment!=null&&!environment.isBlank()){token=environment;source="environment";}
         if(token.length()>512 || token.chars().anyMatch(Character::isISOControl))throw invalid("token");
         return new Settings(bounded(c,"prefix","&7[&9DyDiscord&7]",128),lang,bounded(c,"server-name","Minecraft Server",100),invite,
-            bool(c,"linking.enabled",true),number(c,"linking.code-length",12,8,16),number(c,"linking.code-expiry-seconds",300,30,900),
+            bool(c,"linking.enabled",true),number(c,"linking.code-length",8,8,16),number(c,"linking.code-expiry-seconds",300,30,900),
             number(c,"linking.generation-cooldown-seconds",30,5,300),number(c,"linking.max-attempts",5,1,10),
             number(c,"linking.attempt-window-seconds",300,30,900),number(c,"linking.confirmation-timeout-seconds",30,10,120),
             bool(b,"enabled",false),token,source,id(b,"guild-id"),choice(b,"bot.language","en",Set.of("en","tr")),
             choice(b,"bot.prefix","dy!",Set.of("dy!")),bool(b,"bot.prefix-commands-enabled",true),"",
-            panel,bool(b,"console.enabled",false),console,bool(b,"console.commands.enabled",false),bool(b,"console.commands.allow-administrator",true),Set.copyOf(roles),image(b),bool(c,"updates.enabled",true),ChatSettings.read(b,panel,console));
+            panel,bool(b,"console.enabled",false),console,bool(b,"console.commands.enabled",false),bool(b,"console.commands.allow-administrator",true),Set.copyOf(roles),image(b),bool(c,"updates.enabled",true),ChatSettings.read(b,panel,console),RoleSettings.read(b,id(b,"guild-id"),roles),BoostSettings.read(b),bool(b,"panel.enabled",true));
     }
     private static String image(Map<String,Object> values){String value=bounded(values,"panel.image-url","",2048);if(value.isEmpty())return value;try{URI uri=URI.create(value);if(!"https".equals(uri.getScheme())||uri.getHost()==null||uri.getRawUserInfo()!=null||uri.getPort()!=-1||value.chars().anyMatch(Character::isISOControl))throw invalid("panel.image-url");return value;}catch(IllegalArgumentException e){throw invalid("panel.image-url");}}
     public static void validateInvite(String value) {

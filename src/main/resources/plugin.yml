@@ -39,6 +39,7 @@ permissions:
       dydiscord.admin.panel.channel: true
       dydiscord.admin.panel.send: true
       dydiscord.admin.panel.refresh: true
+      dydiscord.admin.panel.toggle: true
       dydiscord.admin.console.channel: true
       dydiscord.admin.console.toggle: true
       dydiscord.admin.console.commands: true
@@ -46,6 +47,18 @@ permissions:
       dydiscord.admin.console.administrator: true
       dydiscord.admin.unlink: true
       dydiscord.admin.update: true
+      dydiscord.admin.roles.status: true
+      dydiscord.admin.roles.linked.list: true
+      dydiscord.admin.roles.linked.add: true
+      dydiscord.admin.roles.linked.remove: true
+      dydiscord.admin.roles.groups.list: true
+      dydiscord.admin.roles.groups.add: true
+      dydiscord.admin.roles.groups.remove: true
+      dydiscord.admin.roles.preview: true
+      dydiscord.admin.roles.sync.all: true
+      dydiscord.admin.roles.sync: true
+      dydiscord.admin.roles.cleanup.preview: true
+      dydiscord.admin.roles.cleanup.confirm: true
   dydiscord.invite:
     default: false
   dydiscord.help:
@@ -76,6 +89,8 @@ permissions:
     default: false
   dydiscord.admin.panel.refresh:
     default: false
+  dydiscord.admin.panel.toggle:
+    default: false
   dydiscord.admin.console.channel:
     default: false
   dydiscord.admin.console.toggle:
@@ -87,6 +102,30 @@ permissions:
   dydiscord.admin.console.administrator:
     default: false
   dydiscord.admin.unlink:
+    default: false
+  dydiscord.admin.roles.status:
+    default: false
+  dydiscord.admin.roles.linked.list:
+    default: false
+  dydiscord.admin.roles.linked.add:
+    default: false
+  dydiscord.admin.roles.linked.remove:
+    default: false
+  dydiscord.admin.roles.groups.list:
+    default: false
+  dydiscord.admin.roles.groups.add:
+    default: false
+  dydiscord.admin.roles.groups.remove:
+    default: false
+  dydiscord.admin.roles.preview:
+    default: false
+  dydiscord.admin.roles.sync.all:
+    default: false
+  dydiscord.admin.roles.sync:
+    default: false
+  dydiscord.admin.roles.cleanup.preview:
+    default: false
+  dydiscord.admin.roles.cleanup.confirm:
     default: false
   dydiscord.admin.update:
     description: Receive compatible Modrinth update notifications

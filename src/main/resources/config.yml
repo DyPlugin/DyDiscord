@@ -17,7 +17,7 @@ linking:
   # must block all DyDiscord commands until authentication completes.
   enabled: true
   # Random code length (8-16); existing explicit values are preserved on upgrade.
-  code-length: 12
+  code-length: 8
   # Code lifetime in seconds (30-900).
   code-expiry-seconds: 300
   # Minimum wait before requesting another code, in seconds (5-300).

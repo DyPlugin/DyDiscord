@@ -31,7 +31,7 @@ public final class DiscordAccess {
     }
     private JsonNode get(Settings settings,String path)throws Exception{
         if(System.nanoTime()<retryAfterNanos)throw new IllegalStateException("Discord permission verification rate limited");
-        HttpRequest request=HttpRequest.newBuilder(URI.create("https://discord.com/api/v10/"+path)).timeout(Duration.ofSeconds(8)).header("Authorization","Bot "+settings.token()).header("User-Agent","DyDiscord/1.0.0-BETA (JDA permission verification)").GET().build();
+        HttpRequest request=HttpRequest.newBuilder(URI.create("https://discord.com/api/v10/"+path)).timeout(Duration.ofSeconds(8)).header("Authorization","Bot "+settings.token()).header("User-Agent","DyDiscord/1.0.1-BETA (JDA permission verification)").GET().build();
         HttpResponse<String> response=client.send(request,HttpResponse.BodyHandlers.ofString());
         if(response.statusCode()==429){double seconds=60;try{seconds=json.readTree(response.body()).path("retry_after").asDouble(60);}catch(Exception ignored){/* A malformed 429 fails closed with a bounded fallback. */}seconds=Math.max(1,Math.min(seconds,3600));retryAfterNanos=System.nanoTime()+(long)(seconds*1_000_000_000L);throw new IllegalStateException("Discord permission verification rate limited");}
         if(response.statusCode()!=200)throw new IllegalStateException("Discord permission verification HTTP "+response.statusCode());if(response.body().length()>1024*1024)throw new IllegalStateException("Discord permission response too large");return json.readTree(response.body());
@@ -41,4 +41,5 @@ public final class DiscordAccess {
         JsonNode roles=get(settings,"guilds/"+settings.guild()+"/roles");if(!roles.isArray())throw new IllegalStateException("Malformed Discord roles");JsonNode guild=get(settings,"guilds/"+settings.guild());return new Channel(channel,roles,settings.guild(),guild.path("owner_id").asText(""));
     }
     public boolean role(Settings settings,String id)throws Exception{return Settings.snowflake(id)&&!id.equals(settings.guild())&&get(settings,"guilds/"+settings.guild()+"/roles").findValuesAsText("id").contains(id);}
+    public JsonNode roles(Settings settings)throws Exception{JsonNode roles=get(settings,"guilds/"+settings.guild()+"/roles");if(!roles.isArray())throw new IllegalStateException("Malformed Discord roles");return roles;}
 }

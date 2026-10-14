@@ -59,6 +59,28 @@ class BotTest {
         assertDoesNotThrow(()->bot.validateChanges(before,next));assertFalse(bot.usable());assertEquals(Bot.State.DISABLED,bot.state());
         assertThrows(IllegalStateException.class,()->bot.validateChannel(next.consoleChannel(),true));
     }
+    @org.junit.jupiter.params.ParameterizedTest @org.junit.jupiter.params.provider.ValueSource(strings={"current","foreign-guild","old-session"})
+    void memberRejoinAndRolePermissionEventsRespectCurrentGuildAndSession(String mode)throws Exception{
+        DyDiscord host=host();var engine=mock(dev.dydiscord.roles.RoleEngine.class);when(host.roles()).thenReturn(engine);
+        Settings settings=Settings.read(Map.of(),Map.of("guild-id","123456789012345678"),null);
+        Bot bot=spy(new Bot(host));doReturn(!mode.equals("old-session")).when(bot).alive(0);doReturn(true).when(bot).usable();var applied=Bot.class.getDeclaredField("applied");applied.setAccessible(true);applied.set(bot,settings);
+        var type=Class.forName("dev.dydiscord.discord.Bot$Events");var ctor=type.getDeclaredConstructor(Bot.class,long.class);ctor.setAccessible(true);var listener=(net.dv8tion.jda.api.hooks.ListenerAdapter)ctor.newInstance(bot,0L);
+        var member=mock(net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent.class,RETURNS_DEEP_STUBS);var role=mock(net.dv8tion.jda.api.events.role.update.RoleUpdatePermissionsEvent.class,RETURNS_DEEP_STUBS);
+        String guild=mode.equals("foreign-guild")?"923456789012345678":settings.guild();when(member.getGuild().getId()).thenReturn(guild);when(role.getGuild().getId()).thenReturn(guild);when(member.getUser().getId()).thenReturn("223456789012345678");
+        listener.onGuildMemberJoin(member);listener.onRoleUpdatePermissions(role);
+        if(mode.equals("current")){verify(engine).enqueueMember("223456789012345678");verify(engine).requestSweep();}else verifyNoInteractions(engine);
+    }
+    @org.junit.jupiter.params.ParameterizedTest @org.junit.jupiter.params.provider.CsvSource({"false,false,false,false,CONNECTED","true,false,false,false,DEGRADED","true,false,true,false,CONNECTED","false,true,false,false,DEGRADED","false,true,false,true,CONNECTED"})
+    void resumedSessionRequiresOnlyIntentsRequestedByEnabledFeatures(boolean prefix,boolean roleEvents,boolean content,boolean members,String expected)throws Exception{
+        DyDiscord host=host();Bot bot=spy(new Bot(host));doReturn(true).when(bot).alive(0);
+        Settings settings=Settings.read(Map.of(),Map.of("guild-id","123456789012345678","bot",Map.of("prefix-commands-enabled",prefix),"roles",Map.of("enabled",roleEvents,"member-events",roleEvents)),null);
+        for(var entry:Map.<String,Object>of("applied",settings,"activeLanguage","en","content",content,"members",members).entrySet()){var field=Bot.class.getDeclaredField(entry.getKey());field.setAccessible(true);field.set(bot,entry.getValue());}
+        var type=Class.forName("dev.dydiscord.discord.Bot$Events");var ctor=type.getDeclaredConstructor(Bot.class,long.class);ctor.setAccessible(true);var listener=(net.dv8tion.jda.api.hooks.ListenerAdapter)ctor.newInstance(bot,0L);
+        listener.onSessionResume(mock(net.dv8tion.jda.api.events.session.SessionResumeEvent.class));assertEquals(Bot.State.valueOf(expected),bot.state());
+    }
+    @Test void stoppedBotInvalidatesRoleJobsBeforeDetachingOldSession()throws Exception{
+        DyDiscord host=host();var engine=mock(dev.dydiscord.roles.RoleEngine.class);when(host.roles()).thenReturn(engine);Bot bot=new Bot(host);bot.stop();verify(engine).refresh();assertEquals(1,bot.generation());
+    }
     @Test void connectedBotRejectsPolicyForDifferentGuildAndPreservesConfiguration()throws Exception{
         Configuration c=TestSupport.config(folder);Settings applied=c.active().settings();
         c.change("bot.yml","guild-id","123456789012345678");Settings before=c.active().settings();String contents=Files.readString(folder.resolve("bot.yml"));

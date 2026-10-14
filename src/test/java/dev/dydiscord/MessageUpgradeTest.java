@@ -63,7 +63,7 @@ class MessageUpgradeTest {
         Configuration c=TestSupport.config(folder);var active=c.active();Files.writeString(folder.resolve("discord/messages_en.yml"),"panel-description: ''");assertThrows(IllegalArgumentException.class,c::load);assertSame(active,c.active());
         Files.writeString(folder.resolve("discord/messages_en.yml"),"panel-description: '"+"a".repeat(3500)+"'\npanel-privacy: '"+"b".repeat(500)+"'");assertThrows(IllegalArgumentException.class,c::load);assertSame(active,c.active());
     }
-    @Test void strongerDefaultPreservesExplicitExistingLength()throws Exception{
-        Configuration c=TestSupport.config(folder);assertEquals(12,c.active().settings().codeLength());c.change("config.yml","linking.code-length",8);assertEquals(8,c.active().settings().codeLength());
+    @Test void shorterDefaultPreservesExplicitExistingLength()throws Exception{
+        Configuration c=TestSupport.config(folder);assertEquals(8,c.active().settings().codeLength());c.change("config.yml","linking.code-length",12);c.load();assertEquals(12,c.active().settings().codeLength());assertEquals(12,((Map<?,?>)Configuration.read(folder.resolve("config.yml")).get("linking")).get("code-length"));
     }
 }

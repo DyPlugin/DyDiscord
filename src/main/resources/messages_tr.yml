@@ -17,6 +17,12 @@ invite-not-set: "&eDiscord davet bağlantısı henüz ayarlanmadı."
 link-code: "&7Eşleştirme kodunuz: &e{code}"
 # Linking panel: {url}
 panel-link: "&7Eşleme paneli: &b{url}"
+# Panel-off notice. Discord slash commands remain available.
+panel-disabled: "&eHesap paneli kapalı. Discord'daki / komutlarını kullanın."
+# Enable the panel without changing links or its recorded message.
+help-panel-enable: "Hesap panelini aç"
+# Disable panel buttons; Discord account commands stay available.
+help-panel-disable: "Paneli kapatıp komutları kullan"
 # Discord is temporarily unavailable. Please try again shortly.
 bot-unavailable: "&eDiscord bağlantısı geçici olarak kullanılamıyor. Lütfen biraz sonra tekrar deneyin."
 # Set token and guild-id in bot.yml, then run /dydiscord admin reload before enabling the bot.
@@ -151,3 +157,23 @@ state-stopping: "Kapatılıyor"
 state-failed: "Bağlantı kurulamadı"
 # DyDiscord {version} is available: {url}
 update-available: "&eDyDiscord {version} çıktı. İndirme sayfası: &b{url}"
+help-roles-status: "Rol eşitlemesinin durumunu göster"
+help-roles-linked-list: "Eşlenen hesap rollerini listele"
+help-roles-linked-add: "Eşlenen hesaplara verilecek rol ekle"
+help-roles-linked-remove: "Eşlenen hesap rollerinden birini çıkar"
+help-roles-groups-list: "Minecraft grup ve rol kurallarını listele"
+help-roles-groups-add: "Minecraft grubu için rol kuralı ekle"
+help-roles-groups-remove: "Minecraft grubunun rol kuralını kaldır"
+help-roles-preview: "Eşlenen hesap için değişiklikleri önizle"
+help-roles-sync-all: "Eşlenen bütün hesapları eşitle"
+help-roles-sync: "Eşlenen bir hesabı eşitle"
+help-roles-cleanup-preview: "Eski yönetilen rollerin temizliğini önizle"
+help-roles-cleanup-confirm: "Eski yönetilen rollerin temizliğini onayla"
+roles-summary: "&7Rol eşitlemesi: &f{status}"
+roles-preview-result: "&7Eklenecek roller: &f{add}&7; kaldırılacak: &f{remove}&7; belirlenemeyen: &f{unknown}"
+roles-cleanup-confirmation: "&eÖnizlediğiniz rol temizliğini {seconds} saniye içinde /dydiscord admin roller temizle onayla {token} ile onaylayın."
+roles-disabled: "&eRol eşitlemesi kapalı."
+roles-started: "&aRol eşitlemesi sıraya alındı."
+roles-saved: "&aRol ayarları kaydedildi."
+roles-unavailable: "&eRol eşitlemesi kullanılamıyor. Botu ve izin sağlayıcısını kontrol edin."
+roles-invalid-confirmation: "&cBu rol temizleme onayı geçersiz veya süresi dolmuş."

@@ -17,6 +17,9 @@ bot:
   prefix-commands-enabled: true
 # One persistent account panel; refresh updates its existing message.
 panel:
+  # Use the account panel. False keeps slash commands available; reload applies it.
+  # Existing buttons are disabled; enabling refreshes the same recorded message.
+  enabled: true
   # Text channel ID, quoted as text; must differ from console and chat channels.
   channel-id: ""
   # Blank uses the Discord server icon. Optional HTTPS image URL; panel refresh applies it.
@@ -35,6 +38,25 @@ console:
     allow-administrator: true
     # Trusted Discord role IDs as quoted strings; role names are not authorization.
     allowed-role-ids: []
+
+# Optional Minecraft -> Discord roles. Linking never grants Minecraft permissions.
+roles:
+  # Opt in explicitly; LuckPerms is required for group rules.
+  enabled: false
+  # Quoted Discord role IDs given to verified linked accounts.
+  linked-role-ids: []
+  # Rules: group: vip, role-ids: ["123456789012345678"], priority: 10.
+  # Group names are lowercase LuckPerms names; use a separate rule per group.
+  groups: []
+  # Explicit LuckPerms query context, for example {server: survival}.
+  context: {}
+  # all combines matching groups; highest combines rules tied at highest priority.
+  selection: all
+  # Reconcile known linked accounts periodically, in seconds (30-3600).
+  recheck-seconds: 300
+  # Member join/update events need privileged Server Members intent when enabled.
+  # Changing the effective intent requires a bot restart.
+  member-events: true
 
 # Optional public chat bridge. This channel must differ from panel and console.
 chat:
@@ -64,3 +86,29 @@ chat:
       enabled: false
       # Embed accent as a six-digit RGB hex color.
       color: "#FF5555"
+
+# Optional Discord boost rewards, executed as Minecraft console commands.
+# Only currently linked accounts boosting this guild qualify, once per boost period.
+# Commands use your installed economy/site-credit/rank plugin's documented syntax.
+# No economy or website plugin is bundled; no API credentials belong here.
+boost-rewards:
+  # Explicit opt in. Enabling requests Server Members intent and needs bot restart.
+  # If that intent is unavailable, periodic fresh member checks continue.
+  enabled: false
+  # Up to 10 commands, each at most 256 characters. Optional leading / is removed.
+  # Only {player} (linked Minecraft name) and {uuid} placeholders are supported.
+  # Every command must target one of them. Never grant OP or console authority.
+  # Copy your provider's own money/site-credit console command and replace its target
+  # with {player} or {uuid}; verify it locally before enabling automatic rewards.
+  # For an EXISTING LuckPerms booster group: "lp user {uuid} parent add booster".
+  # For a timed rank: "lp user {uuid} parent addtemp booster 30d".
+  # That group can separately map to a Discord role through roles.groups above.
+  commands: []
+  # Optional provider commands when a recorded boost ends or its link is removed.
+  # For the same LuckPerms group: "lp user {uuid} parent remove booster".
+  # One-time money/site credit normally has no removal command.
+  remove-commands: []
+  # Fresh linked-member reconciliation period, in seconds (30-3600).
+  recheck-seconds: 300
+  # Minimum hours between rewards for the same Discord account (168-8760).
+  cooldown-hours: 168

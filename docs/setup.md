@@ -1,4 +1,4 @@
-# DyDiscord v1.0.0-BETA
+# DyDiscord v1.0.1-BETA
 
 **Claww · DyPlugin** — a Discord bot inside your Minecraft server, with private
 account linking and an optional private console channel. English and Turkish are

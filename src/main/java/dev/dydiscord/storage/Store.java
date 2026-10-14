@@ -12,8 +12,25 @@ public final class Store implements AutoCloseable {
         public Link {discordName=discordName==null?"":discordName;}
     }
     public record Panel(String guild,String channel,String message) {}
+    public record LinkSnapshot(Optional<Link> link,long generation) {}
+    public record RoleTarget(String guild,String discord,long revision,Instant due,String status,boolean cleanup,long batch) {}
+    public record RoleSweep(String guild,boolean cleanup,String linkCursor,String targetCursor,int phase,long batch) {}
     public static final class Revoked extends SQLException {public Revoked(){super("Owner context revoked before commit");}}
     private final Connection db;
+    private final java.util.concurrent.atomic.AtomicLong linkGeneration=new java.util.concurrent.atomic.AtomicLong();
+    private final java.util.concurrent.atomic.AtomicLong rewardSequence=new java.util.concurrent.atomic.AtomicLong();
+    private final java.util.concurrent.ConcurrentHashMap<String,Long> rewardGenerations=new java.util.concurrent.ConcurrentHashMap<>();
+    private volatile java.util.function.Consumer<String> linkListener=id->{};
+    public long linkGeneration(){return linkGeneration.get();}
+    public synchronized LinkSnapshot snapshotByDiscord(String id)throws SQLException{return new LinkSnapshot(byDiscord(id),linkGeneration.get());}
+    public void linkListener(java.util.function.Consumer<String> listener){linkListener=Objects.requireNonNull(listener);}
+    public long rewardGeneration(String discord){return rewardGenerations.getOrDefault(discord,-1L);}
+    public synchronized LinkSnapshot rewardSnapshot(String discord)throws SQLException{
+        Optional<Link> link=byDiscord(discord);
+        if(!rewardGenerations.containsKey(discord)){if(rewardGenerations.size()>=256)rewardGenerations.remove(rewardGenerations.keys().nextElement());rewardGenerations.put(discord,rewardSequence.incrementAndGet());}
+        return new LinkSnapshot(link,rewardGeneration(discord));
+    }
+    private void linkChanged(String discord){linkGeneration.incrementAndGet();rewardGenerations.computeIfPresent(discord,(id,old)->rewardSequence.incrementAndGet());linkListener.accept(discord);}
     private volatile boolean writable=true;
     public Store(Path file)throws Exception {
         Files.createDirectories(file.getParent()); Class.forName("org.sqlite.JDBC");
@@ -23,18 +40,36 @@ public final class Store implements AutoCloseable {
             try(ResultSet r=s.executeQuery("PRAGMA quick_check")){if(!r.next()||!r.getString(1).equals("ok"))throw new SQLException("Database integrity check failed");}
             s.execute("CREATE TABLE IF NOT EXISTS schema_version(version INTEGER NOT NULL)");
             int schema=0;
-            try(ResultSet r=s.executeQuery("SELECT version FROM schema_version")){if(r.next()){schema=r.getInt(1);if((schema!=1&&schema!=2)||r.next())throw new SQLException("Unsupported database schema");}}
+            try(ResultSet r=s.executeQuery("SELECT version FROM schema_version")){if(r.next()){schema=r.getInt(1);if((schema<1||schema>3)||r.next())throw new SQLException("Unsupported database schema");}}
+            if(schema>0&&schema<3){
+                Path backup=file.toAbsolutePath().resolveSibling(file.getFileName()+".backup-schema"+schema+"-"+UUID.randomUUID());
+                try(PreparedStatement copy=db.prepareStatement("VACUUM INTO ?")){copy.setString(1,backup.toString());copy.execute();}
+            }
             s.execute("PRAGMA journal_mode=WAL");s.execute("PRAGMA synchronous=FULL");
             db.setAutoCommit(false);
             s.execute("CREATE TABLE IF NOT EXISTS links(uuid TEXT PRIMARY KEY, discord TEXT NOT NULL UNIQUE, name TEXT NOT NULL, linked_at TEXT NOT NULL, version TEXT NOT NULL UNIQUE, discord_name TEXT NOT NULL DEFAULT '')");
             Set<String> columns=new HashSet<>();try(ResultSet r=s.executeQuery("PRAGMA table_info(links)")){while(r.next())columns.add(r.getString("name"));}
             if(!columns.containsAll(Set.of("uuid","discord","name","linked_at","version")))throw new SQLException("Invalid database schema");
             if(!columns.contains("discord_name")){if(schema!=1)throw new SQLException("Invalid database schema");s.execute("ALTER TABLE links ADD COLUMN discord_name TEXT NOT NULL DEFAULT ''");}
-            if(schema==0)s.execute("INSERT INTO schema_version VALUES(2)");else if(schema==1)s.execute("UPDATE schema_version SET version=2");
+            if(schema==0)s.execute("INSERT INTO schema_version VALUES(3)");else if(schema<3)s.execute("UPDATE schema_version SET version=3");
             s.execute("CREATE TABLE IF NOT EXISTS player_preferences(uuid TEXT PRIMARY KEY, language TEXT NOT NULL CHECK(language IN ('en','tr','auto')))");
             s.execute("CREATE TABLE IF NOT EXISTS panel_state(id INTEGER PRIMARY KEY CHECK(id=1), guild TEXT NOT NULL, channel TEXT NOT NULL, message TEXT NOT NULL)");
             s.execute("CREATE TABLE IF NOT EXISTS console_receipts(message TEXT PRIMARY KEY, accepted_at TEXT NOT NULL, result TEXT NOT NULL)");
             s.execute("CREATE TABLE IF NOT EXISTS managed_commands(id TEXT PRIMARY KEY, guild TEXT NOT NULL)");
+            if(schema==3){
+                Set<String> cols=new HashSet<>();try(ResultSet r=s.executeQuery("PRAGMA table_info(role_targets)")){while(r.next())cols.add(r.getString("name"));}
+                if(!cols.containsAll(Set.of("guild","discord","revision","dirty","due","status","cleanup","batch")))throw new SQLException("Invalid role schema");
+                for(String table:List.of("role_history","role_sweeps","role_cleanup_roles")){
+                    Set<String> found=new HashSet<>();try(ResultSet r=s.executeQuery("PRAGMA table_info("+table+")")){while(r.next())found.add(r.getString("name"));}
+                    Set<String> required=table.equals("role_sweeps")?Set.of("guild","cleanup","link_cursor","target_cursor","phase","batch"):Set.of("guild","role");
+                    if(!found.containsAll(required))throw new SQLException("Invalid role schema");
+                }
+            }
+            s.execute("CREATE TABLE IF NOT EXISTS role_history(guild TEXT NOT NULL,role TEXT NOT NULL,PRIMARY KEY(guild,role))");
+            s.execute("CREATE TABLE IF NOT EXISTS role_targets(guild TEXT NOT NULL,discord TEXT NOT NULL,revision INTEGER NOT NULL,dirty INTEGER NOT NULL,due INTEGER NOT NULL,status TEXT NOT NULL,cleanup INTEGER NOT NULL,batch INTEGER NOT NULL DEFAULT 0,PRIMARY KEY(guild,discord))");
+            s.execute("CREATE INDEX IF NOT EXISTS role_due ON role_targets(dirty,due)");
+            s.execute("CREATE TABLE IF NOT EXISTS role_sweeps(guild TEXT PRIMARY KEY,cleanup INTEGER NOT NULL,link_cursor TEXT NOT NULL,target_cursor TEXT NOT NULL,phase INTEGER NOT NULL,batch INTEGER NOT NULL)");
+            s.execute("CREATE TABLE IF NOT EXISTS role_cleanup_roles(guild TEXT NOT NULL,role TEXT NOT NULL,PRIMARY KEY(guild,role))");
             // Accepted but unfinished commands are never replayed after restart.
             s.execute("UPDATE console_receipts SET result='unknown' WHERE result='accepted'");
             db.commit();db.setAutoCommit(true);
@@ -59,12 +94,18 @@ public final class Store implements AutoCloseable {
     public synchronized Link link(UUID uuid,String discord,String name,String discordName,Instant now,java.util.function.BooleanSupplier valid)throws SQLException{
         requireWrite();discordName=checkedDiscordName(discordName);Link link=new Link(uuid,discord,name,now,UUID.randomUUID().toString(),discordName);
         db.setAutoCommit(false);
-        try(PreparedStatement s=db.prepareStatement("INSERT INTO links(uuid,discord,name,linked_at,version,discord_name) VALUES(?,?,?,?,?,?)")){s.setString(1,uuid.toString());s.setString(2,discord);s.setString(3,name);s.setString(4,now.toString());s.setString(5,link.version);s.setString(6,discordName);s.executeUpdate();if(!valid.getAsBoolean())throw new Revoked();db.commit();return link;}
+        try(PreparedStatement s=db.prepareStatement("INSERT INTO links(uuid,discord,name,linked_at,version,discord_name) VALUES(?,?,?,?,?,?)")){s.setString(1,uuid.toString());s.setString(2,discord);s.setString(3,name);s.setString(4,now.toString());s.setString(5,link.version);s.setString(6,discordName);s.executeUpdate();try(PreparedStatement dirty=db.prepareStatement("UPDATE role_targets SET revision=revision+1,dirty=1,due=0,status='QUEUED' WHERE discord=?")){dirty.setString(1,discord);dirty.executeUpdate();}if(!valid.getAsBoolean())throw new Revoked();db.commit();linkChanged(discord);return link;}
         catch(SQLException|RuntimeException e){try{db.rollback();}catch(SQLException rollback){writable=false;e.addSuppressed(rollback);}if(e instanceof SQLException sql&&!(sql instanceof Revoked)&&sql.getErrorCode()!=19)writable=false;throw e;}
         finally{try{db.setAutoCommit(true);}catch(SQLException e){writable=false;throw e;}}
     }
     public synchronized boolean unlink(Link expected)throws SQLException{
-        requireWrite();try(PreparedStatement s=db.prepareStatement("DELETE FROM links WHERE uuid=? AND version=?")){s.setString(1,expected.uuid.toString());s.setString(2,expected.version);return s.executeUpdate()==1;}catch(SQLException e){writable=false;throw e;}
+        requireWrite();db.setAutoCommit(false);
+        try(PreparedStatement s=db.prepareStatement("DELETE FROM links WHERE uuid=? AND version=?")){
+            s.setString(1,expected.uuid.toString());s.setString(2,expected.version);boolean removed=s.executeUpdate()==1;
+            if(removed)try(PreparedStatement dirty=db.prepareStatement("UPDATE role_targets SET revision=revision+1,dirty=1,due=0,status='QUEUED' WHERE discord=?")){dirty.setString(1,expected.discord());dirty.executeUpdate();}
+            db.commit();if(removed)linkChanged(expected.discord());return removed;
+        }catch(SQLException e){try{db.rollback();}catch(SQLException rollback){e.addSuppressed(rollback);}writable=false;throw e;}
+        finally{db.setAutoCommit(true);}
     }
     public synchronized Map<UUID,String> preferences()throws SQLException{
         Map<UUID,String> map=new HashMap<>();try(Statement s=db.createStatement();ResultSet r=s.executeQuery("SELECT * FROM player_preferences")){while(r.next())map.put(UUID.fromString(r.getString(1)),r.getString(2));}return map;
@@ -87,7 +128,7 @@ public final class Store implements AutoCloseable {
         try(PreparedStatement s=db.prepareStatement("UPDATE console_receipts SET result=? WHERE message=?")){s.setString(1,result);s.setString(2,id);s.executeUpdate();}
     }
     public synchronized void updateName(UUID uuid,String name)throws SQLException{
-        requireWrite();try(PreparedStatement s=db.prepareStatement("UPDATE links SET name=? WHERE uuid=?")){s.setString(1,name);s.setString(2,uuid.toString());s.executeUpdate();}
+        requireWrite();Optional<Link> previous=byUuid(uuid);try(PreparedStatement s=db.prepareStatement("UPDATE links SET name=? WHERE uuid=? AND name<>?")){s.setString(1,name);s.setString(2,uuid.toString());s.setString(3,name);if(s.executeUpdate()>0&&previous.isPresent())linkChanged(previous.get().discord());}
     }
     public synchronized Optional<Link> updateDiscordName(Link expected,String discordName)throws SQLException{
         requireWrite();discordName=checkedDiscordName(discordName);
@@ -101,5 +142,96 @@ public final class Store implements AutoCloseable {
     public synchronized Set<String> commands(String guild)throws SQLException{Set<String> ids=new HashSet<>();try(PreparedStatement s=db.prepareStatement("SELECT id FROM managed_commands WHERE guild=?")){s.setString(1,guild);try(ResultSet r=s.executeQuery()){while(r.next())ids.add(r.getString(1));}}return ids;}
     public synchronized void command(String guild,String id)throws SQLException{requireWrite();try(PreparedStatement s=db.prepareStatement("INSERT OR IGNORE INTO managed_commands VALUES(?,?)")){s.setString(1,id);s.setString(2,guild);s.executeUpdate();}}
     public synchronized void forgetCommand(String id)throws SQLException{requireWrite();try(PreparedStatement s=db.prepareStatement("DELETE FROM managed_commands WHERE id=?")){s.setString(1,id);s.executeUpdate();}}
+    public synchronized List<Link> linksPage(String cursor,int limit)throws SQLException{
+        if(limit<1||limit>100)throw new IllegalArgumentException();List<Link> out=new ArrayList<>();
+        try(PreparedStatement s=db.prepareStatement("SELECT * FROM links WHERE uuid>? ORDER BY uuid LIMIT ?")){
+            s.setString(1,cursor);s.setInt(2,limit);try(ResultSet r=s.executeQuery()){while(r.next())out.add(new Link(UUID.fromString(r.getString("uuid")),r.getString("discord"),r.getString("name"),Instant.parse(r.getString("linked_at")),r.getString("version"),r.getString("discord_name")));}
+        }return List.copyOf(out);
+    }
+    public synchronized Set<String> roleHistory(String guild)throws SQLException{
+        Set<String> out=new HashSet<>();try(PreparedStatement s=db.prepareStatement("SELECT role FROM role_history WHERE guild=?")){s.setString(1,guild);try(ResultSet r=s.executeQuery()){while(r.next())out.add(r.getString(1));}}return Set.copyOf(out);
+    }
+    public synchronized void roleRemember(String guild,Set<String> ids)throws SQLException{
+        requireWrite();Set<String> all=new HashSet<>(roleHistory(guild));all.addAll(ids);if(all.size()>2048)throw new SQLException("Role history capacity reached");
+        db.setAutoCommit(false);try(PreparedStatement s=db.prepareStatement("INSERT OR IGNORE INTO role_history VALUES(?,?)")){
+            for(String id:ids){s.setString(1,guild);s.setString(2,id);s.addBatch();}s.executeBatch();db.commit();
+        }catch(SQLException e){db.rollback();throw e;}finally{db.setAutoCommit(true);}
+    }
+    public synchronized void roleQueue(String guild,String discord,Instant now,boolean cleanup,long batch)throws SQLException{
+        requireWrite();try(PreparedStatement s=db.prepareStatement("INSERT INTO role_targets VALUES(?,?,1,1,?,'QUEUED',?,?) ON CONFLICT(guild,discord) DO UPDATE SET revision=revision+1,dirty=1,due=excluded.due,status='QUEUED',cleanup=excluded.cleanup,batch=CASE WHEN excluded.batch>0 THEN excluded.batch ELSE role_targets.batch END")){
+            s.setString(1,guild);s.setString(2,discord);s.setLong(3,now.toEpochMilli());s.setInt(4,cleanup?1:0);s.setLong(5,batch);s.executeUpdate();
+        }
+    }
+    public synchronized Optional<RoleTarget> roleNext(Instant now,boolean enabled)throws SQLException{
+        return roleNext(now,enabled,"");
+    }
+    public synchronized Optional<RoleTarget> roleNext(Instant now,boolean enabled,String guild)throws SQLException{
+        try(PreparedStatement s=db.prepareStatement("SELECT * FROM role_targets WHERE dirty=1 AND due<=? AND (?=1 OR cleanup=1) AND (?='' OR guild=?) ORDER BY due,guild,discord LIMIT 1")){
+            s.setLong(1,now.toEpochMilli());s.setInt(2,enabled?1:0);s.setString(3,guild);s.setString(4,guild);try(ResultSet r=s.executeQuery()){return r.next()?Optional.of(roleTarget(r)):Optional.empty();}
+        }
+    }
+    private static RoleTarget roleTarget(ResultSet r)throws SQLException{return new RoleTarget(r.getString("guild"),r.getString("discord"),r.getLong("revision"),Instant.ofEpochMilli(r.getLong("due")),r.getString("status"),r.getInt("cleanup")==1,r.getLong("batch"));}
+    public synchronized boolean roleCurrent(RoleTarget target)throws SQLException{
+        try(PreparedStatement s=db.prepareStatement("SELECT revision,dirty,cleanup FROM role_targets WHERE guild=? AND discord=?")){
+            s.setString(1,target.guild());s.setString(2,target.discord());try(ResultSet r=s.executeQuery()){return r.next()&&r.getLong(1)==target.revision()&&r.getInt(2)==1&&(r.getInt(3)==1)==target.cleanup();}
+        }
+    }
+    public synchronized boolean roleFinish(RoleTarget target,String status,Instant due,boolean dirty)throws SQLException{
+        requireWrite();if(!Set.of("SUCCESS","PENDING","FAILED","ABSENT").contains(status))throw new IllegalArgumentException();
+        try(PreparedStatement s=db.prepareStatement("UPDATE role_targets SET status=?,due=?,dirty=? WHERE guild=? AND discord=? AND revision=?")){
+            s.setString(1,status);s.setLong(2,due.toEpochMilli());s.setInt(3,dirty?1:0);s.setString(4,target.guild());s.setString(5,target.discord());s.setLong(6,target.revision());return s.executeUpdate()==1;
+        }
+    }
+    public synchronized List<RoleTarget> roleTargetsPage(String guild,String cursor,int limit)throws SQLException{
+        if(limit<1||limit>100)throw new IllegalArgumentException();List<RoleTarget> out=new ArrayList<>();
+        try(PreparedStatement s=db.prepareStatement("SELECT * FROM role_targets WHERE guild=? AND discord>? ORDER BY discord LIMIT ?")){s.setString(1,guild);s.setString(2,cursor);s.setInt(3,limit);try(ResultSet r=s.executeQuery()){while(r.next())out.add(roleTarget(r));}}return List.copyOf(out);
+    }
+    public synchronized Map<String,Long> roleCounts(String guild,long batch)throws SQLException{
+        Map<String,Long> counts=new HashMap<>();try(PreparedStatement s=db.prepareStatement("SELECT status,count(*) FROM role_targets WHERE guild=? AND (?=0 OR batch=?) GROUP BY status")){s.setString(1,guild);s.setLong(2,batch);s.setLong(3,batch);try(ResultSet r=s.executeQuery()){while(r.next())counts.put(r.getString(1),r.getLong(2));}}return Map.copyOf(counts);
+    }
+    public synchronized long roleCleanupCount(String guild)throws SQLException{
+        try(PreparedStatement s=db.prepareStatement("SELECT count(*) FROM (SELECT discord FROM links UNION SELECT discord FROM role_targets WHERE guild=?)")){s.setString(1,guild);try(ResultSet r=s.executeQuery()){return r.next()?r.getLong(1):0;}}
+    }
+    public synchronized Optional<RoleSweep> roleSweep(String guild)throws SQLException{
+        try(PreparedStatement s=db.prepareStatement("SELECT * FROM role_sweeps WHERE guild=?")){s.setString(1,guild);try(ResultSet r=s.executeQuery()){return r.next()?Optional.of(new RoleSweep(guild,r.getInt("cleanup")==1,r.getString("link_cursor"),r.getString("target_cursor"),r.getInt("phase"),r.getLong("batch"))):Optional.empty();}}
+    }
+    public synchronized Set<String> roleCleanupRoles(String guild)throws SQLException{
+        Set<String> roles=new HashSet<>();try(PreparedStatement s=db.prepareStatement("SELECT role FROM role_cleanup_roles WHERE guild=?")){s.setString(1,guild);try(ResultSet r=s.executeQuery()){while(r.next())roles.add(r.getString(1));}}return Set.copyOf(roles);
+    }
+    public synchronized void roleSweepStart(String guild,boolean cleanup,long batch,Set<String> roles)throws SQLException{
+        requireWrite();db.setAutoCommit(false);
+        try(PreparedStatement s=db.prepareStatement("INSERT INTO role_sweeps VALUES(?,?,'','',0,?) ON CONFLICT(guild) DO UPDATE SET cleanup=excluded.cleanup,link_cursor='',target_cursor='',phase=0,batch=excluded.batch")){
+            s.setString(1,guild);s.setInt(2,cleanup?1:0);s.setLong(3,batch);s.executeUpdate();
+            try(PreparedStatement clear=db.prepareStatement("DELETE FROM role_cleanup_roles WHERE guild=?")){clear.setString(1,guild);clear.executeUpdate();}
+            if(cleanup)try(PreparedStatement insert=db.prepareStatement("INSERT INTO role_cleanup_roles VALUES(?,?)")){for(String role:roles){insert.setString(1,guild);insert.setString(2,role);insert.addBatch();}insert.executeBatch();}
+            db.commit();
+        }catch(SQLException e){db.rollback();throw e;}finally{db.setAutoCommit(true);}
+    }
+    public synchronized void roleSweepProgress(RoleSweep sweep)throws SQLException{
+        requireWrite();try(PreparedStatement s=db.prepareStatement("UPDATE role_sweeps SET link_cursor=?,target_cursor=?,phase=? WHERE guild=? AND batch=? AND cleanup=?")){
+            s.setString(1,sweep.linkCursor());s.setString(2,sweep.targetCursor());s.setInt(3,sweep.phase());s.setString(4,sweep.guild());s.setLong(5,sweep.batch());s.setInt(6,sweep.cleanup()?1:0);s.executeUpdate();
+        }
+    }
+    public synchronized void roleSweepDone(String guild,boolean cleanup)throws SQLException{
+        requireWrite();db.setAutoCommit(false);try{
+            if(cleanup)roleForgetHistory(guild);
+            try(PreparedStatement s=db.prepareStatement("DELETE FROM role_sweeps WHERE guild=?")){s.setString(1,guild);s.executeUpdate();}
+            try(PreparedStatement s=db.prepareStatement("DELETE FROM role_cleanup_roles WHERE guild=?")){s.setString(1,guild);s.executeUpdate();}
+            db.commit();
+        }catch(SQLException e){db.rollback();throw e;}finally{db.setAutoCommit(true);}
+    }
+    public synchronized void roleCancelCleanup(String guild)throws SQLException{
+        requireWrite();db.setAutoCommit(false);try{
+            try(PreparedStatement s=db.prepareStatement("UPDATE role_targets SET cleanup=0,dirty=1,revision=revision+1,due=0,status='QUEUED' WHERE guild=? AND cleanup=1")){s.setString(1,guild);s.executeUpdate();}
+            try(PreparedStatement s=db.prepareStatement("DELETE FROM role_sweeps WHERE guild=? AND cleanup=1")){s.setString(1,guild);s.executeUpdate();}
+            try(PreparedStatement s=db.prepareStatement("DELETE FROM role_cleanup_roles WHERE guild=?")){s.setString(1,guild);s.executeUpdate();}
+            db.commit();
+        }catch(SQLException e){db.rollback();throw e;}finally{db.setAutoCommit(true);}
+    }
+    public synchronized void roleForgetHistory(String guild)throws SQLException{
+        requireWrite();try(PreparedStatement pending=db.prepareStatement("SELECT count(*) FROM role_targets WHERE guild=? AND (dirty=1 OR status NOT IN ('SUCCESS','ABSENT'))")){pending.setString(1,guild);try(ResultSet r=pending.executeQuery()){if(r.next()&&r.getLong(1)!=0)throw new SQLException("Role cleanup incomplete");}}
+        try(PreparedStatement s=db.prepareStatement("DELETE FROM role_history WHERE guild=?")){s.setString(1,guild);s.executeUpdate();}
+    }
     @Override public synchronized void close()throws SQLException{db.close();}
 }
+

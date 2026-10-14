@@ -43,6 +43,18 @@ class ConfigurationLifecycleTest {
     private void editedBotFile()throws Exception{Files.writeString(folder.resolve("bot.yml"),"enabled: false\ntoken: 'synthetic-test-token'\nguild-id: '123456789012345678'\npanel:\n  channel-id: '223456789012345678'\nconsole:\n  channel-id: '323456789012345678'\n");}
     private void command(String... args){new Router(plugin,false).onCommand(sender,mock(Command.class),"dydiscord",args);}
     private Player player(){Player player=mock(Player.class);UUID uuid=UUID.randomUUID();when(player.getName()).thenReturn("Alice");when(player.getUniqueId()).thenReturn(uuid);when(player.getLocale()).thenReturn("en_US");when(player.isOnline()).thenReturn(true);when(player.hasPermission(anyString())).thenReturn(true);sessions.put(uuid,1L);return player;}
+    @Test void startupRejectsConsoleTrustForPreviouslyManagedRoleBeforeReady()throws Exception{
+        String guild="123456789012345678",role="223456789012345678";
+        configuration.change("bot.yml","guild-id",guild);configuration.change("bot.yml","console.commands.allowed-role-ids",List.of(role));
+        try(Store persisted=new Store(folder.resolve("data/dydiscord.db"))){persisted.roleRemember(guild,Set.of(role));}
+        when(plugin.getDataFolder()).thenReturn(folder.toFile());var server=mock(org.bukkit.Server.class,RETURNS_DEEP_STUBS);when(plugin.getServer()).thenReturn(server);when(server.getOnlinePlayers()).thenReturn(List.of());when(plugin.getCommand(anyString())).thenReturn(mock(PluginCommand.class));when(server.getPluginManager().getPlugin("LuckPerms")).thenReturn(null);
+        when(plugin.getDescription()).thenReturn(new org.bukkit.plugin.PluginDescriptionFile("DyDiscord","1.0.1-BETA","dev.dydiscord.DyDiscord"));
+        doCallRealMethod().when(plugin).onEnable();plugin.onEnable();
+        var ready=DyDiscord.class.getDeclaredField("ready");ready.setAccessible(true);assertFalse(ready.getBoolean(plugin));
+        var failure=org.mockito.ArgumentCaptor.forClass(Throwable.class);verify(plugin).error(failure.capture());Throwable cause=failure.getValue();while(cause.getCause()!=null)cause=cause.getCause();assertInstanceOf(dev.dydiscord.roles.RolePolicy.Blocked.class,cause);
+        var roleField=DyDiscord.class.getDeclaredField("roles");roleField.setAccessible(true);if(roleField.get(plugin)!=null)((dev.dydiscord.roles.RoleEngine)roleField.get(plugin)).close();
+        var opened=DyDiscord.class.getDeclaredField("store");opened.setAccessible(true);if(opened.get(plugin)!=store)((Store)opened.get(plugin)).close();
+    }
     @Test void reloadLoadsInitialBotFileWhileBotRemainsDisabled()throws Exception{
         editedBotFile();command("admin","reload");
         assertEquals("123456789012345678",plugin.settings().guild());assertEquals("223456789012345678",plugin.settings().panelChannel());assertFalse(plugin.settings().botEnabled());

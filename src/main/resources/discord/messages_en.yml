@@ -61,6 +61,12 @@ cancel-button: "Cancel"
 cancelled: "Confirmation cancelled."
 # Open the account panel to continue privately: {url}
 private-prompt: "Open the account panel to continue privately: {url}"
+# Panel-off response; slash replies are private. Reload applies this text.
+panel-disabled: "The account panel is disabled. Use /link, /account or /unlink."
+# Prefix command guidance. Keep {command}; never include account details here.
+commands-prompt: "Use {command} to continue privately. Only you can see the reply."
+# Command-only help, used while panel.enabled is false; reload applies it.
+commands-help: "Use /link to enter your in-game code, /account to view your account, or /unlink to remove the link. Get your code in Minecraft with /discord link. Replies are private."
 # The account panel is unavailable. Contact the server administrator.
 panel-missing: "The account panel is unavailable. Contact the server administrator."
 # Console request rejected. Check the private console setup and your access.
@@ -81,6 +87,16 @@ slash-account: "Show your own linked account"
 slash-unlink: "Unlink your own account with confirmation"
 # Show the bot connection state
 slash-status: "Show the bot connection state"
+# Server slash-command description (1-100 characters); bot restart applies it.
+slash-server: "Show Minecraft server information"
+# Extra help line. Combined help text must fit 2000 characters; reload applies it.
+help-server: "View server information with /server or dy!server."
+# Embed title, at most 256 characters after {server_name} expands; reload applies it.
+server-info-title: "{server_name}"
+# Player-count field label (1-256 characters); reload applies it.
+server-info-players: "Players"
+# Game-version field label (1-256 characters); reload applies it.
+server-info-version: "Minecraft version"
 
 # Normal Minecraft chat. {rank} includes bold text and a trailing space when present.
 chat-to-discord: "{rank}{name} **»** {message}"

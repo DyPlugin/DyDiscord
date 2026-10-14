@@ -14,9 +14,6 @@ node_modules/
 /plugins/
 /logs/
 /AGENTS.md
-/CHANGELOG.md
-/MODRINTH-DESCRIPTION.md
-/MODRINTH-SUMMARY.txt
 /docs/acceptance.md
 /docs/live-verification.md
 /docs/security-audit-*.md

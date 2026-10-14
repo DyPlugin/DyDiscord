@@ -7,7 +7,7 @@ import java.util.*;
 import java.util.jar.*;
 import static org.junit.jupiter.api.Assertions.*;
 class ArtifactTest {
-    private Path jar(){return Path.of("build/libs/DyDiscord-v1.0.0-BETA.jar");}
+    private Path jar(){return Path.of("build/libs/DyDiscord-v1.0.1-BETA.jar");}
     @Test void workerLoadsRelocatedLoggingProviderEvenWithForeignServerContext()throws Exception{
         try(URLClassLoader isolated=new URLClassLoader(new URL[]{jar().toUri().toURL()},ClassLoader.getPlatformClassLoader())){
             Class<?> workers=Class.forName("dev.dydiscord.util.PluginThreads",true,isolated);
@@ -25,7 +25,7 @@ class ArtifactTest {
     }
     @Test void jarContainsVersionTranslationsServiceMetadataAndNoServerOrSecrets()throws Exception{
         try(JarFile archive=new JarFile(jar().toFile())){
-            String plugin=new String(archive.getInputStream(archive.getJarEntry("plugin.yml")).readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);assertTrue(plugin.contains("1.0.0-BETA"));assertTrue(plugin.contains("author: Claww"));assertNotNull(archive.getJarEntry("META-INF/services/java.sql.Driver"));
+            String plugin=new String(archive.getInputStream(archive.getJarEntry("plugin.yml")).readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);assertTrue(plugin.contains("1.0.1-BETA"));assertTrue(plugin.contains("author: Claww"));assertNotNull(archive.getJarEntry("META-INF/services/java.sql.Driver"));
             for(String file:List.of("config.yml","bot.yml","messages_en.yml","messages_tr.yml","discord/messages_en.yml","discord/messages_tr.yml","META-INF/THIRD-PARTY-NOTICES.md","META-INF/licenses/trove4j/core-3.1.0-sources.jar"))assertNotNull(archive.getJarEntry(file),file);
             assertNull(archive.getJarEntry("org/bukkit/Bukkit.class"));assertNull(archive.getJarEntry("org/apache/logging/log4j/core/Logger.class"));assertNull(archive.getJarEntry("net/dv8tion/jda/api/JDA.class"));
             var entries=archive.entries();while(entries.hasMoreElements()){String path=entries.nextElement().getName();assertFalse(path.endsWith(".db")||path.endsWith(".log"));}

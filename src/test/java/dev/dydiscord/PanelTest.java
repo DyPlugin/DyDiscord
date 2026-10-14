@@ -9,6 +9,7 @@ import java.util.concurrent.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 class PanelTest {
+    @Test void disabledPanelKeepsRecordAndReenableUsesSameMessage()throws Exception{var original=service.refresh("g","c",remote);service.disable(remote);assertEquals(original,service.current());assertEquals(original,store.panel().orElseThrow());service.refresh("g","c",remote);assertEquals(1,remote.creates);assertEquals(1,remote.disables);}
     @TempDir Path folder;Store store;PanelService service;Remote remote;
     static class Remote implements PanelService.Transport{int creates,updates,disables;boolean exists=true,denied;List<String> found=new ArrayList<>();public boolean exists(Store.Panel panel)throws Exception{if(denied)throw new java.io.IOException("403");return exists;}public void update(Store.Panel panel){updates++;}public void disable(Store.Panel panel){disables++;}public List<String> recover(String channel){return found;}public String create(String channel){creates++;String id="123456789012345678";found.add(id);return id;}}
     @BeforeEach void setup()throws Exception{store=new Store(folder.resolve("db"));service=new PanelService(store);remote=new Remote();}

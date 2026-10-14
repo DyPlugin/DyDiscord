@@ -61,6 +61,12 @@ cancel-button: "Vazgeç"
 cancelled: "İşlem iptal edildi."
 # Open the account panel to continue privately: {url}
 private-prompt: "Hesap işlemlerinizi yapmak için paneli açın: {url}"
+# Panel-off response; slash replies are private. Reload applies this text.
+panel-disabled: "Hesap paneli kapalı. /eşle, /hesap veya /kaldır komutunu kullanın."
+# Prefix command guidance. Keep {command}; never include account details here.
+commands-prompt: "Hesap işlemi için {command} komutunu kullanın. Yanıtı yalnızca siz görürsünüz."
+# Command-only help, used while panel.enabled is false; reload applies it.
+commands-help: "Kodunuzu girmek için /eşle, hesabınızı görmek için /hesap, eşlemeyi kaldırmak için /kaldır kullanın. Kodunuzu oyunda /discord eşle ile alın. Yanıtlar yalnızca size görünür."
 # The account panel is unavailable. Contact the server administrator.
 panel-missing: "Hesap paneline şu anda ulaşılamıyor. Sunucu yöneticisinden yardım isteyin."
 # Console request rejected. Check the private console setup and your access.
@@ -81,6 +87,16 @@ slash-account: "Eşleştirdiğiniz Minecraft ve Discord hesaplarını gösterir"
 slash-unlink: "Hesap eşleştirmenizi kaldırır"
 # Show the bot connection state
 slash-status: "Discord bağlantısının durumunu gösterir"
+# Server slash-command description (1-100 characters); bot restart applies it.
+slash-server: "Minecraft sunucusu bilgilerini göster"
+# Extra help line. Combined help text must fit 2000 characters; reload applies it.
+help-server: "Sunucu bilgilerini /sunucu veya dy!sunucu ile görün."
+# Embed title, at most 256 characters after {server_name} expands; reload applies it.
+server-info-title: "{server_name}"
+# Player-count field label (1-256 characters); reload applies it.
+server-info-players: "Oyuncular"
+# Game-version field label (1-256 characters); reload applies it.
+server-info-version: "Minecraft sürümü"
 
 # Normal Minecraft chat. {rank} includes bold text and a trailing space when present.
 chat-to-discord: "{rank}{name} **»** {message}"

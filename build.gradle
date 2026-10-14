@@ -3,7 +3,7 @@ plugins {
     id 'com.gradleup.shadow' version '9.2.2'
 }
 group = 'dev.dydiscord'
-version = '1.0.0-BETA'
+version = '1.0.1-BETA'
 repositories {
     mavenCentral()
     maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
@@ -22,13 +22,15 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.mockito:mockito-core:5.23.0'
+    testImplementation 'net.luckperms:api:5.4'
     testImplementation 'org.spigotmc:spigot-api:1.20.4-R0.1-SNAPSHOT'
     testImplementation 'org.apache.logging.log4j:log4j-core:2.26.1'
 }
 java { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8'; options.release = 17 }
 test { useJUnitPlatform() }
-processResources { filesMatching('plugin.yml') { expand(version: project.version) } }
+def pluginVersion = project.version.toString()
+processResources { inputs.property('pluginVersion', pluginVersion); filesMatching('plugin.yml') { expand(version: pluginVersion) } }
 def noticesDir = layout.buildDirectory.dir('generated/notices')
 tasks.register('collectDependencyNotices') {
     outputs.dir(noticesDir)

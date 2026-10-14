@@ -12,6 +12,8 @@ public final class Messages {
     private Messages(Map<String,Map<String,String>> packs,Set<String> missing){this.packs=Map.copyOf(packs);this.missing=Set.copyOf(missing);}
     public Set<String> missing(){return missing;}
     public void validatePanel(String serverName){for(String lang:List.of("en","tr")){
+        String serverTitle=render(true,lang,"server-info-title",Map.of("server_name",serverName));
+        if(serverTitle.isBlank()||serverTitle.length()>256||get(true,lang,"server-info-players").isBlank()||get(true,lang,"server-info-players").length()>256||get(true,lang,"server-info-version").isBlank()||get(true,lang,"server-info-version").length()>256||Math.max(get(true,lang,"help").length(),get(true,lang,"commands-help").length())+2+get(true,lang,"help-server").length()>2000)throw new IllegalArgumentException("Invalid server/help text: discord/messages_"+lang+".yml");
         String title=render(true,lang,"panel-title",Map.of("server_name",serverName)),body=get(true,lang,"panel-description"),privacy=get(true,lang,"panel-privacy");
         if(title.isBlank()||body.isBlank()||privacy.isBlank()||title.length()>256||6+title.length()+body.length()+privacy.length()>4000)throw new IllegalArgumentException("Invalid panel text: discord/messages_"+lang+".yml");
     }}
@@ -37,12 +39,17 @@ public final class Messages {
             Map<String,Object> bundled;try(InputStream in=Messages.class.getClassLoader().getResourceAsStream(surface+"messages_en.yml")){if(in==null)throw new IOException("Missing messages");bundled=Configuration.parse(new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8));}
             Map<String,Object> custom=new HashMap<>(Configuration.read(folder.resolve(file)));Map<String,String> result=new HashMap<>();
             upgradeDefaults(surface,lang,custom);
-            for(var entry:bundled.entrySet()){if(!custom.containsKey(entry.getKey()))missing.add(file+":"+entry.getKey());Object v=custom.getOrDefault(entry.getKey(),entry.getValue());int max=4000;if(!surface.isEmpty()){String key=entry.getKey();max=key.startsWith("slash-")?100:switch(key){case "panel-title"->256;case "modal-title","code-label"->45;case "link","account-button","unlink","confirm-button","cancel-button"->80;case "footer"->100;case "help","status","private-prompt","panel-missing","console-prefix","console-rejected","console-result"->1600;default->3500;};}if(!(v instanceof String s)||s.length()>max||!placeholders(s).equals(placeholders((String)entry.getValue())))throw new IOException("Invalid message: "+file+":"+entry.getKey());result.put(entry.getKey(),s);}
+            for(var entry:bundled.entrySet()){if(!custom.containsKey(entry.getKey()))missing.add(file+":"+entry.getKey());Object v=custom.getOrDefault(entry.getKey(),entry.getValue());int max=4000;if(!surface.isEmpty()){String key=entry.getKey();max=key.startsWith("slash-")?100:switch(key){case "panel-title"->256;case "modal-title","code-label"->45;case "link","account-button","unlink","confirm-button","cancel-button"->80;case "footer"->100;case "help","status","private-prompt","commands-prompt","commands-help","panel-disabled","panel-missing","console-prefix","console-rejected","console-result"->1600;default->3500;};}if(!(v instanceof String s)||s.length()>max||!placeholders(s).equals(placeholders((String)entry.getValue())))throw new IOException("Invalid message: "+file+":"+entry.getKey());result.put(entry.getKey(),s);}
             packs.put(surface+lang,Map.copyOf(result));
         } return new Messages(packs,missing);
     }
     /** Upgrade only shipped legacy values. Owner-written translations retain strict validation. */
     private static void upgradeDefaults(String surface,String lang,Map<String,Object> custom)throws IOException{
+        // New server facts retain the selected language even before migration writes.
+        try(InputStream stream=Messages.class.getClassLoader().getResourceAsStream(surface+"messages_"+lang+".yml")){
+            if(stream==null)throw new IOException("Missing server messages");var current=Configuration.parse(new String(stream.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8));
+            for(String key:(surface.isEmpty()?List.of("panel-disabled","help-panel-enable","help-panel-disable"):List.of("server-info-title","server-info-players","server-info-version","slash-server","help-server","panel-disabled","commands-prompt","commands-help")))custom.putIfAbsent(key,current.get(key));
+        }
         boolean tr=lang.equals("tr");Map<String,String> legacy=new HashMap<>();
         if(surface.isEmpty()){
             if(tr)legacy.put("bot-setup-incomplete","&eBotu açmadan önce bot.yml içinde token ve guild-id ayarlayın, sonra /dydiscord yönetim yenile çalıştırın.");

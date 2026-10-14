@@ -27,17 +27,24 @@ public final class Configuration {
         for(var migration:snapshot.migrations().entrySet()){
             Path target=folder.resolve(migration.getKey());String before=Files.readString(target);
             if(!digest(before).equals(migration.getValue()))throw new IOException("Configuration changed during validation; retry reload");
-            originals.put(target,before);changes.put(target,upgrade(migration.getKey(),before));
+            String after=upgrade(migration.getKey(),before);
+            if(!before.equals(after)){originals.put(target,before);changes.put(target,after);}
         }
         // Backup every affected file before the first write. Roll back partial writes on failure.
         if(!changes.isEmpty()){
-            String suffix=".backup-"+java.time.Instant.now().toEpochMilli()+"-"+UUID.randomUUID().toString().substring(0,8);
-            for(Path target:changes.keySet())Files.copy(target,target.resolveSibling(target.getFileName()+suffix));
+            for(Path target:changes.keySet())backup(target,originals.get(target));
             List<Path> written=new ArrayList<>();
             try{for(var change:changes.entrySet()){atomicWrite(change.getKey(),change.getValue());written.add(change.getKey());}}
             catch(IOException failure){for(Path target:written)try{atomicWrite(target,originals.get(target));}catch(IOException rollback){failure.addSuppressed(rollback);}throw failure;}
         }
         active=snapshot;
+    }
+    private static void backup(Path target,String original)throws IOException{
+        Path backup=target.resolveSibling(target.getFileName()+".backup-"+digest(original));
+        try{Files.copy(target,backup);}
+        catch(FileAlreadyExistsException exists){
+            if(!Files.readString(backup).equals(original))throw new IOException("Configuration backup differs from the original; migration stopped");
+        }
     }
     public Path folder(){return folder;}
     public synchronized Snapshot load() throws IOException {

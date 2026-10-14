@@ -1,4 +1,11 @@
-# DyDiscord v1.0.0-BETA
+# DyDiscord v1.0.1-BETA
+
+Panel yerine komut kullanmak için `/dydiscord admin panel kapat` yazın.
+`/dydiscord admin panel aç` aynı panel mesajını yeniden etkinleştirir.
+Dosyadan ayarlamak için `bot.yml` içinde `panel.enabled: false` yapıp
+`/dydiscord admin reload` kullanın. Discord `/eşle`, `/hesap`, `/kaldır`
+çalışmaya devam eder; dy! komutları panel bağlantısı yerine ilgili / komutunu
+gösterir. [Panel/komut modu rehberi](panel-mode.md).
 
 **Claww · DyPlugin** tarafından geliştirilen DyDiscord, Minecraft sunucusu içinde
 Discord botu çalıştırır. Özel hesap eşleme ve isteğe bağlı özel konsol kanalı sunar.
@@ -14,13 +21,55 @@ DyClaim bağımlılığı yoktur. [Lisans metni](../LICENSE).
 
 ## Derleme ve kurulum
 
+v1.0.1-BETA, isteğe bağlı Minecraft → Discord rol eşitlemesini ekler. Eşlenen
+hesaba bağımsız bir rol verilebilir; gerçek LuckPerms grup üyelikleri, sabit
+bağlamlarla sorgulanıp Discord rollerine dönüştürülebilir. Rol eşitlemesi ilk
+kurulumda kapalıdır. Discord rolleri Minecraft grubu, izin veya OP vermez.
+`all` eşleşen kuralları birleştirir; `highest` en yüksek önceliği seçer ve eşit
+öncelikleri birleştirir. LuckPerms bilgisi alınamazsa grup üyeliği bilinmiyor
+sayılır; mevcut grup rolleri korunur, bağımsız eşlenen hesap rolü çalışabilir.
+
+`/dydiscord admin roller durum` durumu, `/dydiscord admin roller önizle <uuid>`
+değişiklikleri gösterir. `eşitle <uuid>` veya `eşitle tümü` işi sıraya alır.
+`eşlenen liste/ekle/çıkar` ve `gruplar liste/ekle/çıkar` ayrı yaprak izinlere
+sahiptir. Her yaprak `dydiscord.admin.roles.*` altındadır; oyunculara varsayılan
+rol yönetimi verilmez. ASCII karşılıklar da kabul edilir.
+
+Rol vermeden önce Manage Roles iznini ve botun rol sırasını doğrulayın. Yönetilen,
+ayrıcalıklı ve konsol erişim rolleri otomatik ekleme/kaldırmada engellenir.
+Üye intent'i alınamazsa dönemsel REST eşitlemesi devam eder. Rol eşitlemesini
+kapatmak verilen rolleri kendiliğinden silmez. `temizle önizle`, ardından 30 saniye
+içinde `temizle onayla <token>` ile yalnızca yönetilen roller için temizleme
+başlatılır; onay sırasında özellik kapalı olmalıdır. Yeniden açma temizlemeyi
+iptal eder veya normal eşitlemeyle değiştirir. [Ayrıntılı rol rehberi](role-sync.md).
+
+İsteğe bağlı boost ödülleri, eşlenen ve Discord sunucunuzu boostlayan hesap için
+kendi ekonomi, site kredisi veya rütbe eklentinizin konsol komutlarını çalıştırır.
+`bot.yml` içinde `boost-rewards.enabled: false` ve komut listeleri boş başlar.
+Yalnızca `{player}` ve `{uuid}` desteklenir; para veya site sağlayıcısı dahil değildir.
+Mevcut bir LuckPerms grubu için `lp user {uuid} parent addtemp booster 30d`
+30 günlük rütbe verir. Süreyi LuckPerms yönetir; oyuncu çevrimdışıyken de üyelik
+süresi biter. Bu grubu ayrı `roles.groups` kuralıyla Discord rolüne bağlayabilirsiniz.
+
+Ödül, kişinin kesintisiz boost dönemi için bir kez kaydedilir; satın aldığı her
+boost başına veya her hafta verilmez. Yeniden başlayan dönemde de en az 168 saat
+bekleme vardır. Boost bitince veya hesap eşlemesi kaldırılınca isteğe bağlı
+`remove-commands` çalışabilir. Belirsiz komutlar kendiliğinden tekrar edilmez.
+[Ödül ayarları, örnekler ve kayıtlar](boost-rewards.md).
+
+SQLite şeması 3'tür. Eski şema 1/2, WAL verisini içeren tutarlı `VACUUM INTO`
+yedeği alındıktan sonra mevcut eşlemeleri, adları ve kayıt sürümlerini koruyarak
+taşınır. v1.0.0-BETA yeni şemayı açmaz; geri dönüş için eski JAR ve ona uygun
+eski yedek birlikte gerekir. Yerel yedek Discord'daki rol değişikliklerini geri
+almaz. [Yedek ve geri dönüş](upgrade-and-rollback.md).
+
 Windows'ta `gradlew.bat clean build`, diğer sistemlerde `./gradlew clean build`
 çalıştırın. Gradle Wrapper 9.1.0, bağımlılık kilidi ve SHA-256 doğrulaması dahildir.
 JDK 25.0.4.1 ile Java 17 bytecode ve Spigot API 1.20.4 tabanı derlendi.
 Bu bilgi gerçek sunucu uyumluluğu kanıtı değildir. Folia, proxy,
 Floodgate/Bedrock ve sunucu açıkken JAR değiştirme desteği ilan edilmez.
 
-1. `build/libs/DyDiscord-v1.0.0-BETA.jar` dosyasını `plugins` dizinine koyup
+1. `build/libs/DyDiscord-v1.0.1-BETA.jar` dosyasını `plugins` dizinine koyup
    sunucuyu başlatın. `plain` JAR kurulmaz. Ayarlar, mesajlar ve SQLite oluşturulur.
    Bot, log aktarımı ve uzaktan komutlar varsayılan kapalıdır. Tokensiz kurulum
    eklentiyi çökertmez.
@@ -50,7 +99,12 @@ Varsayılan Minecraft öneki mavi: `&7[&9DyDiscord&7]`. Eski tam varsayılan
 `&7[&dDyDiscord&7]` başarılı açılış/reload'da güncellenir; özel önek korunur.
 
 Botun kanallarda View Channel, Send Messages, Embed Links ve Read Message History
-izinleri gerekir. Mesaj silme/yönetme, pinleme, çevrimiçi durum ve üye listesi izinleri gerekmez.
+izinleri gerekir. Mesaj silme/yönetme, pinleme ve çevrimiçi durum izinleri gerekmez.
+İsteğe bağlı rol eşitlemesi için Manage Roles izni ve uygun rol sırası gerekir.
+Üye olayları açıldığında Server Members intent kullanılır; bu intent alınamazsa
+dönemsel REST eşitlemesi devam eder. Boost ödülleri de bu intent'i ister; intent
+yoksa güncel üye bilgisi REST ile aralıklı kontrol edilir. İstenen intent
+değiştiğinde bot yeniden başlatılmalıdır.
 `dy!` komutları ve düz konsol girişi için Message Content intent açılmalıdır.
 Intent reddedilirse slash/panel için yeniden bağlanılır; prefix ve konsol girişi
 kapalı, bot durumu DEGRADED olur. Gerçek bot adı, avatarı ve uygulama açıklaması
@@ -99,7 +153,7 @@ oyuncuya özel satırlar gizlenmez; “sadece oyuncular” notu taşır. Bu komu
 
 Oyunda kod üretin; yanıt yalnızca kodu içerir. Davet gerekirse ayrıca `/discord`
 kullanın. Discord panelinin Hesap Eşle butonuna basıp açılan forma kodunuzu girin.
-Yeni kurulumlarda varsayılan kod 12 rastgele, karışmayan karakterdir; ayarlanmış
+Yeni kurulumlarda varsayılan kod 8 rastgele, karışmayan karakterdir; ayarlanmış
 özel uzunluklar korunur. Kod 5 dakika geçerlidir. Yeni kod
 için 30 saniye beklenir. Oyundan çıkmak kodu iptal eder. Kodlar sunucu yeniden başladığında geçersiz
 olur. Kullanım anında sahibin mevcut çevrimiçi oturumu ve yaprak izni yeniden
@@ -164,11 +218,13 @@ Discord sunucusu, bot dili veya gerekli izinler değiştiğinde ayarları yenile
 botu yeniden başlatın. Durum ekranı seçilen dili ve gerçekten kullanılan dili
 ayrı gösterir. Yalnızca DyDiscord'un kaydettiği Discord komutları güncellenir;
 başka bir komutla ad çakışırsa işlem durur.
-Slash yolları `/yardım`, `/eşle`, `/hesap`, `/kaldır`, `/durum`; İngilizcede
-`/help`, `/link`, `/account`, `/unlink`, `/status` olur. Prefix iki dil ve ASCII
+Slash yolları `/yardım`, `/eşle`, `/hesap`, `/kaldır`, `/durum`, `/sunucu`; İngilizcede
+`/help`, `/link`, `/account`, `/unlink`, `/status`, `/server` olur. Prefix iki dil ve ASCII
 alabilir. `dy!eşle/hesap/kaldır` paneli gösterir. Bu yanıt herkese görünür ama
 hesap bilgilerinizi veya kodunuzu içermez. `/eşle` doğrudan kod girme ekranını
 açar. Hesap bilgileri ve kaldırma onayı yalnızca size gösterilir.
+`/sunucu`, `dy!sunucu` veya `dy!server`; sunucu adını, görünür çevrimiçi oyuncu
+sayısını/kapasiteyi ve Minecraft sürümünü gösterir. Oyuncu isimleri listelenmez.
 
 Bir ayar veya mesaj dosyası bozuksa önceki çalışan ayarlar korunur. Eksik bir
 çeviri için İngilizce metin kullanılır ve sunucu kaydına uyarı yazılır. Eski
@@ -209,9 +265,13 @@ tutar. Kod/onaylar bellektedir; kod yalnızca tuzlu digest ile doğrulanır. Unl
 aktif kaydı siler; audit ve yedekler eski kimlik bilgilerini içerebilir. Audit
 30 gün/20 MiB sınırına tabidir. Discord kanal geçmişini eklenti yönetmez.
 Discord kullanıcı adı görüntüleme verisidir; kimlik ve tekillik ID ile korunur.
-Veritabanı geçişi mevcut hesap kayıtlarını korur.
-İki yönlü sohbet köprüsü ve kapanış bildirimi artık kapsamdadır. Rol senkronu,
-ödül, müzik, web paneli, telemetri ve otomatik güncelleyici yoktur.
+Veritabanı geçişi mevcut hesap kayıtlarını korur. Boost ödüllerinin kalıcı dönem
+ve kaldırma kayıtları ayrı `data/boosts.db` dosyasındadır; şeması 1'dir. Eski ödül
+yedeğine dönmek daha önce verilmiş dış kredinin tekrar verilmesine yol açabilir.
+Ödül kayıtları, tekrar ödemeyi engellemek için eski UUID/Discord ID ve adı hesap
+eşlemesi kaldırıldıktan sonra da saklar.
+İki yönlü sohbet köprüsü, kapanış bildirimi, isteğe bağlı rol eşitlemesi ve boost
+komutları kapsamdadır. Müzik, web paneli, telemetri ve otomatik JAR yüklemesi yoktur.
 Bilinen sırlar maskelenir; üçüncü tarafların her sırrını bulma garantisi verilmez.
 Açılış öncesi/kapanış sonrası loglar, çökme ve ağda kaybolan çıktılar kapsam dışıdır.
 
@@ -229,6 +289,8 @@ Dosyayı kaydettikten sonra `/dydiscord admin yenile` ve
 
 Eski ayarlar özel değerler ve yorumlar korunarak tanınır. Yeni seçenekler ve
 kısa İngilizce açıklamalar eklenir; değişen dosyaların önce yedeği alınır.
+Değişmeyen dosya yeniden yazılmaz. Aynı özgün baytlar için SHA-256 adlı yedek
+tekrar kullanılır; eski JAR'ların kendi davranışı bu güncellemeyle değişmez.
 `config-version` 1’den 2’ye geçirilir; desteklenmeyen yeni şema reddedilir.
 
 `config.yml` içindeki `updates.enabled`, Modrinth’teki `dydiscord` projesini
@@ -238,3 +300,4 @@ sürüme geçiş tanınır. JAR indirilmez veya kendiliğinden yüklenmez. Proje
 şu anda yayınlanmadığı için API 404 döndürüyor; yayınlandığında kontrol çalışır.
 
 Sohbet köprüsü, ayarlar ve sınırlar: [rehber](chat-bridge.md).
+Doğrulanan derleme ve kalan sınırlar [test kapsamı](compatibility-test.md) belgesindedir. Gerçek ücretli boost, para/site kredisi, insan eşleme formu ve Java 17 çalışma ortamı ayrıca doğrulanmalıdır.

@@ -17,6 +17,12 @@ invite-not-set: "&eThe Discord invite has not been configured yet."
 link-code: "&7Your linking code: &e{code}"
 # Linking panel: {url}
 panel-link: "&7Linking panel: &b{url}"
+# Panel-off notice. Discord slash commands remain available.
+panel-disabled: "&eThe account panel is disabled. Use Discord slash commands."
+# Enable the panel without changing links or its recorded message.
+help-panel-enable: "Enable the account panel"
+# Disable panel buttons; Discord account commands stay available.
+help-panel-disable: "Disable the panel and use commands"
 # Discord is temporarily unavailable. Please try again shortly.
 bot-unavailable: "&eDiscord is temporarily unavailable. Please try again shortly."
 # Set token and guild-id in bot.yml, then run /dydiscord admin reload before enabling the bot.
@@ -152,3 +158,23 @@ help-admin-unlink: "Unlink a target UUID with reason and confirmation"
 
 # A compatible update is available; click the message to view its Modrinth page.
 update-available: "&eDyDiscord {version} is available: &b{url}"
+help-roles-status: "Show role synchronization health"
+help-roles-linked-list: "List linked-account roles"
+help-roles-linked-add: "Add a linked-account role"
+help-roles-linked-remove: "Remove a linked-account role"
+help-roles-groups-list: "List Minecraft group role rules"
+help-roles-groups-add: "Add a Minecraft group role rule"
+help-roles-groups-remove: "Remove a Minecraft group role rule"
+help-roles-preview: "Preview changes for a linked account"
+help-roles-sync-all: "Synchronize all linked accounts"
+help-roles-sync: "Synchronize a linked account"
+help-roles-cleanup-preview: "Preview obsolete managed role cleanup"
+help-roles-cleanup-confirm: "Confirm obsolete managed role cleanup"
+roles-summary: "&7Role synchronization: &f{status}"
+roles-preview-result: "&7Roles to add: &f{add}&7; remove: &f{remove}&7; unresolved: &f{unknown}"
+roles-cleanup-confirmation: "&eConfirm the previewed role cleanup with /dydiscord admin roles cleanup confirm {token} within {seconds} seconds."
+roles-disabled: "&eRole synchronization is disabled."
+roles-started: "&aRole synchronization queued."
+roles-saved: "&aRole settings saved."
+roles-unavailable: "&eRole synchronization is unavailable. Check the bot and permission provider."
+roles-invalid-confirmation: "&cThis role cleanup confirmation is invalid or expired."

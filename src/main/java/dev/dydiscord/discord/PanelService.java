@@ -15,6 +15,7 @@ public final class PanelService {
     private final Store store;private volatile Store.Panel current;
     public PanelService(Store store)throws Exception{this.store=store;current=store.panel().orElse(null);}
     public Store.Panel current(){return current;}
+    public synchronized void disable(Transport remote)throws Exception{Store.Panel old=store.panel().orElse(null);if(old!=null&&!old.message().equals("pending"))remote.disable(old);current=old;}
     public String url(String guild,String channel){Store.Panel p=current;return channel.isEmpty()?"":"https://discord.com/channels/"+guild+"/"+channel+(p!=null&&p.guild().equals(guild)&&p.channel().equals(channel)&&!p.message().equals("pending")?"/"+p.message():"");}
     public synchronized Store.Panel refresh(String guild,String channel,Transport remote)throws Exception {
         if(channel.isEmpty())throw new IllegalStateException("panel.channel-id is missing");

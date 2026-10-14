@@ -1,4 +1,4 @@
-# Security and privacy â€” v1.0.0-BETA
+# Security and privacy — v1.0.0-BETA
 
 The security boundary is a trusted Minecraft server, one Discord application and
 one configured guild. Code generation and account linking allow both online-mode
@@ -121,7 +121,4 @@ revokes temporary work, detaches the appender, stops the bot/executors and close
 SQLite. Logs from before enable/after disable and delivery during crashes/outages
 are not guaranteed. Neither zero lag nor complete secret detection is claimed.
 
-Automated checks cover negative cases, races and packaging. Real Discord
-authorization changes, gateway errors, Bukkit runtime and LuckPerms are still
-unverified; see [compatibility evidence](compatibility-test.md). No absolute
-security or error-free guarantee is made.
+Automated checks cover negative cases, races and packaging. Live checks are limited to the environments and artifacts identified in [compatibility evidence](compatibility-test.md). Installation-specific authorization, gateway failure and permission behavior still need owner validation. No absolute security or error-free guarantee is made.
