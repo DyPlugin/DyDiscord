@@ -1,11 +1,11 @@
-# Security and privacy — v1.0.0-BETA
+# Security and privacy — 1.0.0
 
 The security boundary is a trusted Minecraft server, one Discord application and
 one configured guild. Code generation and account linking allow both online-mode
 and offline-mode servers. The server-provided UUID and current session identify
 the Minecraft side; DyDiscord does not independently prove offline account ownership.
 An offline server's login system must authenticate players and block every
-DyDiscord command root/alias until login completes. This Beta does not query a
+DyDiscord command root/alias until login completes. DyDiscord does not query a
 login plugin's authentication API. Proxy forwarding and Floodgate identities
 are not verified. Changing authentication mode/UUID assignment does not migrate links.
 
@@ -121,4 +121,15 @@ revokes temporary work, detaches the appender, stops the bot/executors and close
 SQLite. Logs from before enable/after disable and delivery during crashes/outages
 are not guaranteed. Neither zero lag nor complete secret detection is claimed.
 
-Automated checks cover negative cases, races and packaging. Live checks are limited to the environments and artifacts identified in [compatibility evidence](compatibility-test.md). Installation-specific authorization, gateway failure and permission behavior still need owner validation. No absolute security or error-free guarantee is made.
+Automated checks cover negative cases, races and packaging. Real Discord
+authorization changes, gateway errors, Bukkit runtime and LuckPerms are still
+unverified; see [compatibility evidence](compatibility-test.md). No absolute
+security or error-free guarantee is made.
+
+## 2026-10-08 audit follow-up
+
+Commit-time owner checks, chat reload admission/delivery context, interaction
+limits and audit capacity/text handling were strengthened with regressions.
+See the [dated audit](security-audit-2026-10-08.md) for reproduced findings,
+dependency checks and remaining acceptance work. This build was not deployed;
+earlier live results must not be presented as live verification of these fixes.

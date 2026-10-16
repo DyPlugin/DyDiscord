@@ -31,12 +31,20 @@ class BotInteractionTest {
     void reconnectDoesNotUpsertAlreadyCorrectOwnedSlashCommands(boolean changedDescription)throws Exception{
         Guild guild=mock(Guild.class);doReturn(guild).when(bot).guild();when(guild.getId()).thenReturn(settings.guild());
         var retrieval=mock(net.dv8tion.jda.api.requests.RestAction.class);doReturn(retrieval).when(guild).retrieveCommands();List<net.dv8tion.jda.api.interactions.commands.Command> existing=new ArrayList<>();Set<String> owned=new HashSet<>();
-        for(String function:List.of("help","link","account","unlink","status","server")){var command=mock(net.dv8tion.jda.api.interactions.commands.Command.class);String id="72345678901234567"+existing.size();String description=host.messages().get(true,settings.botLanguage(),"slash-"+function);owned.add(id);when(command.getId()).thenReturn(id);when(command.getName()).thenReturn(dev.dydiscord.command.Words.display(function,settings.botLanguage()));when(command.getDescription()).thenReturn(description);when(command.getType()).thenReturn(net.dv8tion.jda.api.interactions.commands.Command.Type.SLASH);existing.add(command);}
+        for(String function:List.of("help","link","account","unlink","status","server","players","ip","links")){var command=mock(net.dv8tion.jda.api.interactions.commands.Command.class);String id="72345678901234567"+existing.size();String description=host.messages().get(true,settings.botLanguage(),"slash-"+function);owned.add(id);when(command.getId()).thenReturn(id);when(command.getName()).thenReturn(dev.dydiscord.command.Words.display(function,settings.botLanguage()));when(command.getDescription()).thenReturn(description);when(command.getType()).thenReturn(net.dv8tion.jda.api.interactions.commands.Command.Type.SLASH);existing.add(command);}
         doReturn(existing).when(bot).await(retrieval);when(host.store().commands(settings.guild())).thenReturn(owned);
         if(changedDescription)when(existing.get(0).getDescription()).thenReturn("Old description");
         var action=mock(net.dv8tion.jda.api.requests.restaction.CommandCreateAction.class);when(guild.upsertCommand(any(net.dv8tion.jda.api.interactions.commands.build.CommandData.class))).thenReturn(action);when(action.setCheck(any())).thenReturn(action);doReturn(existing.get(0),existing.get(1),existing.get(2),existing.get(3),existing.get(4),existing.get(5)).when(bot).await(action);
         var method=Bot.class.getDeclaredMethod("register",long.class);method.setAccessible(true);method.invoke(bot,0L);
         verify(guild,times(changedDescription?1:0)).upsertCommand(any(net.dv8tion.jda.api.interactions.commands.build.CommandData.class));
+    }
+    @org.junit.jupiter.params.ParameterizedTest @org.junit.jupiter.params.provider.ValueSource(strings={"players","server","ip","links"})
+    void restrictedInformationChannelsRejectBeforeSchedulingButPrivateAccountStillWorks(String action)throws Exception {
+        Settings restricted=Settings.read(Map.of(),Map.of("guild-id",settings.guild(),"community",Map.of("information-channel-ids",List.of("823456789012345678"))),null);when(host.settings()).thenReturn(restricted);
+        var event=mock(net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent.class,RETURNS_DEEP_STUBS);when(event.isFromGuild()).thenReturn(true);when(event.getGuild().getId()).thenReturn(settings.guild());when(event.getUser().getId()).thenReturn("523456789012345678");when(event.getName()).thenReturn(action);when(event.getChannel().getId()).thenReturn("923456789012345678");
+        var reply=mock(ReplyCallbackAction.class,RETURNS_SELF);when(event.reply(anyString())).thenReturn(reply);listener.onSlashCommandInteraction(event);
+        verify(event).reply(bot.text("information-channel-only",Map.of()));verify(reply).setEphemeral(true);verify(event,never()).deferReply(anyBoolean());verify(host,never()).submit(any());
+        var link=mock(net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent.class,RETURNS_DEEP_STUBS);when(link.isFromGuild()).thenReturn(true);when(link.getGuild().getId()).thenReturn(settings.guild());when(link.getUser().getId()).thenReturn("623456789012345678");when(link.getName()).thenReturn("link");listener.onSlashCommandInteraction(link);verify(link).replyModal(any());
     }
     @Test void uncachedMemberUpdateSignalsFreshBoostReconciliation(){
         var bridge=mock(dev.dydiscord.boost.BoostBridge.class);when(host.boosts()).thenReturn(bridge);
@@ -100,8 +108,9 @@ class BotInteractionTest {
         var other=button("link","523456789012345678");listener.onButtonInteraction(other);verify(other).replyModal(any());
         ((TestSupport.Time)host.clock()).advance(1);var later=button("link","423456789012345678");listener.onButtonInteraction(later);verify(later).replyModal(any());
     }
-    @org.junit.jupiter.params.ParameterizedTest @org.junit.jupiter.params.provider.ValueSource(strings={"permission","minecraft-session","bot-session","allowed"})
-    void modalRechecksOwnerAndSessionsAtCommitAndKeepsAuthorizedSuccess(String scenario)throws Exception{
+    @org.junit.jupiter.params.ParameterizedTest @org.junit.jupiter.params.provider.CsvSource({"permission,false","minecraft-session,false","bot-session,false","allowed,false","permission,true","allowed,true"})
+    void modalRechecksOwnerAndSessionsAtCommitAndKeepsAuthorizedSuccess(String scenario,boolean welcome)throws Exception{
+        if(welcome){var config=TestSupport.config(folder);config.change("bot.yml","link-welcome.discord",true);settings=config.active().settings();when(host.settings()).thenReturn(settings);}
         boolean revoked=!scenario.equals("allowed");
         var opening=button("link","423456789012345678");listener.onButtonInteraction(opening);var form=ArgumentCaptor.forClass(Modal.class);verify(opening).replyModal(form.capture());
         try(Store store=new Store(folder.resolve("redemption.db"))){
@@ -111,7 +120,7 @@ class BotInteractionTest {
             doAnswer(call->{try{return java.util.concurrent.CompletableFuture.completedFuture(((java.util.concurrent.Callable<?>)call.getArgument(0)).call());}catch(Exception failure){return java.util.concurrent.CompletableFuture.failedFuture(failure);}}).when(host).submit(any());
             ModalInteractionEvent modal=mock(ModalInteractionEvent.class,RETURNS_DEEP_STUBS);when(modal.getModalId()).thenReturn(form.getValue().getId());when(modal.isFromGuild()).thenReturn(true);when(modal.getGuild().getId()).thenReturn(settings.guild());when(modal.getUser().getId()).thenReturn("423456789012345678");when(modal.getUser().getName()).thenReturn("DiscordAlice");when(modal.getValue("code").getAsString()).thenReturn(code);
             var hook=mock(net.dv8tion.jda.api.interactions.InteractionHook.class);var edit=mock(net.dv8tion.jda.api.requests.restaction.WebhookMessageEditAction.class,RETURNS_SELF);when(hook.editOriginalEmbeds(any(MessageEmbed[].class))).thenReturn(edit);var deferred=modal.deferReply(true);doAnswer(call->{((java.util.function.Consumer<net.dv8tion.jda.api.interactions.InteractionHook>)call.getArgument(0)).accept(hook);return null;}).when(deferred).queue(any(),any());
-            listener.onModalInteraction(modal);verify(host,times(2)).validOwner(any());assertEquals(revoked,store.byUuid(uuid).isEmpty());assertEquals(revoked,linking.inspect(code).isPresent());if(revoked)verify(host,never()).notifyLinked(any());else verify(host).notifyLinked(any());verify(host,never()).error(any());var response=ArgumentCaptor.forClass(MessageEmbed[].class);verify(hook).editOriginalEmbeds(response.capture());assertEquals(bot.text(revoked?"invalid-code":"linked",Map.of("name","Alice","discord","DiscordAlice")),response.getValue()[0].getDescription());assertTrue(store.writable());
+            listener.onModalInteraction(modal);verify(host,times(2)).validOwner(any());assertEquals(revoked,store.byUuid(uuid).isEmpty());assertEquals(revoked,linking.inspect(code).isPresent());if(revoked)verify(host,never()).notifyLinked(any());else verify(host).notifyLinked(any());verify(host,never()).error(any());var response=ArgumentCaptor.forClass(MessageEmbed[].class);verify(hook).editOriginalEmbeds(response.capture());assertEquals(bot.text(revoked?"invalid-code":"linked",Map.of("name","Alice","discord","DiscordAlice"))+(!revoked&&welcome?"\n\n"+bot.text("link-welcome",Map.of()):""),response.getValue()[0].getDescription());assertTrue(store.writable());
         }
     }
     @Test void modalIngressLimitRejectsBeforeDeferAndDatabaseWork()throws Exception{

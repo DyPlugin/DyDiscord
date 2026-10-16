@@ -3,7 +3,7 @@ plugins {
     id 'com.gradleup.shadow' version '9.2.2'
 }
 group = 'dev.dydiscord'
-version = '1.0.1-BETA'
+version = '1.0.0'
 repositories {
     mavenCentral()
     maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
@@ -47,11 +47,53 @@ tasks.register('collectDependencyNotices') {
 processResources.dependsOn collectDependencyNotices
 sourceSets.main.resources.srcDir(noticesDir)
 tasks.withType(AbstractArchiveTask).configureEach { preserveFileTimestamps = false; reproducibleFileOrder = true }
+def distributionRuntime = configurations.runtimeClasspath
+def minimizedCollections = providers.provider {
+    distributionRuntime.resolvedConfiguration.resolvedArtifacts.findAll {
+        (it.moduleVersion.id.group == 'net.sf.trove4j' && it.name == 'core') ||
+        (it.moduleVersion.id.group == 'org.apache.commons' && it.name == 'commons-collections4')
+    }.collect { it.file }
+}
+def retainedRuntime = distributionRuntime.minus(files(minimizedCollections))
+def runtimeCoordinates = providers.provider {
+    distributionRuntime.resolvedConfiguration.resolvedArtifacts.collect {
+        "${it.moduleVersion.id.group}:${it.name}:${it.moduleVersion.id.version}".toString()
+    }.unique().sort()
+}
+def thinDescriptor = layout.buildDirectory.file('generated/small/plugin.yml')
+tasks.register('generateSmallDescriptor') {
+    dependsOn processResources
+    inputs.file(layout.buildDirectory.file('resources/main/plugin.yml'))
+    inputs.property('libraries', runtimeCoordinates)
+    outputs.file(thinDescriptor)
+    doLast {
+        def destination = thinDescriptor.get().asFile
+        destination.parentFile.mkdirs()
+        destination.setText(layout.buildDirectory.file('resources/main/plugin.yml').get().asFile.getText('UTF-8') +
+            '\n# Resolved by Spigot/Paper from Maven Central and cached by the server.\nlibraries:\n' +
+            runtimeCoordinates.get().collect { '  - "' + it + '"' }.join('\n') + '\n', 'UTF-8')
+    }
+}
+tasks.register('smallJar', Jar) {
+    dependsOn classes, generateSmallDescriptor
+    archiveBaseName = 'DyDiscord'
+    archiveVersion = project.version
+    archiveClassifier = ''
+    from(sourceSets.main.output) { exclude 'plugin.yml' }
+    from(thinDescriptor)
+}
 shadowJar {
     archiveBaseName = 'DyDiscord'
-    archiveVersion = 'v' + project.version
-    archiveClassifier = ''
+    archiveVersion = project.version
+    archiveClassifier = 'standalone'
     mergeServiceFiles()
+    // Only minimize statically linked collection helpers. Preserve reflection,
+    // service loading, serializers and every SQLite platform/native unchanged.
+    // Dependency exclusions also exclude their children in Shadow. Select exact
+    // inputs instead, and make every other runtime JAR an analysis entry point.
+    minimize()
+    toMinimize.setFrom(minimizedCollections)
+    apiJars.setFrom(retainedRuntime)
     exclude 'META-INF/*.SF', 'META-INF/*.RSA', 'META-INF/*.DSA'
     relocate 'net.dv8tion.jda', 'dev.dydiscord.lib.jda'
     relocate 'okhttp3', 'dev.dydiscord.lib.okhttp3'
@@ -67,5 +109,14 @@ shadowJar {
 }
 jar { archiveClassifier = 'plain' }
 build.dependsOn shadowJar
+build.dependsOn smallJar
 test.dependsOn shadowJar
+test.dependsOn smallJar
+test {
+    inputs.files(distributionRuntime)
+    doFirst {
+        systemProperty 'dydiscord.runtime.coordinates', runtimeCoordinates.get().join(',')
+        systemProperty 'dydiscord.runtime.classpath', distributionRuntime.asPath
+    }
+}
 dependencyLocking { lockAllConfigurations() }

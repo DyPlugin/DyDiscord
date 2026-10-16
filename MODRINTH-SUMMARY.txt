@@ -1,1 +1,1 @@
-A configurable Discord integration plugin for Minecraft servers, with English and Turkish support.
+Connect your Minecraft server and Discord community with one configurable plugin.

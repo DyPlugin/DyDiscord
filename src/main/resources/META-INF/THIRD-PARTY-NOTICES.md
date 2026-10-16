@@ -18,11 +18,18 @@ Pinned runtime dependencies (see gradle.lockfile for the complete resolution):
 * Trove4j core â€” LGPL-2.1-or-later; https://bitbucket.org/trove4j/trove
 * JetBrains annotations â€” Apache-2.0; https://github.com/JetBrains/java-annotations
 
-Audio natives, voice encryption and DAVE implementations are excluded.
+The standalone distribution excludes audio natives, voice encryption and DAVE.
+The small distribution uses Spigot/Paper's Maven library resolver, whose
+transitive resolution can additionally cache upstream JDA audio/crypto libraries.
+DyDiscord does not enable voice features. Server-provided library versions may
+take precedence in this mode; the standalone distribution retains relocated
+dependencies for installations needing the bundled alternative.
 Spigot API and Log4j are supplied by the server and are not bundled.
 SQLite's driver package and platform native resources retain their upstream names.
 Trove4j 3.1.0 sources are included under META-INF/licenses/trove4j/core-3.1.0-sources.jar.
-The build relocates gnu.trove to dev.dydiscord.lib.trove without source edits.
+The build relocates gnu.trove to dev.dydiscord.lib.trove without source edits
+and removes unused compiled collection classes with Gradle Shadow minimization.
+The complete original Trove source archive is retained.
 Gradle Shadow applies this package transformation; original sources and the build
 script provide the inputs for regenerating those bundled classes. The matching
 source release includes the build inputs and dependency verification metadata.

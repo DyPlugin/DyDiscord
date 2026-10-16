@@ -11,7 +11,8 @@ public final class ChatText {
     private static final Pattern SLOT=Pattern.compile("\\{([a-z_]+)}");
     public static String plain(String text,int limit){
         if(text==null)return "";String value=text.replaceAll("(?i)[&§]x(?:[&§][0-9a-f]){6}","").replaceAll("(?i)[&§]#[0-9a-f]{6}","").replaceAll("(?i)[&§][0-9a-fk-or]","").replaceAll("[\\p{Cntrl}\\p{Cf}\\p{Zl}\\p{Zp}]"," ").replace('§',' ').replaceAll("\\s+"," ").trim();
-        if(value.codePointCount(0,value.length())>limit)value=value.substring(0,value.offsetByCodePoints(0,limit))+"…";return value;
+        if(limit<=0)return "";
+        if(value.codePointCount(0,value.length())>limit){String cut=value.substring(0,value.offsetByCodePoints(0,limit-1));int space=cut.lastIndexOf(' ');if(space>=Math.max(1,cut.length()/3))cut=cut.substring(0,space);value=cut.stripTrailing()+"…";}return value;
     }
     public static String discord(String template,String rank,String name,String message){
         String prefix=plain(rank,64);Map<String,String> values=Map.of("rank",prefix.isEmpty()?"":"**"+markdown(prefix)+"** ","name",markdown(plain(name,64)),"message",markdown(plain(message,800)));
@@ -20,6 +21,8 @@ public final class ChatText {
     private static String markdown(String value){return Messages.safeDiscord(value).replaceAll("([#>+!()\\-])","\\\\$1");}
     public static String event(String template,String name,String death){return substitute(template,Map.of("name",markdown(plain(name,64)),"death",markdown(plain(death,1200))));}
     public static String substitute(String template,Map<String,String> values){Matcher m=SLOT.matcher(template);StringBuffer out=new StringBuffer();while(m.find())m.appendReplacement(out,Matcher.quoteReplacement(values.getOrDefault(m.group(1),"")));m.appendTail(out);return out.toString();}
+    public static String reply(String author,String message){String name=plain(author,64).replaceAll("[*_`~|]","");return name.isEmpty()?plain(message,800):plain("↪ "+name+" — "+plain(message,800),800);}
+    public static boolean names(String message,String name){return name!=null&&!name.isBlank()&&Pattern.compile("(?i)(?<![a-z0-9_])"+Pattern.quote(name)+"(?![a-z0-9_])").matcher(message).find();}
     public static TextComponent minecraft(String template,String role,int color,String name,String message){
         Map<String,String> values=Map.of("role",plain(role,64).replaceAll("[*_`~|]",""),"name",plain(name,64).replaceAll("[*_`~|]",""),"message",plain(message,800).replaceAll("[*_`~|]",""));TextComponent result=new TextComponent();Matcher slots=SLOT.matcher(template);int end=0;ChatColor current=ChatColor.WHITE;
         while(slots.find()){

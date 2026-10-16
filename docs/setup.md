@@ -1,10 +1,16 @@
-# DyDiscord v1.0.1-BETA
+# DyDiscord 1.0.0
+
+The default JAR is the small distribution. Its declared libraries are resolved
+and cached by Spigot/Paper before plugin enable; initial installation needs
+internet access. Use `DyDiscord-1.0.0-standalone.jar` for an installation
+that must work without downloading libraries. Install exactly one distribution.
+See [distribution packaging](packaging.md) for cache and version-selection limits.
 
 **Claww · DyPlugin** — a Discord bot inside your Minecraft server, with private
 account linking and an optional private console channel. English and Turkish are
 included. No separate Node.js service or external database is required.
 
-This is a Beta release. Human account-linking and visual client acceptance
+This release is named 1.0.0. Human account-linking and visual client acceptance
 remain incomplete. See [test evidence](compatibility-test.md). DyDiscord has
 no dependency on DyClaim. Project terms are GPL v3 with additional attribution, non-commercial
 distribution and public-source requirements; see [LICENSE](../LICENSE).
@@ -15,12 +21,12 @@ Run `gradlew.bat clean build` on Windows, or `./gradlew clean build` elsewhere.
 Gradle Wrapper 9.1.0, dependency locks and SHA-256 verification metadata are included.
 The build was checked with JDK 21.0.12.1 and produces Java 17 bytecode against
 Spigot API 1.20.4. Use a JDK supported by Gradle 9.1; JDK 17–25 is the build target.
-Install **`build/libs/DyDiscord-v1.0.0-BETA.jar`**, not the `plain` JAR.
+Install **`build/libs/DyDiscord-1.0.0.jar`**, not the `plain` JAR.
 
 The API baseline is not proof of runtime compatibility. Spigot 1.20.4 / Java 17
 is the initial candidate; newer Spigot/Paper builds need their own live evidence.
 Folia, proxies, Bedrock/Floodgate, server `/reload` and
-third-party hot loaders are not supported claims for this Beta.
+third-party hot loaders are not supported claims for this release.
 
 ## First setup
 

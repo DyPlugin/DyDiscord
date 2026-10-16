@@ -123,9 +123,19 @@ restore, disable boost rewards and reconcile reward/removal attempts with the
 provider records. Restoring DyDiscord files cannot undo money, site credit,
 Minecraft ranks or Discord roles. See [backup and rollback](upgrade-and-rollback.md).
 
-## Verification scope
+## Research and verification scope
 
-See [compatibility notes](compatibility-test.md). Paid boost transitions, external economy/site balances, human account forms and a Java 17 runtime require separate verification.
+DiscordSRV's official [synchronization settings](https://docs.discordsrv.com/synchronization/)
+and [LuckPerms contexts](https://docs.discordsrv.com/lp-contexts/) were reviewed
+for group/role and boosting behavior. DyDiscord uses explicit group rules and
+durable award receipts; DiscordSRV is not a dependency and its contexts are not
+implemented here.
+
+The isolated real LuckPerms and real JDA role checks, tested artifact and final
+results are recorded in [continuation verification](continuation-verification-20261012.md).
+These role checks do not prove an actual paid boost, economy/site transaction,
+human modal interaction, visual client or Java 17 runtime scenario. Each needs
+separate evidence; Java 17 bytecode is only the compilation target.
 
 ## Türkçe kısa kurulum
 

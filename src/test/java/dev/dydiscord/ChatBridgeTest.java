@@ -28,8 +28,8 @@ class ChatBridgeTest {
     @BeforeEach void setup()throws Exception{
         config=TestSupport.config(folder);config.change("bot.yml","guild-id",GUILD);config.change("bot.yml","chat.channel-id",CHANNEL);config.change("bot.yml","chat.minecraft-to-discord",true);config.change("bot.yml","chat.discord-to-minecraft",true);
         plugin=mock(DyDiscord.class);bot=mock(Bot.class);time=new TestSupport.Time();when(plugin.clock()).thenReturn(time);when(plugin.settings()).thenAnswer(i->config.active().settings());when(plugin.messages()).thenAnswer(i->config.active().messages());when(plugin.bot()).thenReturn(bot);when(plugin.ready()).thenReturn(true);when(bot.usable()).thenReturn(true);when(bot.content()).thenReturn(true);when(bot.alive(7)).thenReturn(true);when(bot.generation()).thenReturn(7L);when(bot.applied()).thenAnswer(i->config.active().settings());when(bot.activeLanguage()).thenReturn("en");when(plugin.getLogger()).thenReturn(java.util.logging.Logger.getLogger("chat-tests"));
-        server=mock(Server.class);when(plugin.getServer()).thenReturn(server);player=mock(Player.class);when(player.getName()).thenReturn("Alice");when(player.getUniqueId()).thenReturn(UUID.randomUUID());when(player.isOnline()).thenReturn(true);when(player.hasPermission(anyString())).thenReturn(true);when(player.getMetadata(anyString())).thenReturn(List.of());when(player.canSee(any(Player.class))).thenReturn(true);doReturn(List.of(player)).when(server).getOnlinePlayers();
-        doAnswer(i->{((Runnable)i.getArgument(0)).run();return null;}).when(plugin).onMain(any());bridge=new ChatBridge(plugin);when(plugin.chat()).thenReturn(bridge);
+        server=mock(Server.class);when(plugin.getServer()).thenReturn(server);player=mock(Player.class);when(player.getName()).thenReturn("Alice");when(player.getUniqueId()).thenReturn(UUID.randomUUID());when(player.isOnline()).thenReturn(true);when(player.getLocation()).thenReturn(new org.bukkit.Location(null,0,0,0));when(player.hasPermission(anyString())).thenReturn(true);when(player.getMetadata(anyString())).thenReturn(List.of());when(player.canSee(any(Player.class))).thenReturn(true);doReturn(List.of(player)).when(server).getOnlinePlayers();
+        when(plugin.getDataFolder()).thenReturn(folder.toFile());doAnswer(i->{((Runnable)i.getArgument(0)).run();return null;}).when(plugin).onMain(any());bridge=new ChatBridge(plugin);when(plugin.chat()).thenReturn(bridge);bridge.preference(player.getUniqueId()).get(5,TimeUnit.SECONDS);
     }
     @AfterEach void close(){bridge.close();}
     @Test void rankAndNoRankFormattingCannotPingOrInjectMarkdown(){
@@ -65,6 +65,42 @@ class ChatBridgeTest {
     }
     @Test void duplicateDiscordMessageHasOneDeliveryAndNoCommandDispatch(){Player.Spigot spigot=mock(Player.Spigot.class);when(player.spigot()).thenReturn(spigot);var event=incoming("623456789012345678",CHANNEL,"Hello");bridge.receive(event,7);bridge.receive(event,7);verify(spigot,times(1)).sendMessage(any(net.md_5.bungee.api.chat.BaseComponent.class));verify(server,never()).dispatchCommand(any(),anyString());assertEquals(0,bridge.queued());}
     @Test void otherChannelAndPrefixCannotReachPlayersOrConsole(){var spigot=mock(Player.Spigot.class);when(player.spigot()).thenReturn(spigot);bridge.receive(incoming("one","other","op Alice"),7);bridge.receive(incoming("two",CHANNEL,"dy!help"),7);verifyNoInteractions(spigot);verify(server,never()).dispatchCommand(any(),anyString());}
+    @Test void persistedInboundPreferenceFiltersQueuedDeliveryAndUnknownPlayers()throws Exception{
+        var spigot=mock(Player.Spigot.class);when(player.spigot()).thenReturn(spigot);
+        List<Runnable> tasks=new ArrayList<>();doAnswer(i->{tasks.add(i.getArgument(0));return null;}).when(plugin).onMain(any());
+        bridge.receive(incoming("before-optout",CHANNEL,"Hello"),7);bridge.preference(player.getUniqueId(),"inbound",false).get(5,TimeUnit.SECONDS);tasks.forEach(Runnable::run);verifyNoInteractions(spigot);
+        bridge.leave(player.getUniqueId());assertNull(bridge.preferencePreview(player.getUniqueId()));
+        time.advance(2);bridge.receive(incoming("after-leave",CHANNEL,"Hello again"),7);tasks.forEach(Runnable::run);verifyNoInteractions(spigot);
+    }
+    @Test void outboundOptoutRecheckedBeforeNetworkDispatch()throws Exception{
+        bridge.minecraft(player,"Allowed when queued");assertEquals(1,bridge.queued());
+        bridge.preference(player.getUniqueId(),"outbound",false).get(5,TimeUnit.SECONDS);bridge.flush();verify(bot,never()).sendChat(any(),any());
+    }
+    @Test void pausesDiscardQueuedWorkAndResumeOnlyFreshMessages()throws Exception{
+        bridge.offer("old",null);assertTrue(bridge.pause("outbound",true));assertEquals(0,bridge.queued());assertFalse(bridge.offer("paused",null));assertTrue(bridge.paused("outbound"));
+        bridge.pause("outbound",false);assertTrue(bridge.offer("fresh",null));bridge.flush();verify(bot).sendChat(argThat(value->value.text().equals("fresh")),any());
+        var spigot=mock(Player.Spigot.class);when(player.spigot()).thenReturn(spigot);bridge.pause("inbound",true);bridge.receive(incoming("paused-in",CHANNEL,"Hello"),7);verifyNoInteractions(spigot);
+        assertFalse(bridge.pause("unknown",true));
+    }
+    @Test void pauseResumeDuringAdmissionNeverReplaysPrePauseWork()throws Exception{
+        var spigot=mock(Player.Spigot.class);when(player.spigot()).thenReturn(spigot);var event=incoming("pause-race",CHANNEL,"Stale");
+        when(event.getMessage().getContentDisplay()).thenAnswer(call->{bridge.pause("inbound",true);bridge.pause("inbound",false);return "Stale";});
+        bridge.receive(event,7);verifyNoInteractions(spigot);
+        when(player.getName()).thenAnswer(call->{bridge.pause("outbound",true);bridge.pause("outbound",false);return "Alice";});
+        bridge.minecraft(player,"Stale outgoing");bridge.flush();verify(bot,never()).sendChat(any(),any());
+    }
+    @Test void slowmodePacesDeliveryWithoutAccumulatingExpiredChat()throws Exception{
+        when(bot.chatSlowmodeSeconds()).thenReturn(10);bridge.offer("first",null);bridge.offer("stale",null);bridge.flush();bridge.flush();verify(bot,times(1)).sendChat(any(),any());
+        time.advance(11);bridge.flush();assertEquals(0,bridge.queued());verify(bot,times(1)).sendChat(any(),any());
+        bridge.offer("fresh",null);bridge.flush();verify(bot,times(2)).sendChat(any(),any());
+    }
+    @Test void replyAuthorIsSafeAndNotificationRequiresOptinAndCooldown()throws Exception{
+        var spigot=mock(Player.Spigot.class);when(player.spigot()).thenReturn(spigot);var event=incoming("reply",CHANNEL,"Alice hi");Message replied=mock(Message.class);User author=mock(User.class);when(replied.getAuthor()).thenReturn(author);when(author.getName()).thenReturn("&c**Boss**\nName");when(event.getMessage().getReferencedMessage()).thenReturn(replied);
+        bridge.receive(event,7);var payload=org.mockito.ArgumentCaptor.forClass(net.md_5.bungee.api.chat.BaseComponent.class);verify(spigot).sendMessage(payload.capture());assertTrue(payload.getValue().toPlainText().contains("↪ Boss Name"));verify(player,never()).playSound(any(org.bukkit.Location.class),any(org.bukkit.Sound.class),anyFloat(),anyFloat());
+        bridge.preference(player.getUniqueId(),"notify",true).get(5,TimeUnit.SECONDS);time.advance(2);bridge.receive(incoming("notify-one",CHANNEL,"Hello Alice!"),7);time.advance(2);bridge.receive(incoming("notify-cooldown",CHANNEL,"Alice again"),7);verify(player,times(1)).playSound(any(org.bukkit.Location.class),eq(org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING),anyFloat(),anyFloat());
+        time.advance(16);bridge.receive(incoming("not-whole-name",CHANNEL,"Malice Alicex"),7);verify(player,times(1)).playSound(any(org.bukkit.Location.class),eq(org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING),anyFloat(),anyFloat());
+        bridge.preference(player.getUniqueId(),"notify",false).get(5,TimeUnit.SECONDS);time.advance(2);bridge.receive(incoming("disabled",CHANNEL,"Alice hi"),7);verify(player,times(1)).playSound(any(org.bukkit.Location.class),eq(org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING),anyFloat(),anyFloat());
+    }
     @Test void delayedIncomingWorkExpiresBeforeTouchingPlayers(){List<Runnable> tasks=new ArrayList<>();doAnswer(i->{tasks.add(i.getArgument(0));return null;}).when(plugin).onMain(any());var spigot=mock(Player.Spigot.class);when(player.spigot()).thenReturn(spigot);bridge.receive(incoming("one",CHANNEL,"Hello"),7);time.advance(6);tasks.forEach(Runnable::run);verifyNoInteractions(spigot);}
     @Test void cancelledMutedAndPrivateLegacyEventsDoNotReachBot()throws Exception{ChatEvents events=new ChatEvents(plugin);AsyncPlayerChatEvent cancelled=new AsyncPlayerChatEvent(false,player,"Hidden",new HashSet<>(Set.of(player)));cancelled.setCancelled(true);events.legacy(cancelled);verify(bot,never()).sendChat(any(),any());assertEquals(0,bridge.queued());MetadataValue muted=mock(MetadataValue.class);when(muted.asBoolean()).thenReturn(true);when(player.getMetadata("muted")).thenReturn(List.of(muted));events.legacy(new AsyncPlayerChatEvent(false,player,"muted",new HashSet<>(Set.of(player))));assertEquals(0,bridge.queued());when(player.getMetadata("muted")).thenReturn(List.of());events.legacy(new AsyncPlayerChatEvent(false,player,"private",new HashSet<>()));assertEquals(0,bridge.queued());}
     @Test void unknownChatPluginCannotLeakItsPrivateOrLateModeratedMessages(){org.bukkit.plugin.Plugin other=mock(org.bukkit.plugin.Plugin.class);when(other.isEnabled()).thenReturn(true);org.bukkit.event.Listener listener=new org.bukkit.event.Listener(){};var registered=new org.bukkit.plugin.RegisteredListener(listener,(l,e)->{},org.bukkit.event.EventPriority.MONITOR,other,false);AsyncPlayerChatEvent.getHandlerList().register(registered);try{new ChatEvents(plugin).legacy(new AsyncPlayerChatEvent(false,player,"private plugin message",new HashSet<>(Set.of(player))));assertEquals(0,bridge.queued());}finally{AsyncPlayerChatEvent.getHandlerList().unregister(registered);}}

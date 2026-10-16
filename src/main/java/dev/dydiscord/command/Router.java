@@ -34,7 +34,8 @@ public final class Router implements CommandExecutor,TabCompleter {
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){
         if(shortcut||!plugin.ready())return List.of();List<String> result=new ArrayList<>(Definition.tabs(args,plugin.language(sender),sender instanceof Player,sender::hasPermission));
         if(args.length==1){if(sender.hasPermission("dydiscord.unlink")||sender.hasPermission("dydiscord.admin.unlink")){for(String word:List.of("confirm","cancel")){String shown=Words.display(word,plugin.language(sender));if(Words.plain(shown).startsWith(Words.plain(args[0])))result.add(shown);}}}
-        return List.copyOf(result);
+        for(Definition definition:Definition.ALL){if(!Set.of("announce-send","announce-preview","announce-set").contains(definition.key())||!sender.hasPermission(definition.permission())||args.length!=definition.words().length+1)continue;boolean matches=true;for(int i=0;i<definition.words().length;i++)if(!Words.matches(definition.words()[i],args[i]))matches=false;if(matches)for(String name:plugin.settings().tools().templates().keySet())if(Words.plain(name).startsWith(Words.plain(args[args.length-1])))result.add(name);}
+        return List.copyOf(new LinkedHashSet<>(result));
     }
     private static String[] prepend(String[] raw){String[] out=new String[raw.length+1];out[0]="link";System.arraycopy(raw,0,out,1,raw.length);return out;}
 }

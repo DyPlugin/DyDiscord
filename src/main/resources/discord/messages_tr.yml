@@ -17,8 +17,8 @@ code-label: "Eşleştirme kodunuz"
 modal-title: "Hesap Eşle"
 # Use the account panel to link, view or unlink your own account. Generate a code in Minecraft with /discord link. Codes expire and do not sur
 help: "Hesaplarınızı eşleştirmek, eşleştirdiğiniz hesapları görmek veya eşleştirmeyi kaldırmak için hesap panelini kullanın. Kod almak için oyunda `/discord eşle` yazın. Kodların süresi dolduğunda, oyundan çıktığınızda veya sunucu yeniden başladığında yeni bir kod almanız gerekir."
-# DyDiscord v{version}: {state}
-status: "DyDiscord v{version} • {state}"
+# DyDiscord {version}: {state}
+status: "DyDiscord {version} • {state}"
 # Disabled
 state-disabled: "Kapalı"
 # Connecting
@@ -110,3 +110,36 @@ chat-quit: "{name} sunucudan ayrıldı."
 chat-death: "{death}"
 # Normal server shutdown only, before the process has fully stopped.
 server-stopping: "Sunucu kapanıyor."
+
+# Community commands and private first-link guidance; placeholders must match both languages.
+slash-players: "Görünür çevrimiçi oyuncuları gösterir"
+slash-ip: "Ayarlanan sunucu adreslerini gösterir"
+slash-links: "Sunucunun yararlı bağlantılarını gösterir"
+help-community: "/oyuncular — Çevrimiçi oyuncular\n/ip — Sunucu adresleri\n/bağlantılar — Yararlı bağlantılar"
+information-channel-only: "Bu komutu sunucunun bilgi kanalında kullanın."
+players-title: "Çevrimiçi oyuncular ({count})"
+players-empty: "Şu anda çevrimiçi oyuncu yok."
+players-more: "Ve {count} oyuncu daha."
+addresses-title: "Sunucu adresleri"
+address-java: "Java Edition"
+address-bedrock: "Bedrock Edition"
+addresses-empty: "Sunucu adresleri henüz ayarlanmadı."
+links-title: "Yararlı bağlantılar"
+links-empty: "Henüz bağlantı ayarlanmadı."
+link-welcome: "Hoş geldiniz! Minecraft ve Discord hesaplarınız eşlendi."
+server-started: "{server_name} hazır. Artık katılabilirsiniz."
+# Giveaway card text and private participation responses; placeholders match English.
+giveaway-title: "Çekiliş"
+giveaway-enter: "Katıl"
+giveaway-open: "Ödül: {prize}\nKazanan sayısı: {winners}\nBitiş: {ends}\nKatıl butonuyla katılabilirsiniz. Her hesap bir kez katılabilir."
+giveaway-drawn: "Ödül: {prize}\nKazananlar: {winners}"
+giveaway-cancelled: "Çekiliş iptal edildi. Ödül: {prize}"
+giveaway-no-winners: "Koşulları sağlayan katılımcı yok"
+giveaway-joined: "Çekilişe katıldınız."
+giveaway-already: "Bu çekilişe zaten katıldınız."
+giveaway-closed: "Bu çekiliş sona erdi."
+giveaway-full: "Çekilişin katılımcı sınırına ulaşıldı."
+giveaway-ineligible: "Çekilişin katılım koşullarını sağlamıyorsunuz."
+giveaway-unavailable: "Çekiliş şu anda kullanılamıyor. Lütfen biraz sonra tekrar deneyin."
+notice-maintenance: "Birazdan bakım başlayacak."
+notice-restart: "Sunucu birazdan yeniden başlatılacak."

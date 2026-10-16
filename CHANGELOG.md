@@ -1,3 +1,31 @@
+# DyDiscord 1.0.0
+
+## Added
+
+- Discord player lists, configured Java/Bedrock addresses, useful links and custom server information.
+- Persistent personal chat preferences, opt-in name notifications and safe reply context.
+- Private linking welcomes and first-link reward commands with durable anti-replay receipts.
+- Shared notice templates, preview, maintenance/restart notices, paced scheduled announcements and startup notifications.
+- Guided setup, read-only configuration/translation checks, safe support reports and feature health details.
+- Persistent button giveaways with optional linked-account/role conditions, automatic draws and result recovery.
+- Channel restrictions, separate administration permissions and update notification preferences.
+
+## Improved
+
+- Smaller default download with server-managed dependency caching; standalone remains available for offline installation.
+- Readable message truncation, slowmode pacing and independent temporary chat pauses.
+- Existing account links, settings, translations and panel state remain compatible.
+
+## Upgrade
+
+Use `DyDiscord-1.0.0.jar` or `DyDiscord-1.0.0-standalone.jar`, never both.
+Back up the entire stopped-server DyDiscord folder before replacing the JAR.
+Optional notices, rewards and giveaways are disabled until configured.
+This release uses the 1.0.0 name without a leading v or BETA. Previous beta tags
+remain historical; see the upgrade guide for the version-line transition.
+
+---
+
 # DyDiscord v1.0.1-BETA
 
 **Role integration and community rewards**

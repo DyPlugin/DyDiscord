@@ -45,6 +45,18 @@ public final class Store implements AutoCloseable {
                 Path backup=file.toAbsolutePath().resolveSibling(file.getFileName()+".backup-schema"+schema+"-"+UUID.randomUUID());
                 try(PreparedStatement copy=db.prepareStatement("VACUUM INTO ?")){copy.setString(1,backup.toString());copy.execute();}
             }
+            if(schema==3){
+                boolean needsRewardBackup;
+                try(ResultSet rows=s.executeQuery("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name IN ('link_reward_seen','link_reward_origins')")){
+                    needsRewardBackup=rows.next()&&rows.getInt(1)==0;
+                }
+                if(needsRewardBackup){
+                    Path backup=file.toAbsolutePath().resolveSibling(file.getFileName()+".backup-reward-observations-"+UUID.randomUUID());
+                    // Snapshot committed WAL data before the additive migration mutates anything.
+                    // A failed backup aborts initialization without creating observation tables.
+                    try(PreparedStatement copy=db.prepareStatement("VACUUM INTO ?")){copy.setString(1,backup.toString());copy.execute();}
+                }
+            }
             s.execute("PRAGMA journal_mode=WAL");s.execute("PRAGMA synchronous=FULL");
             db.setAutoCommit(false);
             s.execute("CREATE TABLE IF NOT EXISTS links(uuid TEXT PRIMARY KEY, discord TEXT NOT NULL UNIQUE, name TEXT NOT NULL, linked_at TEXT NOT NULL, version TEXT NOT NULL UNIQUE, discord_name TEXT NOT NULL DEFAULT '')");
@@ -70,10 +82,45 @@ public final class Store implements AutoCloseable {
             s.execute("CREATE INDEX IF NOT EXISTS role_due ON role_targets(dirty,due)");
             s.execute("CREATE TABLE IF NOT EXISTS role_sweeps(guild TEXT PRIMARY KEY,cleanup INTEGER NOT NULL,link_cursor TEXT NOT NULL,target_cursor TEXT NOT NULL,phase INTEGER NOT NULL,batch INTEGER NOT NULL)");
             s.execute("CREATE TABLE IF NOT EXISTS role_cleanup_roles(guild TEXT NOT NULL,role TEXT NOT NULL,PRIMARY KEY(guild,role))");
+            // First-link facts remain available even when the optional reward ledger is down.
+            initializeLinkRewardFacts(s);
             // Accepted but unfinished commands are never replayed after restart.
             s.execute("UPDATE console_receipts SET result='unknown' WHERE result='accepted'");
             db.commit();db.setAutoCommit(true);
         } catch(Exception e){try{if(!db.getAutoCommit())db.rollback();}catch(SQLException rollback){e.addSuppressed(rollback);}db.close();throw e;}
+    }
+    private static void initializeLinkRewardFacts(Statement statement)throws SQLException{
+        Set<String> existing=new HashSet<>();
+        try(ResultSet rows=statement.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('link_reward_seen','link_reward_origins')")){while(rows.next())existing.add(rows.getString(1));}
+        if(existing.size()==1)throw new SQLException("Incomplete first-link observation schema");
+        statement.execute("CREATE TABLE IF NOT EXISTS link_reward_seen(kind TEXT NOT NULL CHECK(kind IN ('minecraft','discord')),identity TEXT NOT NULL,PRIMARY KEY(kind,identity))");
+        statement.execute("CREATE TABLE IF NOT EXISTS link_reward_origins(version TEXT PRIMARY KEY NOT NULL,uuid TEXT NOT NULL,discord TEXT NOT NULL)");
+        for(String table:List.of("link_reward_seen","link_reward_origins")){
+            Set<String> columns=new HashSet<>();Map<String,Integer> key=new HashMap<>();
+            try(ResultSet rows=statement.executeQuery("PRAGMA table_info("+table+")")){while(rows.next()){columns.add(rows.getString("name"));if(rows.getInt("pk")>0)key.put(rows.getString("name"),rows.getInt("pk"));}}
+            Map<String,Integer> expected=table.equals("link_reward_seen")?Map.of("kind",1,"identity",2):Map.of("version",1);
+            Set<String> required=table.equals("link_reward_seen")?Set.of("kind","identity"):Set.of("version","uuid","discord");
+            if(!key.equals(expected)||!columns.containsAll(required))throw new SQLException("Invalid first-link observation schema");
+        }
+        // Existing accounts are baseline observations, never new reward origins.
+        statement.execute("INSERT OR IGNORE INTO link_reward_seen SELECT 'minecraft',uuid FROM links");
+        statement.execute("INSERT OR IGNORE INTO link_reward_seen SELECT 'discord',discord FROM links");
+    }
+    public synchronized boolean firstRewardEligible(Link link)throws SQLException{
+        try(PreparedStatement statement=db.prepareStatement("SELECT 1 FROM link_reward_origins WHERE version=? AND uuid=? AND discord=?")){
+            statement.setString(1,link.version());statement.setString(2,link.uuid().toString());statement.setString(3,link.discord());
+            try(ResultSet rows=statement.executeQuery()){return rows.next();}
+        }
+    }
+    private void observeRewardOrigin(Link link)throws SQLException{
+        int minecraft,discord;
+        try(PreparedStatement statement=db.prepareStatement("INSERT OR IGNORE INTO link_reward_seen VALUES(?,?)")){
+            statement.setString(1,"minecraft");statement.setString(2,link.uuid().toString());minecraft=statement.executeUpdate();
+            statement.setString(1,"discord");statement.setString(2,link.discord());discord=statement.executeUpdate();
+        }
+        if(minecraft==1&&discord==1)try(PreparedStatement statement=db.prepareStatement("INSERT INTO link_reward_origins VALUES(?,?,?)")){
+            statement.setString(1,link.version());statement.setString(2,link.uuid().toString());statement.setString(3,link.discord());statement.executeUpdate();
+        }
     }
     public boolean writable(){return writable;}
     private void requireWrite()throws SQLException{if(!writable)throw new SQLException("Data mutations unavailable");}
@@ -94,7 +141,7 @@ public final class Store implements AutoCloseable {
     public synchronized Link link(UUID uuid,String discord,String name,String discordName,Instant now,java.util.function.BooleanSupplier valid)throws SQLException{
         requireWrite();discordName=checkedDiscordName(discordName);Link link=new Link(uuid,discord,name,now,UUID.randomUUID().toString(),discordName);
         db.setAutoCommit(false);
-        try(PreparedStatement s=db.prepareStatement("INSERT INTO links(uuid,discord,name,linked_at,version,discord_name) VALUES(?,?,?,?,?,?)")){s.setString(1,uuid.toString());s.setString(2,discord);s.setString(3,name);s.setString(4,now.toString());s.setString(5,link.version);s.setString(6,discordName);s.executeUpdate();try(PreparedStatement dirty=db.prepareStatement("UPDATE role_targets SET revision=revision+1,dirty=1,due=0,status='QUEUED' WHERE discord=?")){dirty.setString(1,discord);dirty.executeUpdate();}if(!valid.getAsBoolean())throw new Revoked();db.commit();linkChanged(discord);return link;}
+        try(PreparedStatement s=db.prepareStatement("INSERT INTO links(uuid,discord,name,linked_at,version,discord_name) VALUES(?,?,?,?,?,?)")){s.setString(1,uuid.toString());s.setString(2,discord);s.setString(3,name);s.setString(4,now.toString());s.setString(5,link.version);s.setString(6,discordName);s.executeUpdate();observeRewardOrigin(link);try(PreparedStatement dirty=db.prepareStatement("UPDATE role_targets SET revision=revision+1,dirty=1,due=0,status='QUEUED' WHERE discord=?")){dirty.setString(1,discord);dirty.executeUpdate();}if(!valid.getAsBoolean())throw new Revoked();db.commit();linkChanged(discord);return link;}
         catch(SQLException|RuntimeException e){try{db.rollback();}catch(SQLException rollback){writable=false;e.addSuppressed(rollback);}if(e instanceof SQLException sql&&!(sql instanceof Revoked)&&sql.getErrorCode()!=19)writable=false;throw e;}
         finally{try{db.setAutoCommit(true);}catch(SQLException e){writable=false;throw e;}}
     }
@@ -234,4 +281,3 @@ public final class Store implements AutoCloseable {
     }
     @Override public synchronized void close()throws SQLException{db.close();}
 }
-

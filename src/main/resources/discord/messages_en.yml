@@ -17,8 +17,8 @@ code-label: "Linking code"
 modal-title: "Link Your Account"
 # Use the account panel to link, view or unlink your own account. Generate a code in Minecraft with /discord link. Codes expire and do not sur
 help: "Use the account panel to link, view or unlink your own account. Generate a code in Minecraft with /discord link. Codes expire and do not survive a server restart."
-# DyDiscord v{version}: {state}
-status: "DyDiscord v{version}: {state}"
+# DyDiscord {version}: {state}
+status: "DyDiscord {version}: {state}"
 # Disabled
 state-disabled: "Disabled"
 # Connecting
@@ -110,3 +110,36 @@ chat-quit: "{name} left the server."
 chat-death: "{death}"
 # Normal server shutdown only, before the process has fully stopped.
 server-stopping: "The server is shutting down."
+
+# Community commands and private first-link guidance; placeholders must match both languages.
+slash-players: "Show visible online players"
+slash-ip: "Show configured server addresses"
+slash-links: "Show useful server links"
+help-community: "/players — Online players\n/ip — Server addresses\n/links — Useful links"
+information-channel-only: "Use the server information channel for this command."
+players-title: "Online players ({count})"
+players-empty: "No players are online."
+players-more: "And {count} more players."
+addresses-title: "Server addresses"
+address-java: "Java Edition"
+address-bedrock: "Bedrock Edition"
+addresses-empty: "Server addresses have not been configured."
+links-title: "Useful links"
+links-empty: "No links have been configured."
+link-welcome: "Welcome! Your Minecraft and Discord accounts are now connected."
+server-started: "{server_name} is ready. You can join now."
+# Giveaway card text and private participation responses; never mention users.
+giveaway-title: "Giveaway"
+giveaway-enter: "Enter"
+giveaway-open: "Prize: {prize}\nWinners: {winners}\nEnds: {ends}\nSelect Enter to participate. One entry per account."
+giveaway-drawn: "Prize: {prize}\nWinners: {winners}"
+giveaway-cancelled: "Giveaway cancelled. Prize: {prize}"
+giveaway-no-winners: "No eligible entrants"
+giveaway-joined: "You have entered this giveaway."
+giveaway-already: "You have already entered this giveaway."
+giveaway-closed: "This giveaway has closed."
+giveaway-full: "This giveaway has reached its entry limit."
+giveaway-ineligible: "You do not meet the entry requirements."
+giveaway-unavailable: "This giveaway is temporarily unavailable. Please try again later."
+notice-maintenance: "Maintenance will begin shortly."
+notice-restart: "The server will restart shortly."

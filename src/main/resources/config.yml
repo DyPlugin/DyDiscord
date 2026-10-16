@@ -30,5 +30,19 @@ linking:
   confirmation-timeout-seconds: 30
 # Optional version notices from the public Modrinth project dydiscord.
 updates:
+  # Notification audience: console, players, both. Players need the update permission.
+  notify: both
+  # Include future beta releases; superseded pre-1.0.0 release-line betas stay excluded.
+  include-beta: false
   # Checks compatible plugin versions every six hours; never downloads a JAR.
   enabled: true
+# Public server information; addresses are owner supplied and never detected.
+community:
+  # Java connection address (host or host:port); blank hides it. Reload applies.
+  java-address: ""
+  # Optional Bedrock connection address; this does not install a Bedrock bridge.
+  bedrock-address: ""
+  # Up to ten entries with name and HTTPS url; no credentials/custom ports.
+  links: []
+  # Up to ten name/value fields, name up to 80 and value up to 160 characters.
+  server-fields: []

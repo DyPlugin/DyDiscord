@@ -48,6 +48,7 @@ class ConsoleChatBoundaryTest {
             when(plugin.settings()).thenAnswer(call -> configuration.active().settings());
             when(plugin.messages()).thenAnswer(call -> configuration.active().messages());
             when(plugin.clock()).thenReturn(time);
+            when(plugin.getDataFolder()).thenReturn(folder.toFile());
             when(plugin.bot()).thenReturn(bot);
             when(plugin.getServer()).thenReturn(server);
             when(plugin.ready()).thenReturn(true);
@@ -65,6 +66,7 @@ class ConsoleChatBoundaryTest {
             doAnswer(call -> { mainTasks.add(call.getArgument(0)); return null; }).when(plugin).onMain(any());
             bridge = new ChatBridge(plugin);
             when(plugin.chat()).thenReturn(bridge);
+            bridge.preference(player.getUniqueId()).get(5,java.util.concurrent.TimeUnit.SECONDS);
             events = new ChatEvents(plugin);
         }
 

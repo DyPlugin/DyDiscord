@@ -112,3 +112,37 @@ boost-rewards:
   recheck-seconds: 300
   # Minimum hours between rewards for the same Discord account (168-8760).
   cooldown-hours: 168
+# Public Discord commands; empty list permits any regular text channel. Reload applies.
+community:
+  information-channel-ids: []
+# First link only, once for BOTH accounts; existing/disabled links are never rewarded later.
+link-rewards:
+  enabled: false
+  # Up to ten trusted console commands; {player}/{uuid}, max 256 characters each.
+  commands: []
+# Optional private welcome after permanent linking; no claim about reward success.
+link-welcome:
+  minecraft: false
+  discord: false
+# Optional community notices; never use the panel or private console channel. Reload applies.
+community-tools:
+  channel-id: ""
+  # Only after a genuine server STARTUP; bot restarts/reloads do not announce startup.
+  startup-notice: false
+  # Up to twenty single-line templates, max 800 characters. Admin edits preserve other keys.
+  templates:
+    maintenance: "Maintenance will begin shortly."
+    restart: "The server will restart shortly."
+  announcements:
+    enabled: false
+    # Up to twenty {template, target, every-seconds}; target both/minecraft/discord, 60-86400 seconds.
+    schedules: []
+# Optional button-based giveaways; no economy commands are executed. Reload applies.
+giveaways:
+  enabled: false
+  # Use a regular guild text channel, separate from panel and private console.
+  channel-id: ""
+  # Both entry and draw verify this condition; membership failures postpone drawing.
+  require-linked: false
+  # Optional OR rule: a member must hold at least one listed role ID. Max twenty.
+  allowed-role-ids: []

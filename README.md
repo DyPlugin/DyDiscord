@@ -4,7 +4,7 @@
 
 DyDiscord is a Discord integration plugin for Minecraft servers. Connect your community, link player accounts and manage your server through your own Discord bot.
 
-**Version v1.0.1-BETA** includes private account linking, two-way chat, Discord role synchronization, configurable boost rewards, player notifications and optional console access with English and Turkish support. The bot runs inside the plugin; no separate bot service or external database is required.
+**Version 1.0.0** includes private account linking, two-way chat, role synchronization, configurable rewards, community announcements, player preferences and giveaways, with English and Turkish support. The bot runs inside the plugin; no separate bot service or external database is required.
 
 ---
 
@@ -86,7 +86,7 @@ Discord's `bot.language` controls its panel, forms and messages independently; c
 
 DyDiscord checks Modrinth for newer public versions compatible with your Minecraft version and server platform. Notifications go to the console and administrators with `dydiscord.admin.update`.
 
-Beta installations can receive compatible Beta or stable recommendations; stable installations do not follow prereleases. Failed requests are retried. The checker uses the project identifier `dydiscord`, so GitHub-only releases do not trigger it.
+Stable installations receive compatible stable recommendations. Set updates.include-beta to opt into future betas; superseded historical betas are excluded. Failed requests are retried. The checker uses the project identifier `dydiscord`, so GitHub-only releases do not trigger it.
 
 The checker provides notifications; it does not download or replace your plugin JAR.
 
@@ -226,7 +226,21 @@ Minecraft permissions and Discord console roles are separate. Account linking do
 
 ## Setup
 
-1. Stop your server, then place **`DyDiscord-v1.0.1-BETA.jar`** in your server's `plugins/` folder and start the server.
+Choose one distribution:
+
+- **`DyDiscord-1.0.0.jar`** is the small download. Spigot/Paper resolves
+  its declared libraries from Maven Central (or the server's configured mirror)
+  and stores them in the server library cache. First installation needs internet
+  access and may take longer. Missing required libraries prevent plugin loading.
+- **`DyDiscord-1.0.0-standalone.jar`** bundles runtime dependencies for
+  offline installation. Install only one of the two JARs at a time.
+
+The server resolver can download additional transitive JDA libraries and prefer
+server-provided versions. Its cache and version selection are server-owned;
+this is not a guarantee that effective versions exactly match the build graph.
+No voice feature is enabled. See [packaging](docs/packaging.md).
+
+1. Stop your server, then place **`DyDiscord-1.0.0.jar`** in your server's `plugins/` folder and start the server.
 2. Create your own bot in the [Discord Developer Portal](https://discord.com/developers/applications) and invite it with the `bot` and `applications.commands` scopes and the required channel permissions.
 3. Enter the token and quoted Discord server ID locally in **`plugins/DyDiscord/bot.yml`**. Keep the token private.
 4. Run **`/dydiscord admin reload`**, then **`/dydiscord admin bot enable`**.
@@ -276,6 +290,18 @@ DyDiscord's source is public. Bug reports, feature requests and contributions ar
 
 The project license notice includes attribution, non-commercial distribution and public-source requirements. See the [full license](https://github.com/DyPlugin/DyDiscord/blob/main/LICENSE) for the terms; dependency licenses remain independent.
 
-[Source code and documentation](https://github.com/DyPlugin/DyDiscord) · [Report an issue](https://github.com/DyPlugin/DyDiscord/issues) · [Discord support](https://discord.gg/dyhub) · [v1.0.1-BETA release](https://github.com/DyPlugin/DyDiscord/releases/tag/v1.0.1-BETA) · [Full license](https://github.com/DyPlugin/DyDiscord/blob/main/LICENSE)
+[Source code and documentation](https://github.com/DyPlugin/DyDiscord) · [Report an issue](https://github.com/DyPlugin/DyDiscord/issues) · [Discord support](https://discord.gg/dyhub) · [Published releases](https://github.com/DyPlugin/DyDiscord/releases) · [Full license](https://github.com/DyPlugin/DyDiscord/blob/main/LICENSE)
 
 **By Claww / DyPlugin.**
+
+## Community tools in 1.0.0
+
+Use `/players`, `/ip` and `/links` in Discord, with configurable `/server`
+fields and optional command channels. Players control chat visibility/sharing
+and opt-in name sounds. Administrators can preview/send notices, schedule
+announcements, pause bridging, check configuration without applying it and
+create safe support reports. Optional first-link rewards and persistent button
+giveaways are disabled until configured. Existing accounts remain linked.
+
+See [community tools](docs/community-features.md), [first-link rewards](docs/link-rewards.md)
+and [giveaways](docs/giveaways.md) for setup, permissions, limits and recovery.

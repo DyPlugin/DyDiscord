@@ -1,5 +1,13 @@
 # Backup, upgrade and rollback
 
+For 1.0.0 choose either the small `DyDiscord-1.0.0.jar` or the bundled
+`DyDiscord-1.0.0-standalone.jar`; install only one. Both use the existing
+DyDiscord data folder and do not require account relinking. The small package
+needs Maven access for initial dependency resolution. Preserve the server's
+library cache for offline restarts, or use standalone for offline installation.
+Changing package variants does not require deleting configuration or databases.
+See [packaging details](packaging.md) for loader caveats and verified results.
+
 Before changing the JAR, stop the Minecraft server and wait for shutdown to finish.
 Back up the **entire** `plugins/DyDiscord` directory and the matching JAR. Store
 the backup securely: configuration may contain a bot token, and the database,
@@ -12,7 +20,7 @@ use a supported consistent backup, stop the server before copying all files.
 Apply the same rule to the separate `data/boosts.db` reward database and its WAL;
 both databases and the provider's reward records matter for a consistent restore.
 
-Install `DyDiscord-v1.0.1-BETA.jar` and start normally. Preserve custom config,
+Install `DyDiscord-1.0.0.jar` and start normally. Preserve custom config,
 comments and language files. The current SQLite schema is **3**; `config-version`
 in `config.yml` and `bot.yml` is **2**. Future/unsupported versions are refused.
 Take the stopped-server backup before the first startup with the updated JAR;
@@ -130,3 +138,15 @@ without adding a copy.
 The bot only removes slash command IDs it recorded as its own. Preserve the
 database so language transitions retain that ownership history. An unowned
 matching command name stops registration and needs owner review.
+
+## 1.0.0 local stores and version naming
+
+The release is named 1.0.0 (no leading v or BETA); previous release tags remain
+historical. Existing links, panel state and languages are preserved. Additive
+first-link observation tables are backed up before creation in an existing
+schema-3 database. Include `data/rewards.db`, `data/giveaways.db` and
+`chat-preferences.db`, in addition to both previous databases and WAL companions,
+in a consistent stopped-server backup. These ledgers prevent reward replay and
+preserve completed lottery results. Do not restore an old receipt database merely
+to repeat commands. Restoring local files never undoes money, site credits,
+Minecraft groups, Discord roles or previously announced winners.

@@ -136,4 +136,19 @@ roles alone. Re-enabling synchronization cancels or supersedes cleanup; cleanup
 cannot keep removing active desired roles. Failures remain visible and can need
 manual owner repair. Database rollback does not undo Discord role changes.
 
-See [verification scope](compatibility-test.md). Before first enablement, preview changes using isolated test accounts and roles. Review hierarchy, temporary memberships, unlinking and cleanup before relying on the configuration in production.
+The initial role-update clean build passed 409 automated tests, including the role fixtures and
+existing behavior regressions. An isolated Paper 26.3-143 / Java 25.0.4.1 /
+LuckPerms 5.5.87 provider harness passed all 10 actual LuckPerms checks against
+the exact final JAR and exited normally. An independent Shadow rebuild produced
+the same SHA-256. See [final build verification](roles-verification-20261012.md)
+and [provider evidence and its limits](role-live-evidence-20261012.md).
+
+The subsequent [comprehensive quality review](quality-review-20261012.md)
+supersedes that artifact and adds explicit blocking of voice mute/deafen/move
+and managing other users' nicknames. It also resolves unfinished worker results
+at shutdown. Existing role configuration and account data are preserved.
+
+No live Discord role endpoints, human linking/cleanup, or production setup were
+exercised. Use an owner-authorized isolated test setup for first enablement,
+hierarchy/critical-role changes, expiry, outages, member-intent fallback,
+unlink/relink and cleanup before relying on those behaviors in production.

@@ -11,9 +11,16 @@ public final class Messages {
     private final Set<String> missing;
     private Messages(Map<String,Map<String,String>> packs,Set<String> missing){this.packs=Map.copyOf(packs);this.missing=Set.copyOf(missing);}
     public Set<String> missing(){return missing;}
+    /** Newly introduced keys migrate in the selected language; existing owner text is untouched. */
+    public static boolean releaseKey(String key){
+        return List.of("giveaway-","players-","addresses-","address-","links-","notice-","help-chat-","help-announce","help-giveaway-").stream().anyMatch(key::startsWith)
+            ||Set.of("slash-players","slash-ip","slash-links","help-community","server-started","information-channel-only","link-welcome","community-notice","report-saved","validation-result","setup-guide","reward-preview","help-maintenance","help-restart-notice","help-support-report","help-config-validate","help-translations-validate","help-setup","help-rewards-preview").contains(key);
+    }
     public void validatePanel(String serverName){for(String lang:List.of("en","tr")){
         String serverTitle=render(true,lang,"server-info-title",Map.of("server_name",serverName));
         if(serverTitle.isBlank()||serverTitle.length()>256||get(true,lang,"server-info-players").isBlank()||get(true,lang,"server-info-players").length()>256||get(true,lang,"server-info-version").isBlank()||get(true,lang,"server-info-version").length()>256||Math.max(get(true,lang,"help").length(),get(true,lang,"commands-help").length())+2+get(true,lang,"help-server").length()>2000)throw new IllegalArgumentException("Invalid server/help text: discord/messages_"+lang+".yml");
+        Map<String,String> giveawayBounds=Map.of("prize","*".repeat(200),"winners",String.join(", ",Collections.nCopies(20,"*".repeat(32))),"ends","x".repeat(48));
+        for(String key:List.of("giveaway-open","giveaway-drawn","giveaway-cancelled"))if(render(true,lang,key,giveawayBounds).length()>4096)throw new IllegalArgumentException("Invalid message: discord/messages_"+lang+".yml:"+key);
         String title=render(true,lang,"panel-title",Map.of("server_name",serverName)),body=get(true,lang,"panel-description"),privacy=get(true,lang,"panel-privacy");
         if(title.isBlank()||body.isBlank()||privacy.isBlank()||title.length()>256||6+title.length()+body.length()+privacy.length()>4000)throw new IllegalArgumentException("Invalid panel text: discord/messages_"+lang+".yml");
     }}
@@ -39,7 +46,7 @@ public final class Messages {
             Map<String,Object> bundled;try(InputStream in=Messages.class.getClassLoader().getResourceAsStream(surface+"messages_en.yml")){if(in==null)throw new IOException("Missing messages");bundled=Configuration.parse(new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8));}
             Map<String,Object> custom=new HashMap<>(Configuration.read(folder.resolve(file)));Map<String,String> result=new HashMap<>();
             upgradeDefaults(surface,lang,custom);
-            for(var entry:bundled.entrySet()){if(!custom.containsKey(entry.getKey()))missing.add(file+":"+entry.getKey());Object v=custom.getOrDefault(entry.getKey(),entry.getValue());int max=4000;if(!surface.isEmpty()){String key=entry.getKey();max=key.startsWith("slash-")?100:switch(key){case "panel-title"->256;case "modal-title","code-label"->45;case "link","account-button","unlink","confirm-button","cancel-button"->80;case "footer"->100;case "help","status","private-prompt","commands-prompt","commands-help","panel-disabled","panel-missing","console-prefix","console-rejected","console-result"->1600;default->3500;};}if(!(v instanceof String s)||s.length()>max||!placeholders(s).equals(placeholders((String)entry.getValue())))throw new IOException("Invalid message: "+file+":"+entry.getKey());result.put(entry.getKey(),s);}
+            for(var entry:bundled.entrySet()){if(!custom.containsKey(entry.getKey()))missing.add(file+":"+entry.getKey());Object v=custom.getOrDefault(entry.getKey(),entry.getValue());int max=4000;if(!surface.isEmpty()){String key=entry.getKey();max=key.startsWith("slash-")?100:switch(key){case "panel-title","giveaway-title","players-title","addresses-title","links-title","address-java","address-bedrock","players-more"->256;case "giveaway-enter"->80;case "modal-title","code-label"->45;case "link","account-button","unlink","confirm-button","cancel-button"->80;case "footer"->100;case "help","status","private-prompt","commands-prompt","commands-help","panel-disabled","panel-missing","console-prefix","console-rejected","console-result"->1600;default->3500;};}if(!(v instanceof String s)||s.length()>max||!placeholders(s).equals(placeholders((String)entry.getValue())))throw new IOException("Invalid message: "+file+":"+entry.getKey());result.put(entry.getKey(),s);}
             packs.put(surface+lang,Map.copyOf(result));
         } return new Messages(packs,missing);
     }
@@ -51,6 +58,7 @@ public final class Messages {
             for(String key:(surface.isEmpty()?List.of("panel-disabled","help-panel-enable","help-panel-disable"):List.of("server-info-title","server-info-players","server-info-version","slash-server","help-server","panel-disabled","commands-prompt","commands-help")))custom.putIfAbsent(key,current.get(key));
         }
         boolean tr=lang.equals("tr");Map<String,String> legacy=new HashMap<>();
+        if(!surface.isEmpty()&&Set.of("DyDiscord v{version}: {state}","DyDiscord v{version} • {state}").contains(custom.getOrDefault("status","")))custom.put("status",tr?"DyDiscord {version} • {state}":"DyDiscord {version}: {state}");
         if(surface.isEmpty()){
             if(tr)legacy.put("bot-setup-incomplete","&eBotu açmadan önce bot.yml içinde token ve guild-id ayarlayın, sonra /dydiscord yönetim yenile çalıştırın.");
             legacy.put("link-code",tr?"&7Eşleme kodunuz: &e{code} &7({minutes} dakika sonra geçersiz olur).":"&7Your linking code: &e{code} &7(expires in {minutes} minutes).");
@@ -63,7 +71,7 @@ public final class Messages {
         }
         try(InputStream in=Messages.class.getClassLoader().getResourceAsStream(surface+"messages_"+lang+".yml")){
             if(in==null)throw new IOException("Missing messages");Map<String,Object> defaults=Configuration.parse(new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8));
-            defaults.forEach((key,value)->{if(key.startsWith("state-")||key.startsWith("language-name-")||key.equals("update-available")||key.startsWith("chat-")||key.equals("server-stopping"))custom.putIfAbsent(key,value);});
+            defaults.forEach((key,value)->{if(key.startsWith("state-")||key.startsWith("language-name-")||key.equals("update-available")||key.startsWith("chat-")||key.equals("server-stopping")||releaseKey(key))custom.putIfAbsent(key,value);});
             if(tr)try(InputStream previous=Messages.class.getClassLoader().getResourceAsStream("legacy/"+surface+"messages_tr.yml")){
                 if(previous==null)throw new IOException("Missing legacy messages");
                 Map<String,Object> shipped=Configuration.parse(new String(previous.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8));

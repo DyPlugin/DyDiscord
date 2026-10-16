@@ -17,4 +17,3 @@ class RoleSettingsTest {
     @Test void managedSetIncludesRepeatedIdsOnlyOnce(){var r=read(Map.of("linked-role-ids",List.of(A,A),"groups",List.of(Map.of("group","vip","role-ids",List.of(A,B,B),"priority",0)))).roleSync();assertEquals(Set.of(A,B),r.managedIds());}
     @Test void malformedSectionsAndExcessiveCollectionsAreRejected(){for(var r:List.<Map<String,Object>>of(Map.of("groups","vip"),Map.of("context",List.of("server")),Map.of("linked-role-ids",Collections.nCopies(101,A)),Map.of("groups",List.of(Map.of("group","bad group","role-ids",List.of(A),"priority",0)))))assertThrows(IllegalArgumentException.class,()->read(r));}
 }
-

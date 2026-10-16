@@ -1,4 +1,15 @@
-# DyDiscord v1.0.1-BETA
+# DyDiscord 1.0.0
+
+Küçük `DyDiscord-1.0.0.jar`, kütüphaneleri ilk kurulumda Spigot/Paper'ın
+yerleşik yükleyicisiyle indirir; sunucunun kütüphane önbelleğinde saklanırlar.
+İlk kurulum internet gerektirir ve daha uzun sürebilir. Bağımlılıklar alınamazsa
+eklenti yüklenemez. Çevrimdışı kurulum için `-standalone.jar` tam paketini kullanın.
+İki paketi aynı anda `plugins` klasörüne koymayın. Sunucunun sürüm seçimi veya
+geçişli bağımlılıkları yapılandırılan Maven kütüphanelerinden farklılaşabilir.
+
+1.0.0 topluluk araçlarını ekler; mevcut özellikler, ayarlar ve hesap verileri
+korunur. Yalnızca kullanılmayan koleksiyon sınıfları çıkarılır. SQLite'ın bütün
+platform dosyaları, servis kayıtları, lisanslar ve Trove kaynak arşivi korunur.
 
 Panel yerine komut kullanmak için `/dydiscord admin panel kapat` yazın.
 `/dydiscord admin panel aç` aynı panel mesajını yeniden etkinleştirir.
@@ -11,7 +22,7 @@ gösterir. [Panel/komut modu rehberi](panel-mode.md).
 Discord botu çalıştırır. Özel hesap eşleme ve isteğe bağlı özel konsol kanalı sunar.
 Ayrı Node.js botu veya harici veritabanı gerekmez. İngilizce ve Türkçe dahildir.
 
-Bu sürüm otomatik kontrolleri bulunan bir Beta'dır. Gerçek Minecraft/Discord,
+Bu sürüm 1.0.0 adını kullanır; otomatik kontroller uygulanır. Gerçek Minecraft/Discord,
 istemci ve mobil testleri tamamlanmadığı için yayına hazır kabul edilmez.
 Uyumluluk adayları ve test sonuçları [test belgesindedir](compatibility-test.md).
 Proje, DyClaim'e benzer GPL v3 ve ek koşullar içeren lisans metnini kullanır.
@@ -69,7 +80,7 @@ JDK 25.0.4.1 ile Java 17 bytecode ve Spigot API 1.20.4 tabanı derlendi.
 Bu bilgi gerçek sunucu uyumluluğu kanıtı değildir. Folia, proxy,
 Floodgate/Bedrock ve sunucu açıkken JAR değiştirme desteği ilan edilmez.
 
-1. `build/libs/DyDiscord-v1.0.1-BETA.jar` dosyasını `plugins` dizinine koyup
+1. `build/libs/DyDiscord-1.0.0.jar` dosyasını `plugins` dizinine koyup
    sunucuyu başlatın. `plain` JAR kurulmaz. Ayarlar, mesajlar ve SQLite oluşturulur.
    Bot, log aktarımı ve uzaktan komutlar varsayılan kapalıdır. Tokensiz kurulum
    eklentiyi çökertmez.
@@ -300,4 +311,23 @@ sürüme geçiş tanınır. JAR indirilmez veya kendiliğinden yüklenmez. Proje
 şu anda yayınlanmadığı için API 404 döndürüyor; yayınlandığında kontrol çalışır.
 
 Sohbet köprüsü, ayarlar ve sınırlar: [rehber](chat-bridge.md).
-Doğrulanan derleme ve kalan sınırlar [test kapsamı](compatibility-test.md) belgesindedir. Gerçek ücretli boost, para/site kredisi, insan eşleme formu ve Java 17 çalışma ortamı ayrıca doğrulanmalıdır.
+İzole gerçek LuckPerms/JDA rol kontrolleri ve yeni JAR'ın doğrulama sınırları:
+[devam doğrulaması](continuation-verification-20261012.md). Gerçek ücretli boost,
+para/site kredisi, insan eşleme formu ve Java 17 çalışma ortamı ayrı canlı kanıt
+gerektirir; Java 17 bytecode hedefi bunları doğrulamaz.
+
+## 1.0.0 topluluk araçları
+
+Discord tarafında `/oyuncular`, `/ip`, `/bağlantılar` ve genişletilmiş `/sunucu`
+komutları bulunur. Adresleri siz ayarlarsınız; gerçek makine IP’si paylaşılmaz.
+Oyuncular `/dydiscord sohbet gelen|giden|bildirim aç|kapat` ile tercihlerini
+kalıcı kaydeder. `/dydiscord admin duyuru önizle <şablon>` ve `gönder` duyuru
+akışını yönetir; `duyurular duraklat <dakika>` planlı gönderimleri durdurur.
+İlk eşleme ödülü, karşılama, açılış bildirimi ve çekiliş varsayılan kapalıdır.
+`/dydiscord admin çekiliş başlat <saniye> <kazanan> <ödül>` çekiliş açar;
+`bitir`, `iptal`, `liste` ayrı izinlerle çalışır. Çekiliş ödülünü siz teslim
+edersiniz; para/site işlemi otomatik yapılmaz.
+`admin ayarlar doğrula` değişiklikleri uygulamadan kontrol eder;
+`admin rapor` gizli bilgiler içermeyen destek raporu üretir.
+Ayrıntılar: [topluluk araçları](community-features.md), [ödüller](link-rewards.md),
+[çekilişler](giveaways.md). Eski hesaplar tekrar eşleme gerektirmez.
