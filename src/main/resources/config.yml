@@ -1,48 +1,47 @@
-# DyDiscord settings. Reload after editing; unknown future schemas are rejected.
-# Managed schema version. Do not edit.
+# Setting descriptions follow their settings.
 config-version: 2
-# Chat prefix. Minecraft color codes such as &9 are supported.
+# Managed schema version. Do not edit.
 prefix: "&7[&9DyDiscord&7]"
-# auto uses each player's preference/client language; en or tr forces one language.
+# Chat prefix. Minecraft color codes such as &9 are supported.
 lang: auto
-# Displayed server name on the account panel.
+# auto uses a saved player preference, then the bot language; en/tr forces the game language.
 server-name: "Minecraft Server"
-# Discord invitation shown by the root command.
+# Displayed server name on the account panel.
 discord:
-  # HTTPS discord.gg or discord.com/invite link; blank disables the invitation.
+# Discord invitation shown by the root command.
   invite-url: ""
-# Account linking rules; UUID and current online session identify the player.
+  # HTTPS discord.gg or discord.com/invite link; blank creates a reusable permanent invitation when the bot has Create Invite permission.
 linking:
-  # Works with either online-mode value. On offline servers, your login system
-  # must block all DyDiscord commands until authentication completes.
+# Account linking rules; UUID and current online session identify the player.
   enabled: true
-  # Random code length (8-16); existing explicit values are preserved on upgrade.
-  code-length: 8
-  # Code lifetime in seconds (30-900).
+  # Works with either online-mode value. On offline servers, your login system must block all DyDiscord commands until authentication completes.
+  code-length: 6
+  # Random code length (6-16); existing explicit values are preserved on upgrade.
   code-expiry-seconds: 300
-  # Minimum wait before requesting another code, in seconds (5-300).
+  # Code lifetime in seconds (30-900).
   generation-cooldown-seconds: 30
-  # Maximum failed code attempts per Discord user (1-10).
+  # Minimum wait before requesting another code, in seconds (5-300).
   max-attempts: 5
-  # Failed-attempt window in seconds (30-900).
+  # Maximum failed code attempts per Discord user (1-10).
   attempt-window-seconds: 300
-  # Time allowed to confirm unlinking, in seconds (10-120).
+  # Failed-attempt window in seconds (30-900).
   confirmation-timeout-seconds: 30
-# Optional version notices from the public Modrinth project dydiscord.
+  # Time allowed to confirm unlinking, in seconds (10-120).
 updates:
-  # Notification audience: console, players, both. Players need the update permission.
+# Optional version notices from the public Modrinth project dydiscord.
   notify: both
-  # Include future beta releases; superseded pre-1.0.0 release-line betas stay excluded.
+  # Notification audience: console, players, both. Players need the update permission.
   include-beta: false
-  # Checks compatible plugin versions every six hours; never downloads a JAR.
+  # Include future beta releases; superseded pre-1.0.0 release-line betas stay excluded.
   enabled: true
-# Public server information; addresses are owner supplied and never detected.
+  # Checks compatible plugin versions every six hours; never downloads a JAR.
 community:
-  # Java connection address (host or host:port); blank hides it. Reload applies.
+# Public server information; addresses are owner supplied and never detected.
   java-address: ""
-  # Optional Bedrock connection address; this does not install a Bedrock bridge.
+  # Java connection address (host or host:port); blank hides it. Reload applies.
   bedrock-address: ""
-  # Up to ten entries with name and HTTPS url; no credentials/custom ports.
+  # Optional Bedrock connection address; this does not install a Bedrock bridge.
   links: []
-  # Up to ten name/value fields, name up to 80 and value up to 160 characters.
+  # Up to ten entries with name and HTTPS url; no credentials/custom ports.
   server-fields: []
+  # Up to ten name/value fields, name up to 80 and value up to 160 characters.

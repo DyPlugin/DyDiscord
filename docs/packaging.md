@@ -1,4 +1,18 @@
-# Distribution packaging — 1.0.0
+# Distribution packaging — 1.0.1
+
+| File | Bytes | Use |
+| --- | ---: | --- |
+| `DyDiscord-1.0.1.jar` | 2124829 | Default; server-managed dependency download/cache |
+| `DyDiscord-1.0.1-standalone.jar` | 24043442 | Bundled alternative for offline dependency installation |
+
+Do not install both or the plain intermediate JAR. Both have plugin.yml version
+1.0.1 and Java 17 bytecode. The 643-test clean build, artifact inspection and
+independent repeat build passed. Hashes, actual Purpur/Discord validation and
+remaining limitations are in [the 1.0.1 report](release-1.0.1-verification.md).
+
+---
+
+## Historical 1.0.0 packaging evidence
 
 Install only one distribution. The plain JAR is not a distribution.
 

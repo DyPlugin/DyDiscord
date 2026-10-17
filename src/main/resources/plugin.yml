@@ -10,6 +10,9 @@ commands:
     description: DyDiscord account and administration commands
     aliases: [discord]
     usage: /dydiscord help
+  dyda:
+    description: DyDiscord administration commands
+    usage: /dyda help
   dylink:
     description: Generate a private account linking code
     aliases: [link, esle, eşle, hesap-esle, hesap-eşle]
@@ -31,6 +34,12 @@ permissions:
     default: op
     children:
       dydiscord.player: true
+      dydiscord.admin.prefix: true
+      dydiscord.admin.bot.guild: true
+      dydiscord.admin.bot.token: true
+      dydiscord.admin.alerts: true
+      dydiscord.admin.chat: true
+      dydiscord.admin.chat.channel: true
       dydiscord.admin.invite: true
       dydiscord.admin.language: true
       dydiscord.admin.reload: true
@@ -44,31 +53,13 @@ permissions:
       dydiscord.admin.console.channel: true
       dydiscord.admin.console.toggle: true
       dydiscord.admin.console.commands: true
-      dydiscord.admin.console.roles: true
-      dydiscord.admin.console.administrator: true
       dydiscord.admin.unlink: true
       dydiscord.admin.update: true
       dydiscord.admin.giveaway.start: true
       dydiscord.admin.giveaway.end: true
       dydiscord.admin.giveaway.cancel: true
       dydiscord.admin.giveaway.list: true
-      dydiscord.admin.chat.pause: true
-      dydiscord.admin.announce.preview: true
-      dydiscord.admin.announce.send: true
-      dydiscord.admin.announce.edit: true
-      dydiscord.admin.announcements.pause: true
-      dydiscord.admin.report: true
-      dydiscord.admin.config.validate: true
-      dydiscord.admin.translations.validate: true
-      dydiscord.admin.setup: true
-      dydiscord.admin.rewards.preview: true
       dydiscord.admin.roles.status: true
-      dydiscord.admin.roles.linked.list: true
-      dydiscord.admin.roles.linked.add: true
-      dydiscord.admin.roles.linked.remove: true
-      dydiscord.admin.roles.groups.list: true
-      dydiscord.admin.roles.groups.add: true
-      dydiscord.admin.roles.groups.remove: true
       dydiscord.admin.roles.preview: true
       dydiscord.admin.roles.sync.all: true
       dydiscord.admin.roles.sync: true
@@ -112,25 +103,9 @@ permissions:
     default: false
   dydiscord.admin.console.commands:
     default: false
-  dydiscord.admin.console.roles:
-    default: false
-  dydiscord.admin.console.administrator:
-    default: false
   dydiscord.admin.unlink:
     default: false
   dydiscord.admin.roles.status:
-    default: false
-  dydiscord.admin.roles.linked.list:
-    default: false
-  dydiscord.admin.roles.linked.add:
-    default: false
-  dydiscord.admin.roles.linked.remove:
-    default: false
-  dydiscord.admin.roles.groups.list:
-    default: false
-  dydiscord.admin.roles.groups.add:
-    default: false
-  dydiscord.admin.roles.groups.remove:
     default: false
   dydiscord.admin.roles.preview:
     default: false
@@ -154,27 +129,6 @@ permissions:
 
   dydiscord.chat.preferences:
     default: false
-  dydiscord.admin.chat.pause:
-    default: false
-  dydiscord.admin.announce.preview:
-    default: false
-  dydiscord.admin.announce.send:
-    default: false
-  dydiscord.admin.announce.edit:
-    default: false
-  dydiscord.admin.announcements.pause:
-    default: false
-  dydiscord.admin.report:
-    default: false
-  dydiscord.admin.config.validate:
-    default: false
-  dydiscord.admin.translations.validate:
-    default: false
-  dydiscord.admin.setup:
-    default: false
-  dydiscord.admin.rewards.preview:
-    default: false
-
   dydiscord.admin.giveaway.start:
     default: false
   dydiscord.admin.giveaway.end:
@@ -182,4 +136,17 @@ permissions:
   dydiscord.admin.giveaway.cancel:
     default: false
   dydiscord.admin.giveaway.list:
+    default: false
+
+  dydiscord.admin.prefix:
+    default: false
+  dydiscord.admin.bot.guild:
+    default: false
+  dydiscord.admin.bot.token:
+    default: false
+  dydiscord.admin.alerts:
+    default: false
+  dydiscord.admin.chat:
+    default: false
+  dydiscord.admin.chat.channel:
     default: false

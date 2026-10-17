@@ -13,10 +13,13 @@ public final class Messages {
     public Set<String> missing(){return missing;}
     /** Newly introduced keys migrate in the selected language; existing owner text is untouched. */
     public static boolean releaseKey(String key){
-        return List.of("giveaway-","players-","addresses-","address-","links-","notice-","help-chat-","help-announce","help-giveaway-").stream().anyMatch(key::startsWith)
+        if(Set.of("account-date","account-roles","copy-code-hint","confirm-click-hint","invite-click-hint","help-admin-topics","help-bot-language","invite-auto-unavailable").contains(key))return true;
+        return List.of("token-entry-","chat-personal-","chat-already-","chat-enabled","chat-disabled","setting-unchanged","help-prefix","help-bot-guild","help-bot-token","help-topic-","setup-","startup-","help-page","help-card-","giveaway-","players-","addresses-","address-","links-","notice-","help-chat-","help-announce","help-giveaway-").stream().anyMatch(key::startsWith)
             ||Set.of("slash-players","slash-ip","slash-links","help-community","server-started","information-channel-only","link-welcome","community-notice","report-saved","validation-result","setup-guide","reward-preview","help-maintenance","help-restart-notice","help-support-report","help-config-validate","help-translations-validate","help-setup","help-rewards-preview").contains(key);
     }
     public void validatePanel(String serverName){for(String lang:List.of("en","tr")){
+        // Validate structured help before publishing a reload, rather than failing on Discord.
+        try{dev.dydiscord.discord.HelpView.card(this,lang,true);dev.dydiscord.discord.HelpView.card(this,lang,false);}catch(IllegalArgumentException invalid){throw new IllegalArgumentException("Invalid message: discord/messages_"+lang+".yml:help-card");}
         String serverTitle=render(true,lang,"server-info-title",Map.of("server_name",serverName));
         if(serverTitle.isBlank()||serverTitle.length()>256||get(true,lang,"server-info-players").isBlank()||get(true,lang,"server-info-players").length()>256||get(true,lang,"server-info-version").isBlank()||get(true,lang,"server-info-version").length()>256||Math.max(get(true,lang,"help").length(),get(true,lang,"commands-help").length())+2+get(true,lang,"help-server").length()>2000)throw new IllegalArgumentException("Invalid server/help text: discord/messages_"+lang+".yml");
         Map<String,String> giveawayBounds=Map.of("prize","*".repeat(200),"winners",String.join(", ",Collections.nCopies(20,"*".repeat(32))),"ends","x".repeat(48));
@@ -39,6 +42,17 @@ public final class Messages {
     public static String safeMinecraft(String s){return s.replace("§","").replaceAll("[\\p{Cntrl}]"," ");}
     public static String safeDiscord(String s){return s.replace("\\","\\\\").replace("@","@\u200b").replace("`","ˋ").replace("*","\\*").replace("_","\\_").replace("~","\\~").replace("|","\\|").replace("[","\\[").replace("]","\\]").replace("<","‹").replaceAll("[\\p{Cntrl}]"," ");}
     public static Set<String> placeholders(String s){Set<String> set=new HashSet<>();Matcher m=Pattern.compile("\\{([a-z_]+)}").matcher(s);while(m.find())set.add(m.group(1));return set;}
+    private static boolean compatible(String surface,String lang,String key,String value,String bundled)throws IOException{
+        if(placeholders(value).equals(placeholders(bundled)))return true;
+        if(!surface.isEmpty()&&key.equals("account")&&placeholders(value).contains("name")&&Set.of("name","discord","date").containsAll(placeholders(value)))return true;
+        // Existing owner translations may retain the previous account/confirmation fields.
+        if(key.equals("already-linked")&&placeholders(value).isEmpty())return true;
+        if(!Set.of("linked","account","confirm").contains(key))return false;
+        try(InputStream in=Messages.class.getClassLoader().getResourceAsStream("legacy/release-101/"+surface+"messages_"+lang+".yml")){
+            Object old=Configuration.parse(new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8)).get(key);
+            return old instanceof String text&&placeholders(value).equals(placeholders(text));
+        }
+    }
     public static Messages load(Path folder)throws IOException{
         Map<String,Map<String,String>> packs=new HashMap<>();Set<String> missing=new HashSet<>();
         for(String surface:List.of("","discord/"))for(String lang:List.of("en","tr")){
@@ -46,7 +60,7 @@ public final class Messages {
             Map<String,Object> bundled;try(InputStream in=Messages.class.getClassLoader().getResourceAsStream(surface+"messages_en.yml")){if(in==null)throw new IOException("Missing messages");bundled=Configuration.parse(new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8));}
             Map<String,Object> custom=new HashMap<>(Configuration.read(folder.resolve(file)));Map<String,String> result=new HashMap<>();
             upgradeDefaults(surface,lang,custom);
-            for(var entry:bundled.entrySet()){if(!custom.containsKey(entry.getKey()))missing.add(file+":"+entry.getKey());Object v=custom.getOrDefault(entry.getKey(),entry.getValue());int max=4000;if(!surface.isEmpty()){String key=entry.getKey();max=key.startsWith("slash-")?100:switch(key){case "panel-title","giveaway-title","players-title","addresses-title","links-title","address-java","address-bedrock","players-more"->256;case "giveaway-enter"->80;case "modal-title","code-label"->45;case "link","account-button","unlink","confirm-button","cancel-button"->80;case "footer"->100;case "help","status","private-prompt","commands-prompt","commands-help","panel-disabled","panel-missing","console-prefix","console-rejected","console-result"->1600;default->3500;};}if(!(v instanceof String s)||s.length()>max||!placeholders(s).equals(placeholders((String)entry.getValue())))throw new IOException("Invalid message: "+file+":"+entry.getKey());result.put(entry.getKey(),s);}
+            for(var entry:bundled.entrySet()){if(!custom.containsKey(entry.getKey()))missing.add(file+":"+entry.getKey());Object v=custom.getOrDefault(entry.getKey(),entry.getValue());int max=4000;if(!surface.isEmpty()){String key=entry.getKey();max=key.startsWith("slash-")?100:switch(key){case "panel-title","giveaway-title","players-title","addresses-title","links-title","address-java","address-bedrock","players-more"->256;case "giveaway-enter"->80;case "modal-title","code-label"->45;case "link","account-button","unlink","confirm-button","cancel-button"->80;case "footer"->100;case "help","status","private-prompt","commands-prompt","commands-help","panel-disabled","panel-missing","console-prefix","console-rejected","console-result"->1600;default->3500;};}if(!(v instanceof String s)||s.length()>max||!compatible(surface,lang,entry.getKey(),s,(String)entry.getValue()))throw new IOException("Invalid message: "+file+":"+entry.getKey());result.put(entry.getKey(),s);}
             packs.put(surface+lang,Map.copyOf(result));
         } return new Messages(packs,missing);
     }
@@ -71,6 +85,12 @@ public final class Messages {
         }
         try(InputStream in=Messages.class.getClassLoader().getResourceAsStream(surface+"messages_"+lang+".yml")){
             if(in==null)throw new IOException("Missing messages");Map<String,Object> defaults=Configuration.parse(new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8));
+            try(InputStream previous=Messages.class.getClassLoader().getResourceAsStream("legacy/simplify-101/"+surface+"messages_"+lang+".yml")){
+                if(previous!=null){Map<String,Object> shipped=Configuration.parse(new String(previous.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8));shipped.forEach((key,value)->{if(defaults.containsKey(key)&&Objects.equals(value,custom.get(key)))custom.put(key,defaults.get(key));});}
+            }
+            try(InputStream previous=Messages.class.getClassLoader().getResourceAsStream("legacy/release-101/"+surface+"messages_"+lang+".yml")){
+                if(previous!=null){Map<String,Object> shipped=Configuration.parse(new String(previous.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8));shipped.forEach((key,value)->{if(defaults.containsKey(key)&&Objects.equals(value,custom.get(key)))custom.put(key,defaults.get(key));});}
+            }
             defaults.forEach((key,value)->{if(key.startsWith("state-")||key.startsWith("language-name-")||key.equals("update-available")||key.startsWith("chat-")||key.equals("server-stopping")||releaseKey(key))custom.putIfAbsent(key,value);});
             if(tr)try(InputStream previous=Messages.class.getClassLoader().getResourceAsStream("legacy/"+surface+"messages_tr.yml")){
                 if(previous==null)throw new IOException("Missing legacy messages");

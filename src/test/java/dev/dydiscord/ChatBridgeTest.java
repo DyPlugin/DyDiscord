@@ -32,6 +32,16 @@ class ChatBridgeTest {
         when(plugin.getDataFolder()).thenReturn(folder.toFile());doAnswer(i->{((Runnable)i.getArgument(0)).run();return null;}).when(plugin).onMain(any());bridge=new ChatBridge(plugin);when(plugin.chat()).thenReturn(bridge);bridge.preference(player.getUniqueId()).get(5,TimeUnit.SECONDS);
     }
     @AfterEach void close(){bridge.close();}
+    @Test void consecutiveMinecraftMessagesAreNotSilentlyDropped(){
+        bridge.minecraft(player,"Bir");bridge.minecraft(player,"İki");bridge.minecraft(player,"Üç");
+        assertEquals(3,bridge.queued());
+    }
+    @Test void consecutiveDiscordMessagesKeepOrderWhileDuplicateIdsAreStillIgnored(){
+        var chat=mock(Player.Spigot.class);when(player.spigot()).thenReturn(chat);
+        bridge.receive(incoming("burst-1",CHANNEL,"Bir"),7);bridge.receive(incoming("burst-2",CHANNEL,"İki"),7);bridge.receive(incoming("burst-2",CHANNEL,"İki"),7);bridge.receive(incoming("burst-3",CHANNEL,"Üç"),7);
+        var messages=org.mockito.ArgumentCaptor.forClass(net.md_5.bungee.api.chat.TextComponent.class);verify(chat,times(3)).sendMessage(messages.capture());
+        assertTrue(messages.getAllValues().get(0).toPlainText().endsWith("Bir"));assertTrue(messages.getAllValues().get(1).toPlainText().endsWith("İki"));assertTrue(messages.getAllValues().get(2).toPlainText().endsWith("Üç"));
+    }
     @Test void rankAndNoRankFormattingCannotPingOrInjectMarkdown(){
         assertEquals("**Admin** Alice **»** Hi",ChatText.discord("{rank}{name} **»** {message}","&cAdmin","Alice","Hi"));assertEquals("Alice **»** Hi",ChatText.discord("{rank}{name} **»** {message}","","Alice","Hi"));
         String text=ChatText.discord("{rank}{name} **»** {message}","@everyone **Boss**","@here","**fake**\n@everyone <@123> <@&456> §cRed &lBold\u202efake");assertFalse(text.contains("@everyone"));assertFalse(text.contains("@here"));assertFalse(text.contains("<@"));assertFalse(text.contains("\n"));assertFalse(text.contains("§"));assertTrue(text.contains("\\*\\*fake\\*\\*"));assertFalse(text.contains("\u202e"));
@@ -39,7 +49,7 @@ class ChatBridgeTest {
     }
     @Test void minecraftUsesComponentsWithoutBoldCodesOrEmptyRoleSpacing(){
         var message=ChatText.minecraft("&9[Discord] &7{role}&f{name} &7» &f{message}","",0,"**Name**","**Hello**\n§4Fake &cRed");assertEquals("[Discord] Name » Hello Fake Red",message.toPlainText());for(var child:message.getExtra())assertFalse(child.isBold());assertFalse(message.toPlainText().contains("**"));
-        assertEquals("[Discord] Admin Name » Hi",ChatText.minecraft("&9[Discord] &7{role}&f{name} &7» &f{message}","Admin",0xFFFFFF,"Name","Hi").toPlainText());assertEquals(net.md_5.bungee.api.ChatColor.GRAY,ChatText.readableColor(0x010101));
+        assertEquals("[Discord] Admin Name » Hi",ChatText.minecraft("&9[Discord] &7{role}&f{name} &7» &f{message}","Admin",0xFFFFFF,"Name","Hi").toPlainText());assertEquals(net.md_5.bungee.api.ChatColor.of("#010101"),ChatText.readableColor(0x010101));
     }
     @Test void highestSuitableRoleExcludesEveryoneAndIntegrationRoles(){Role everyone=mock(Role.class),managed=mock(Role.class),low=mock(Role.class),high=mock(Role.class);when(everyone.isPublicRole()).thenReturn(true);when(managed.isManaged()).thenReturn(true);when(managed.getPosition()).thenReturn(100);when(low.getPosition()).thenReturn(1);when(high.getPosition()).thenReturn(20);assertSame(high,ChatBridge.highestRole(List.of(everyone,low,managed,high)));assertNull(ChatBridge.highestRole(List.of(everyone,managed)));}
     @Test void cancelledMutedHiddenAndRestrictedChatIsNeverPublic(){UUID a=UUID.randomUUID(),b=UUID.randomUUID();Set<UUID> all=Set.of(a,b);assertTrue(ChatBridge.publicChat(false,false,false,all,all));assertFalse(ChatBridge.publicChat(true,false,false,all,all));assertFalse(ChatBridge.publicChat(false,true,false,all,all));assertFalse(ChatBridge.publicChat(false,false,true,all,all));assertFalse(ChatBridge.publicChat(false,false,false,Set.of(a),all));assertFalse(ChatBridge.publicChat(false,false,false,Set.of(),Set.of()));}
@@ -72,9 +82,10 @@ class ChatBridgeTest {
         bridge.leave(player.getUniqueId());assertNull(bridge.preferencePreview(player.getUniqueId()));
         time.advance(2);bridge.receive(incoming("after-leave",CHANNEL,"Hello again"),7);tasks.forEach(Runnable::run);verifyNoInteractions(spigot);
     }
-    @Test void outboundOptoutRecheckedBeforeNetworkDispatch()throws Exception{
-        bridge.minecraft(player,"Allowed when queued");assertEquals(1,bridge.queued());
-        bridge.preference(player.getUniqueId(),"outbound",false).get(5,TimeUnit.SECONDS);bridge.flush();verify(bot,never()).sendChat(any(),any());
+    @Test void personalIncomingPreferenceNeverControlsPublicOutgoingChat()throws Exception{
+        bridge.preference(player.getUniqueId(),"inbound",false).get(5,TimeUnit.SECONDS);
+        assertThrows(IllegalArgumentException.class,()->bridge.preference(player.getUniqueId(),"outbound",false));
+        bridge.minecraft(player,"Public outgoing");assertEquals(1,bridge.queued());bridge.flush();verify(bot).sendChat(any(),any());
     }
     @Test void pausesDiscardQueuedWorkAndResumeOnlyFreshMessages()throws Exception{
         bridge.offer("old",null);assertTrue(bridge.pause("outbound",true));assertEquals(0,bridge.queued());assertFalse(bridge.offer("paused",null));assertTrue(bridge.paused("outbound"));
@@ -94,12 +105,16 @@ class ChatBridgeTest {
         time.advance(11);bridge.flush();assertEquals(0,bridge.queued());verify(bot,times(1)).sendChat(any(),any());
         bridge.offer("fresh",null);bridge.flush();verify(bot,times(2)).sendChat(any(),any());
     }
-    @Test void replyAuthorIsSafeAndNotificationRequiresOptinAndCooldown()throws Exception{
+    @Test void replyAuthorIsSafeAndNoSeparateSoundNotificationIsAvailable()throws Exception{
         var spigot=mock(Player.Spigot.class);when(player.spigot()).thenReturn(spigot);var event=incoming("reply",CHANNEL,"Alice hi");Message replied=mock(Message.class);User author=mock(User.class);when(replied.getAuthor()).thenReturn(author);when(author.getName()).thenReturn("&c**Boss**\nName");when(event.getMessage().getReferencedMessage()).thenReturn(replied);
         bridge.receive(event,7);var payload=org.mockito.ArgumentCaptor.forClass(net.md_5.bungee.api.chat.BaseComponent.class);verify(spigot).sendMessage(payload.capture());assertTrue(payload.getValue().toPlainText().contains("↪ Boss Name"));verify(player,never()).playSound(any(org.bukkit.Location.class),any(org.bukkit.Sound.class),anyFloat(),anyFloat());
-        bridge.preference(player.getUniqueId(),"notify",true).get(5,TimeUnit.SECONDS);time.advance(2);bridge.receive(incoming("notify-one",CHANNEL,"Hello Alice!"),7);time.advance(2);bridge.receive(incoming("notify-cooldown",CHANNEL,"Alice again"),7);verify(player,times(1)).playSound(any(org.bukkit.Location.class),eq(org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING),anyFloat(),anyFloat());
-        time.advance(16);bridge.receive(incoming("not-whole-name",CHANNEL,"Malice Alicex"),7);verify(player,times(1)).playSound(any(org.bukkit.Location.class),eq(org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING),anyFloat(),anyFloat());
-        bridge.preference(player.getUniqueId(),"notify",false).get(5,TimeUnit.SECONDS);time.advance(2);bridge.receive(incoming("disabled",CHANNEL,"Alice hi"),7);verify(player,times(1)).playSound(any(org.bukkit.Location.class),eq(org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING),anyFloat(),anyFloat());
+        assertThrows(IllegalArgumentException.class,()->bridge.preference(player.getUniqueId(),"notify",true));
+    }
+    @Test void bundledIncomingFormatHasGrayTextAndDarkGraySeparator(){
+        var text=ChatText.minecraft(plugin.messages().get(true,"tr","chat-to-minecraft"),"VIP",0xabcdef,"Alice","Hello");
+        assertEquals("[Discord] VIP Alice >> Hello",text.toPlainText());
+        assertTrue(text.getExtra().stream().anyMatch(part->part.toPlainText().contains(">>")&&part.getColor().equals(net.md_5.bungee.api.ChatColor.DARK_GRAY)));
+        assertTrue(text.getExtra().stream().anyMatch(part->part.toPlainText().equals("Hello")&&part.getColor().equals(net.md_5.bungee.api.ChatColor.GRAY)));
     }
     @Test void delayedIncomingWorkExpiresBeforeTouchingPlayers(){List<Runnable> tasks=new ArrayList<>();doAnswer(i->{tasks.add(i.getArgument(0));return null;}).when(plugin).onMain(any());var spigot=mock(Player.Spigot.class);when(player.spigot()).thenReturn(spigot);bridge.receive(incoming("one",CHANNEL,"Hello"),7);time.advance(6);tasks.forEach(Runnable::run);verifyNoInteractions(spigot);}
     @Test void cancelledMutedAndPrivateLegacyEventsDoNotReachBot()throws Exception{ChatEvents events=new ChatEvents(plugin);AsyncPlayerChatEvent cancelled=new AsyncPlayerChatEvent(false,player,"Hidden",new HashSet<>(Set.of(player)));cancelled.setCancelled(true);events.legacy(cancelled);verify(bot,never()).sendChat(any(),any());assertEquals(0,bridge.queued());MetadataValue muted=mock(MetadataValue.class);when(muted.asBoolean()).thenReturn(true);when(player.getMetadata("muted")).thenReturn(List.of(muted));events.legacy(new AsyncPlayerChatEvent(false,player,"muted",new HashSet<>(Set.of(player))));assertEquals(0,bridge.queued());when(player.getMetadata("muted")).thenReturn(List.of());events.legacy(new AsyncPlayerChatEvent(false,player,"private",new HashSet<>()));assertEquals(0,bridge.queued());}

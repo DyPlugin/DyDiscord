@@ -11,6 +11,12 @@ import java.util.*;
 
 /** All parsing and file operations run on the plugin's bounded I/O executor. */
 public final class Configuration {
+    /** Only bundled filenames and fixed operation labels reach the public diagnostic. */
+    public static final class FileFailure extends IOException {
+        public FileFailure(String file,IOException cause){super("Cannot load or migrate "+safeFile(file)+position(cause)+"; check YAML syntax, file access and available disk space.",cause);}
+        private static String safeFile(String file){return file!=null&&file.matches("(?:(?:discord/)?messages_(?:en|tr)|config|bot)\\.yml")?file:"configuration file";}
+        private static String position(Throwable cause){for(int depth=0;cause!=null&&depth<16;depth++,cause=cause.getCause())if(cause instanceof org.yaml.snakeyaml.error.MarkedYAMLException marked&&marked.getProblemMark()!=null){var mark=marked.getProblemMark();return " at line "+(mark.getLine()+1)+", column "+(mark.getColumn()+1);}return "";}
+    }
     public record Snapshot(Settings settings, Messages messages,Map<String,String> migrations,Map<String,String> sources) {
         public Snapshot(Settings settings,Messages messages){this(settings,messages,Map.of());}
         public Snapshot(Settings settings,Messages messages,Map<String,String> migrations){this(settings,messages,migrations,Map.of());}
@@ -32,9 +38,9 @@ public final class Configuration {
         }
         // Backup every affected file before the first write. Roll back partial writes on failure.
         if(!changes.isEmpty()){
-            for(Path target:changes.keySet())backup(target,originals.get(target));
+            for(Path target:changes.keySet())try{backup(target,originals.get(target));}catch(IOException failure){throw new FileFailure(folder.relativize(target).toString().replace('\\','/'),failure);}
             List<Path> written=new ArrayList<>();
-            try{for(var change:changes.entrySet()){atomicWrite(change.getKey(),change.getValue());written.add(change.getKey());}}
+            try{for(var change:changes.entrySet()){try{atomicWrite(change.getKey(),change.getValue());}catch(IOException failure){throw new FileFailure(folder.relativize(change.getKey()).toString().replace('\\','/'),failure);}written.add(change.getKey());}}
             catch(IOException failure){for(Path target:written)try{atomicWrite(target,originals.get(target));}catch(IOException rollback){failure.addSuppressed(rollback);}throw failure;}
         }
         active=snapshot;
@@ -52,11 +58,11 @@ public final class Configuration {
     }
     public Snapshot preview() throws IOException {
         for(String file:List.of("config.yml","bot.yml","messages_en.yml","messages_tr.yml","discord/messages_en.yml","discord/messages_tr.yml")) {
-            Path target=folder.resolve(file); if(!Files.exists(target)){Files.createDirectories(target.getParent());try(InputStream in=getClass().getClassLoader().getResourceAsStream(file)){if(in==null)throw new IOException("Missing bundled resource: "+file);Files.copy(in,target);}}
+            Path target=folder.resolve(file);try{if(!Files.exists(target)){Files.createDirectories(target.getParent());try(InputStream in=getClass().getClassLoader().getResourceAsStream(file)){if(in==null)throw new IOException("Missing bundled resource: "+file);Files.copy(in,target);}}}catch(IOException failure){throw new FileFailure(file,failure);}
         }
         Map<String,String> changes=new LinkedHashMap<>(),sources=new LinkedHashMap<>();Map<String,Object> config=null,bot=null;
         for(String file:List.of("config.yml","bot.yml","messages_en.yml","messages_tr.yml","discord/messages_en.yml","discord/messages_tr.yml")){
-            String before=Files.readString(folder.resolve(file)),after=upgrade(file,before);sources.put(file,digest(before));if(!before.equals(after))changes.put(file,digest(before));
+            String before,after;try{before=Files.readString(folder.resolve(file));after=upgrade(file,before);}catch(IOException failure){throw new FileFailure(file,failure);}sources.put(file,digest(before));if(!before.equals(after))changes.put(file,digest(before));
             if(file.equals("config.yml"))config=parse(after);if(file.equals("bot.yml"))bot=parse(after);
         }
         return new Snapshot(Settings.read(config,bot,System.getenv("DYDISCORD_BOT_TOKEN")),Messages.load(folder),changes,sources);
@@ -66,16 +72,33 @@ public final class Configuration {
     private static String upgrade(String file,String text)throws IOException{try(InputStream in=Configuration.class.getClassLoader().getResourceAsStream(file)){if(in==null)throw new IOException("Missing bundled resource");return SchemaUpgrade.merge(text,new String(in.readAllBytes(),StandardCharsets.UTF_8),file.equals("config.yml")||file.equals("bot.yml"));}}
     private static String digest(String text){try{return HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(text.getBytes(StandardCharsets.UTF_8)));}catch(java.security.NoSuchAlgorithmException impossible){throw new IllegalStateException(impossible);}}
     public interface Validator {void validate(Settings settings)throws Exception;}
+    /** Compare under the same lock as edits, including un-reloaded owner changes on disk. */
+    public synchronized boolean inviteIfMissing(String guild,String url,Validator validator)throws IOException{
+        Map<String,String> capturedSources=sources();
+        Map<String,Object> config=read(folder.resolve("config.yml")),bot=read(folder.resolve("bot.yml"));
+        if(!"".equals(Settings.get(config,"discord.invite-url",""))||!guild.equals(Settings.get(bot,"guild-id","")))return false;
+        Settings.validateInvite(url);changeFrom("config.yml","discord.invite-url",url,validator,capturedSources);return true;
+    }
     public synchronized Snapshot change(String file,String path,Object value) throws IOException {return change(file,path,value,null);}
     public synchronized Snapshot change(String file,String path,Object value,Validator validator) throws IOException {
-        Map<String,String> sources=sources();
+        return changeFrom(file,path,value,validator,sources());
+    }
+    public synchronized Snapshot change(String file,Map<String,Object> changes,Validator validator)throws IOException {
+        return changeFrom(file,changes,validator,sources());
+    }
+    private Snapshot changeFrom(String file,String path,Object value,Validator validator,Map<String,String> sources)throws IOException{
+        return changeFrom(file,Collections.singletonMap(path,value),validator,sources);
+    }
+    private Snapshot changeFrom(String file,Map<String,Object> changes,Validator validator,Map<String,String> sources)throws IOException{
         Path target=folder.resolve(file); String before=Files.readString(target);
-        String after=edit(before,path,value);
+        String after=before;
+        for(var change:changes.entrySet())after=edit(after,change.getKey(),change.getValue());
+        after=upgrade(file,after);
         Map<String,Object> c=read(folder.resolve("config.yml")), b=read(folder.resolve("bot.yml"));
         Map<String,Object> edited=parse(after); if(file.equals("config.yml"))c=edited;else b=edited;
         Snapshot next=new Snapshot(Settings.read(c,b,System.getenv("DYDISCORD_BOT_TOKEN")),Messages.load(folder));
         if(validator!=null)try{validator.validate(next.settings());}catch(Exception e){throw new IOException("Discord configuration validation failed; previous settings remain active",e);}
-        requireSources(sources);atomicWrite(target,after); active=next; return next;
+        requireSources(sources);try{atomicWrite(target,after);}catch(IOException failure){throw new FileFailure(file,failure);} active=next; return next;
     }
     private static String edit(String before,String path,Object value)throws IOException{
         LoaderOptions loader=options(); loader.setProcessComments(true);

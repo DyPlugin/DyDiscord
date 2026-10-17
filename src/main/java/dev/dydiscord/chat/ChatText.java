@@ -31,5 +31,5 @@ public final class ChatText {
         }
         for(BaseComponent part:TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',template.substring(end)))){part.setBold(false);result.addExtra(part);}return result;
     }
-    public static ChatColor readableColor(int rgb){int brightness=(((rgb>>16)&255)*299+((rgb>>8)&255)*587+(rgb&255)*114)/1000;return rgb==0||brightness<96?ChatColor.GRAY:ChatColor.of(new java.awt.Color(rgb));}
+    public static ChatColor readableColor(int rgb){return rgb==0?ChatColor.GRAY:ChatColor.of(new java.awt.Color(rgb&0xffffff));}
 }

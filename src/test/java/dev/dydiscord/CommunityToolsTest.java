@@ -20,8 +20,8 @@ class CommunityToolsTest {
  @Test void diagnosticReportNeverIncludesConfiguredSecretsOrAccountIdentifiers()throws Exception{
   Configuration c=TestSupport.config(folder);c.change("bot.yml","token","FAKE_SECRET_NEVER_INCLUDE");c.change("bot.yml","guild-id","1557418524983566447");var p=mock(DyDiscord.class);when(p.settings()).thenReturn(c.active().settings());when(p.bot()).thenReturn(mock(Bot.class));when(p.store()).thenReturn(mock(dev.dydiscord.storage.Store.class));var description=new org.bukkit.plugin.PluginDescriptionFile("DyDiscord","1.0.0","dev.dydiscord.DyDiscord");when(p.getDescription()).thenReturn(description);String report=Support.report(p);assertFalse(report.contains("FAKE_SECRET"));assertFalse(report.contains("1557418524983566447"));
  }
- @Test void noticesRejectPrivateChannelsAndUnboundedSchedules(){
-  assertThrows(IllegalArgumentException.class,()->Settings.read(Map.of(),Map.of("console",Map.of("channel-id","1557418524983566447"),"community-tools",Map.of("channel-id","1557418524983566447")),null));
-  assertThrows(IllegalArgumentException.class,()->Settings.read(Map.of(),Map.of("community-tools",Map.of("templates",Map.of("a","x\nspoof"))),null));
+ @Test void retiredNoticeSettingsCannotActivateFeatures(){
+  var settings=Settings.read(Map.of("updates",Map.of("notify","players","include-beta",true)),Map.of("community-tools",Map.of("startup-notice",true)),null);
+  assertEquals("players",settings.tools().updateAudience());assertTrue(settings.tools().updateBeta());
  }
 }

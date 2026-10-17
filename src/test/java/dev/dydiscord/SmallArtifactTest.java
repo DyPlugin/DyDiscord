@@ -11,14 +11,14 @@ import java.util.jar.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SmallArtifactTest {
-    private Path jar(){return Path.of("build/libs/DyDiscord-1.0.0.jar");}
+    private Path jar(){return Path.of("build/libs/DyDiscord-"+System.getProperty("dydiscord.version")+".jar");}
 
     @Test void smallDistributionDeclaresBuildLibraryCoordinatesWithoutBundlingTheirClasses()throws Exception{
         assertTrue(Files.size(jar())<4_000_000L,"Small distribution must fit a 4 MB upload budget");
         try(JarFile archive=new JarFile(jar().toFile())){
             Map<?,?> descriptor;
             try(var in=archive.getInputStream(archive.getJarEntry("plugin.yml"))){descriptor=new Yaml().load(in);}
-            assertEquals("1.0.0",descriptor.get("version"));
+            assertEquals(System.getProperty("dydiscord.version"),descriptor.get("version"));
             assertEquals(new TreeSet<>(List.of(System.getProperty("dydiscord.runtime.coordinates").split(","))),new TreeSet<>((List<String>)descriptor.get("libraries")));
             assertNull(archive.getJarEntry("net/dv8tion/jda/api/JDA.class"));
             assertNull(archive.getJarEntry("dev/dydiscord/lib/jda/api/JDA.class"));
@@ -51,7 +51,7 @@ class SmallArtifactTest {
     }
 
     @Test void bothDistributionsKeepIdenticalConfigurationTranslationsAndApplicationClasses()throws Exception{
-        try(JarFile small=new JarFile(jar().toFile());JarFile full=new JarFile("build/libs/DyDiscord-1.0.0-standalone.jar")){
+        try(JarFile small=new JarFile(jar().toFile());JarFile full=new JarFile("build/libs/DyDiscord-"+System.getProperty("dydiscord.version")+"-standalone.jar")){
             for(String resource:List.of("config.yml","bot.yml","messages_en.yml","messages_tr.yml","discord/messages_en.yml","discord/messages_tr.yml")){
                 try(var a=small.getInputStream(small.getJarEntry(resource));var b=full.getInputStream(full.getJarEntry(resource))){assertArrayEquals(a.readAllBytes(),b.readAllBytes(),resource);}
             }

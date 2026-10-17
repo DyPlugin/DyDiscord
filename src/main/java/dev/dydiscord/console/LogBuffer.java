@@ -9,11 +9,12 @@ public final class LogBuffer {
     public String sanitize(String text){
         String t=text.replaceAll("\u001b\\[[0-9;]*[a-zA-Z]","").replaceAll("[§&][0-9a-fk-orA-FK-OR]","");
         if(!token.isEmpty())t=t.replace(token,"[REDACTED]");
+        t=t.replaceAll("(?i)(\\b(?:dyda|(?:dydiscord|discord)\\s+(?:admin|yonetim|yönetim))\\s+bot\\s+token\\s+)[^\\s]+","$1[REDACTED]");
         t=t.replaceAll("(?i)(authorization\\s*[:=]\\s*)([^\\r\\n]+)","$1[REDACTED]")
             .replaceAll("\\b[A-Za-z0-9_-]{20,}\\.[A-Za-z0-9_-]{6,}\\.[A-Za-z0-9_-]{20,}\\b","[REDACTED]")
             .replaceAll("(?i)(https://[^\\s]+/(?:webhooks|interactions)/[0-9]+/)[^\\s]+","$1[REDACTED]")
             .replaceAll("(?i)(token\\s*[:=]\\s*)[^\\s]+","$1[REDACTED]")
-            .replaceAll("\\b[A-HJ-NP-Z2-9]{8,16}\\b","[REDACTED]");
+            .replaceAll("\\b[A-HJ-NP-Z2-9]{6,16}\\b","[REDACTED]");
         return t.replace("`","ˋ").replace("@","@\u200b").replaceAll("[\\p{Cntrl}&&[^\\n\\t]]","");
     }
     public synchronized void offer(String text){

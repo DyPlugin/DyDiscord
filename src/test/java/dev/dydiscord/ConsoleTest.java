@@ -21,6 +21,11 @@ import java.util.concurrent.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 class ConsoleTest {
+    @org.junit.jupiter.api.Test void inlineTokenAttemptsAreMaskedBeforeConfiguredTokenIsKnown(){
+        var buffer=new dev.dydiscord.console.LogBuffer();String secret="synthetic_"+"q".repeat(40);
+        for(String root:java.util.List.of("dyda","dydiscord admin","discord yönetim"))assertFalse(buffer.sanitize("issued command /"+root+" bot token "+secret).contains(secret));
+    }
+
     @TempDir Path folder;
     @Test void fullAuditFileRejectsBeforeWritingAndCannotGrowOnRepeatedFailures()throws Exception{
         Path file=folder.resolve("audit-2026-10-07.log");long limit=20L*1024*1024;
@@ -166,9 +171,9 @@ class ConsoleTest {
     }
     @Test void idleRelayDoesNotQueueNetworkPermissionChecks()throws Exception{
         DyDiscord plugin=mock(DyDiscord.class);Bot bot=mock(Bot.class);when(plugin.bot()).thenReturn(bot);when(plugin.ready()).thenReturn(true);when(bot.usable()).thenReturn(true);
-        Configuration c=TestSupport.config(folder);c.change("bot.yml","console.enabled",true);when(plugin.settings()).thenReturn(c.active().settings());
+        Configuration c=TestSupport.config(folder);c.change("bot.yml","console.enabled",true);c.change("bot.yml","console.channel-id","323456789012345678");when(plugin.settings()).thenReturn(c.active().settings());
         when(plugin.submit(any())).thenReturn(java.util.concurrent.CompletableFuture.completedFuture(null));
-        try(ConsoleBridge bridge=new ConsoleBridge(plugin)){var flush=ConsoleBridge.class.getDeclaredMethod("flush");flush.setAccessible(true);flush.invoke(bridge);verify(plugin,never()).submit(any());bridge.buffer().offer("test log");flush.invoke(bridge);verify(plugin).submit(any());}
+        try(ConsoleBridge bridge=new ConsoleBridge(plugin)){var flush=ConsoleBridge.class.getDeclaredMethod("flush");flush.setAccessible(true);flush.invoke(bridge);verify(plugin,never()).submit(any());bridge.buffer().offer("test log");when(plugin.clock()).thenReturn(new TestSupport.Time());when(plugin.getLogger()).thenReturn(mock(java.util.logging.Logger.class));when(bot.alive(0)).thenReturn(true);var channel=mock(TextChannel.class);var send=mock(net.dv8tion.jda.api.requests.restaction.MessageCreateAction.class,RETURNS_SELF);when(bot.channel("323456789012345678")).thenReturn(channel);when(channel.sendMessage(anyString())).thenReturn(send);flush.invoke(bridge);verify(channel).sendMessage(contains("test log"));verify(bot).validateChannel("323456789012345678",true);verify(plugin,never()).submit(any());}
     }
     @ParameterizedTest @ValueSource(strings={"say hi\nsay bad","say\rhi","dy!help","```say hello```","/","//stop","say\u0000hi","say\u202ehi",""," "})void malformedCommandsRejected(String input){assertThrows(IllegalArgumentException.class,()->ConsolePolicy.command(input));}
     @Test void optionalSlashAndArgumentsPreserved(){assertEquals("say Şçİ &a hello",ConsolePolicy.command("/say Şçİ &a hello"));}

@@ -3,7 +3,7 @@ plugins {
     id 'com.gradleup.shadow' version '9.2.2'
 }
 group = 'dev.dydiscord'
-version = '1.0.0'
+version = '1.0.1'
 repositories {
     mavenCentral()
     maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
@@ -115,6 +115,7 @@ test.dependsOn smallJar
 test {
     inputs.files(distributionRuntime)
     doFirst {
+        systemProperty 'dydiscord.version', project.version.toString()
         systemProperty 'dydiscord.runtime.coordinates', runtimeCoordinates.get().join(',')
         systemProperty 'dydiscord.runtime.classpath', distributionRuntime.asPath
     }

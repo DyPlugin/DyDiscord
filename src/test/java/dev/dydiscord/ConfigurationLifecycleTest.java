@@ -39,6 +39,22 @@ class ConfigurationLifecycleTest {
         sender=mock(ConsoleCommandSender.class);when(sender.getName()).thenReturn("CONSOLE");when(sender.hasPermission(anyString())).thenReturn(true);
     }
     @AfterEach void close()throws Exception{store.close();}
+    @Test void wrappedSetupFailureStillShowsActionableCommandGuidance()throws Exception{
+        doThrow(new dev.dydiscord.discord.SetupProblem(dev.dydiscord.discord.SetupProblem.Code.ACCESS_DENIED)).when(bot).validateChanges(any(),any());
+        command("admin","invite","https://discord.gg/example");
+        verify(plugin).message(eq(sender),eq("setup-access-denied"),any());verify(plugin,never()).message(eq(sender),eq("failed"),any());
+    }
+    @Test void panelChannelCanBeStagedBeforeTheBotConnects(){
+        doReturn(false).when(bot).usable();command("admin","panel","channel","223456789012345678");
+        assertEquals("223456789012345678",plugin.settings().panelChannel());verify(plugin).message(eq(sender),eq("saved"),any());
+    }
+    @Test void reloadOfFailedExistingSessionStillRequestsRestartWhenGuildChanges()throws Exception{
+        configuration.change("bot.yml","guild-id","123456789012345678");
+        var applied=Bot.class.getDeclaredField("applied");applied.setAccessible(true);applied.set(bot,plugin.settings());
+        var session=Bot.class.getDeclaredField("jda");session.setAccessible(true);session.set(bot,mock(net.dv8tion.jda.api.JDA.class));
+        Path file=folder.resolve("bot.yml");Files.writeString(file,Files.readString(file).replace("123456789012345678","223456789012345678"));doNothing().when(bot).validateChanges(any(),any());
+        command("admin","reload");verify(plugin).message(eq(sender),eq("restart-required"),any());assertFalse(bot.usable());
+    }
     private void field(String name,Object value)throws Exception{var field=DyDiscord.class.getDeclaredField(name);field.setAccessible(true);field.set(plugin,value);}
     private void editedBotFile()throws Exception{Files.writeString(folder.resolve("bot.yml"),"enabled: false\ntoken: 'synthetic-test-token'\nguild-id: '123456789012345678'\npanel:\n  channel-id: '223456789012345678'\nconsole:\n  channel-id: '323456789012345678'\n");}
     private void command(String... args){new Router(plugin,false).onCommand(sender,mock(Command.class),"dydiscord",args);}
@@ -65,7 +81,8 @@ class ConfigurationLifecycleTest {
         assertTrue(plugin.settings().botEnabled());assertTrue(Settings.get(Configuration.read(folder.resolve("bot.yml")),"enabled",false).equals(true));
         verify(bot).restart();verify(plugin).message(eq(sender),eq("saved"),any());verify(plugin,never()).message(eq(sender),eq("usage"),any());
     }
-    @Test void incompleteSetupHasActionableResponseAndStaysDisabled(){
+    @Test void incompleteSetupHasActionableResponseAndStaysDisabled()throws Exception{
+        configuration.change("bot.yml","enabled",false);
         command("admin","bot","enable");assertFalse(plugin.settings().botEnabled());
         verify(plugin).message(eq(sender),eq("bot-setup-incomplete"),any());verify(plugin,never()).message(eq(sender),eq("usage"),any());verify(bot,never()).restart();
     }

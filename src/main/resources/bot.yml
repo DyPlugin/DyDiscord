@@ -1,148 +1,131 @@
-# Token, guild, bot language and message-content settings require bot restart.
-# Managed schema version. Do not edit.
+# Setting descriptions follow their settings.
 config-version: 2
-# Connect the configured bot; false keeps Minecraft commands available.
-enabled: false
-# Bot secret from Developer Portal. Never share it; environment token takes priority.
+# Managed schema version. Do not edit.
+enabled: true
+# Connect automatically once token and guild-id are set. False explicitly stops the bot. First setup can be applied with admin reload; changing a running bot still needs restart.
 token: ""
-# Discord server ID, quoted as text. One guild is supported.
+# Bot secret from Developer Portal. Never share it; environment token takes priority.
 guild-id: ""
-# Discord language and message commands are independent from Minecraft language.
+# Discord server ID, quoted as text. One guild is supported.
 bot:
-  # Bot/panel language: en or tr. Restart the bot after changing this.
-  language: en
-  # Message command prefix; the supported value is dy!.
+# Discord language: auto follows the configured game language (English when both are auto).
+  language: auto
+  # Bot/panel language: auto, en or tr. Unset game language follows this choice. Restart applies.
   prefix: "dy!"
-  # Enable message commands; requires Message Content intent and bot restart.
+  # Message command prefix; the supported value is dy!.
   prefix-commands-enabled: true
-# One persistent account panel; refresh updates its existing message.
+  # Enable message commands; requires Message Content intent and bot restart.
 panel:
-  # Use the account panel. False keeps slash commands available; reload applies it.
-  # Existing buttons are disabled; enabling refreshes the same recorded message.
+# One persistent account panel; refresh updates its existing message.
   enabled: true
+  # Use the account panel. False keeps slash commands available; reload applies it. Existing buttons are disabled; enabling refreshes the same recorded message.
+  channel-id: ""
   # Text channel ID, quoted as text; must differ from console and chat channels.
-  channel-id: ""
-  # Blank uses the Discord server icon. Optional HTTPS image URL; panel refresh applies it.
   image-url: ""
-# Optional private server-console channel; only trusted administrators may view it.
+  # Blank uses the Discord server icon. Optional HTTPS image URL; panel refresh applies it.
 console:
-  # Relay actual INFO/WARN/ERROR server output to Discord.
-  enabled: false
-  # Private text channel ID, quoted as text; deny View Channel for @everyone.
+# Server-console output channel; viewing it does not grant permission to run commands.
+  enabled: true
+  # Relay actual INFO/WARN/ERROR output to the configured channel; a blank channel disables delivery. Reload applies.
   channel-id: ""
-  # These users receive full Minecraft console power; linking does not grant access.
+  # Guild text channel ID, quoted as text. Public channels are allowed; command access requires separate authorization.
   commands:
+  # These users receive full Minecraft console power; linking does not grant access.
+    enabled: false
     # Allow new authorized messages to run Minecraft commands; requires bot restart.
-    enabled: false
-    # Let Discord Administrators use the console in addition to allowed roles.
     allow-administrator: true
-    # Trusted Discord role IDs as quoted strings; role names are not authorization.
+    # Let Discord Administrators use the console in addition to allowed roles.
     allowed-role-ids: []
+    # Trusted Discord role IDs as quoted strings; role names are not authorization.
 
-# Optional Minecraft -> Discord roles. Linking never grants Minecraft permissions.
 roles:
+# Optional Minecraft -> Discord roles. Linking never grants Minecraft permissions.
+  enabled: false
   # Opt in explicitly; LuckPerms is required for group rules.
-  enabled: false
-  # Quoted Discord role IDs given to verified linked accounts.
   linked-role-ids: []
-  # Rules: group: vip, role-ids: ["123456789012345678"], priority: 10.
-  # Group names are lowercase LuckPerms names; use a separate rule per group.
+  # Quoted Discord role IDs given to verified linked accounts.
   groups: []
-  # Explicit LuckPerms query context, for example {server: survival}.
+  # Rules: group: vip, role-ids: ["123456789012345678"], priority: 10. Group names are lowercase LuckPerms names; use a separate rule per group.
   context: {}
-  # all combines matching groups; highest combines rules tied at highest priority.
+  # Explicit LuckPerms query context, for example {server: survival}.
   selection: all
+  # all combines matching groups; highest combines rules tied at highest priority.
+  recheck-seconds: 300
   # Reconcile known linked accounts periodically, in seconds (30-3600).
-  recheck-seconds: 300
-  # Member join/update events need privileged Server Members intent when enabled.
-  # Changing the effective intent requires a bot restart.
   member-events: true
+  # Member join/update events need privileged Server Members intent when enabled. Changing the effective intent requires a bot restart.
 
-# Optional public chat bridge. This channel must differ from panel and console.
 chat:
+# Optional public chat bridge. This channel must differ from panel and console.
+  channel-id: ""
   # Public guild text channel ID, quoted as text; blank disables all chat delivery.
-  channel-id: ""
-  # Forward public Minecraft chat. Unknown chat listeners pause this direction.
   minecraft-to-discord: false
-  # Forward new human Discord messages; enabling requires Message Content/bot restart.
+  # Forward public Minecraft chat. Unknown chat listeners pause this direction.
   discord-to-minecraft: false
-  # Small event embeds; each event can be enabled independently.
+  # Forward new human Discord messages; enabling requires Message Content/bot restart.
   events:
-    # Public joins only; hidden players and suppressed join messages are excluded.
+  # Small event embeds; each event can be enabled independently.
     join:
+    # Public joins only; hidden players and suppressed join messages are excluded.
+      enabled: false
       # Announce joins in the chat channel.
-      enabled: false
-      # Embed accent as a six-digit RGB hex color.
       color: "#55AA55"
-    # Public quits only; hidden players and suppressed quit messages are excluded.
+      # Embed accent as a six-digit RGB hex color.
     quit:
+    # Public quits only; hidden players and suppressed quit messages are excluded.
+      enabled: false
       # Announce quits in the chat channel.
-      enabled: false
-      # Embed accent as a six-digit RGB hex color.
       color: "#AAAAAA"
-    # Keep the existing death reason; suppressed death messages are excluded.
-    death:
-      # Announce deaths in the chat channel.
-      enabled: false
       # Embed accent as a six-digit RGB hex color.
+    death:
+    # Keep the existing death reason; suppressed death messages are excluded.
+      enabled: false
+      # Announce deaths in the chat channel.
       color: "#FF5555"
+      # Embed accent as a six-digit RGB hex color.
 
-# Optional Discord boost rewards, executed as Minecraft console commands.
-# Only currently linked accounts boosting this guild qualify, once per boost period.
-# Commands use your installed economy/site-credit/rank plugin's documented syntax.
-# No economy or website plugin is bundled; no API credentials belong here.
 boost-rewards:
-  # Explicit opt in. Enabling requests Server Members intent and needs bot restart.
-  # If that intent is unavailable, periodic fresh member checks continue.
+# Optional Discord boost rewards, executed as Minecraft console commands.
   enabled: false
+  # Explicit opt in. Enabling requests Server Members intent and needs bot restart. If that intent is unavailable, periodic fresh member checks continue.
+  commands: []
   # Up to 10 commands, each at most 256 characters. Optional leading / is removed.
-  # Only {player} (linked Minecraft name) and {uuid} placeholders are supported.
-  # Every command must target one of them. Never grant OP or console authority.
-  # Copy your provider's own money/site-credit console command and replace its target
-  # with {player} or {uuid}; verify it locally before enabling automatic rewards.
-  # For an EXISTING LuckPerms booster group: "lp user {uuid} parent add booster".
-  # For a timed rank: "lp user {uuid} parent addtemp booster 30d".
-  # That group can separately map to a Discord role through roles.groups above.
-  commands: []
-  # Optional provider commands when a recorded boost ends or its link is removed.
-  # For the same LuckPerms group: "lp user {uuid} parent remove booster".
-  # One-time money/site credit normally has no removal command.
   remove-commands: []
-  # Fresh linked-member reconciliation period, in seconds (30-3600).
+  # Provider commands run when a recorded boost ends or its link is removed; {player}/{uuid} target the linked account.
   recheck-seconds: 300
-  # Minimum hours between rewards for the same Discord account (168-8760).
+  # Fresh linked-member reconciliation period, in seconds (30-3600).
   cooldown-hours: 168
-# Public Discord commands; empty list permits any regular text channel. Reload applies.
+  # Minimum hours between rewards for the same Discord account (168-8760).
 community:
+# Public Discord commands; empty list permits any regular text channel. Reload applies.
   information-channel-ids: []
-# First link only, once for BOTH accounts; existing/disabled links are never rewarded later.
+  # Channels allowed for public information commands; empty permits every regular text channel.
 link-rewards:
+# First link only, once for BOTH accounts; existing/disabled links are never rewarded later.
   enabled: false
-  # Up to ten trusted console commands; {player}/{uuid}, max 256 characters each.
+  # Enable one-time rewards for new account links.
   commands: []
-# Optional private welcome after permanent linking; no claim about reward success.
+  # Up to ten trusted console commands; {player}/{uuid}, max 256 characters each.
 link-welcome:
+# Optional private welcome after permanent linking; no claim about reward success.
   minecraft: false
+  # Send the linked player a private Minecraft welcome.
   discord: false
-# Optional community notices; never use the panel or private console channel. Reload applies.
-community-tools:
-  channel-id: ""
-  # Only after a genuine server STARTUP; bot restarts/reloads do not announce startup.
-  startup-notice: false
-  # Up to twenty single-line templates, max 800 characters. Admin edits preserve other keys.
-  templates:
-    maintenance: "Maintenance will begin shortly."
-    restart: "The server will restart shortly."
-  announcements:
-    enabled: false
-    # Up to twenty {template, target, every-seconds}; target both/minecraft/discord, 60-86400 seconds.
-    schedules: []
-# Optional button-based giveaways; no economy commands are executed. Reload applies.
+  # Send the linked member a private Discord welcome.
 giveaways:
+# Optional button-based giveaways; no economy commands are executed. Reload applies.
   enabled: false
-  # Use a regular guild text channel, separate from panel and private console.
+  # Enable button-based Discord giveaways.
   channel-id: ""
-  # Both entry and draw verify this condition; membership failures postpone drawing.
+  # Use a regular guild text channel, separate from panel and console.
   require-linked: false
-  # Optional OR rule: a member must hold at least one listed role ID. Max twenty.
+  # Both entry and draw verify this condition; membership failures postpone drawing.
   allowed-role-ids: []
+  # Optional OR rule: a member must hold at least one listed role ID. Max twenty.
+
+account:
+# Private account details; reload applies these display options.
+  show-integrated-roles: true
+  # Show only currently assigned roles managed by role sync; never raw role IDs.
+  time-zone: UTC
+  # IANA time zone for readable account dates, for example Europe/Istanbul or UTC.

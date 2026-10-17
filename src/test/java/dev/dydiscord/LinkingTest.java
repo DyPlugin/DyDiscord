@@ -16,7 +16,7 @@ class LinkingTest {
     @AfterEach void close()throws Exception{store.close();}
     String issue(UUID id)throws Exception{return linking.issue(id,"Alice",1,settings,true).code();}
     Store.Link redeem(String code,String discord)throws Exception{return linking.redeem(code,discord,settings,true,c->true);}
-    @Test void formatAndCooldown()throws Exception{String code=issue(uuid);assertEquals(settings.codeLength(),code.length());assertTrue(code.matches("[A-HJ-NP-Z2-9]{8,16}"));assertThrows(Linking.Rejected.class,()->issue(uuid));time.advance(30);String newer=issue(uuid);assertTrue(linking.inspect(code).isEmpty());assertTrue(linking.inspect(newer).isPresent());}
+    @Test void formatAndCooldown()throws Exception{String code=issue(uuid);assertEquals(settings.codeLength(),code.length());assertTrue(code.matches("[A-HJ-NP-Z2-9]{6,16}"));assertThrows(Linking.Rejected.class,()->issue(uuid));time.advance(30);String newer=issue(uuid);assertTrue(linking.inspect(code).isEmpty());assertTrue(linking.inspect(newer).isPresent());}
     @Test void exactExpiryBoundary()throws Exception{String code=issue(uuid);time.advance(299);assertTrue(linking.inspect(code).isPresent());time.advance(1);assertThrows(Linking.Rejected.class,()->redeem(code,D1));}
     @org.junit.jupiter.params.ParameterizedTest @org.junit.jupiter.params.provider.ValueSource(ints={1,2})
     void codeExpiringDuringOwnerValidationCannotCommit(int expiresAtCheck)throws Exception{

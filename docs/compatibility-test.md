@@ -1,4 +1,23 @@
-# Current 1.0.0 verification — 2026-10-16
+# Latest 1.0.1 simplification — 2026-10-17
+
+Current source changes cover numbered permission-filtered help and `/dyda`, incoming-only personal chat visibility, explicit global chat direction controls, removed announcements and advanced editing commands, protected no-argument player token entry, account presentation and bounded administrator warnings. Console channel visibility may be public; current command authorization and access checks remain. Normal shutdown still attempts its short yellow embed.
+
+See [the current simplification verification](simplify-1.0.1-verification.md) for exact checks and remaining limits. No test counts, hashes, live acceptance or expanded platform support are asserted here for the new artifact. All reports and counts below describe their earlier artifacts.
+
+---
+
+# Earlier 1.0.1 verification — 2026-10-16
+
+The 2026-10-17 update remains version 1.0.1. See [its verification addendum](polish-1.0.1-verification.md); earlier counts and hashes below belong to the earlier artifact.
+
+643 automated tests passed. The exact small package passed 21 actual Purpur 26.3 /
+test Discord checks; standalone passed eight server checks and three intentional
+startup-failure checks. Network failures and harness cleanup failures are reported
+separately, not treated as passing runs. See [the current report](release-1.0.1-verification.md).
+
+---
+
+# Historical 1.0.0 verification — 2026-10-16
 
 The final clean test/build passed 621 tests, zero failures/errors/skips.
 The exact small JAR passed five packaging and six release probes on isolated

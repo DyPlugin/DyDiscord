@@ -1,0 +1,158 @@
+# Editable Discord templates. Keep {placeholders}; Markdown is supported. Reload after editing.
+# {server_name} - Link Your Account
+panel-title: "{server_name} - Link Your Account"
+# To connect your Minecraft and Discord accounts, get your code in-game with `/discord link`, then select **Link Account** below and enter you
+panel-description: "To connect your Minecraft and Discord accounts, get your code in-game with `/discord link`, then select **Link Account** below and enter your code.\n\n**Link Account:** Connects your accounts using your in-game code.\n\n**My Account:** Shows your linked Minecraft and Discord accounts.\n\n**Unlink:** Removes your existing link."
+# Only you can see your account details. Keep your code private.
+panel-privacy: "Only you can see your account details. Keep your code private."
+# Link Account
+link: "Link Account"
+# My Account
+account-button: "My Account"
+# Unlink
+unlink: "Unlink"
+# Linking code
+code-label: "Linking code"
+# Link Your Account
+modal-title: "Link Your Account"
+# Use the account panel to link, view or unlink your own account. Generate a code in Minecraft with /discord link. Codes expire and do not sur
+help: "Use the account panel to link, view or unlink your own account. Generate a code in Minecraft with /discord link. Codes expire and do not survive a server restart."
+# Structured help card, shared by slash and prefix commands; no footer is added.
+help-card-title: "Commands"
+help-card-accounts: "Your accounts"
+help-card-account-commands: "`/link` — Enter your in-game code\n`/account` — View your linked accounts\n`/unlink` — Remove your account link"
+help-card-server: "Server and community"
+help-card-other: "Help and connection"
+help-card-other-commands: "`/help` — Show this menu\n`/status` — Show the bot connection status\nMessage commands also work with the `dy!` prefix. Account details are shown privately."
+# DyDiscord {version}: {state}
+status: "DyDiscord {version}: {state}"
+# Disabled
+state-disabled: "Disabled"
+# Connecting
+state-starting: "Connecting"
+# Connected
+state-connected: "Connected"
+# Partially available
+state-degraded: "Partially available"
+# Stopping
+state-stopping: "Stopping"
+# Connection failed
+state-failed: "Connection failed"
+# Editable private Discord message; keep placeholders.
+account: "Minecraft account: {name}"
+# Editable private Discord message; keep placeholders.
+not-linked: "Your Discord account is not linked to a Minecraft account."
+# Editable private Discord message; keep placeholders.
+linked: "Your Minecraft account {name} is now linked to your Discord account!"
+# Editable private Discord message; keep placeholders.
+unlinked: "Your account link has been removed."
+# That code is invalid or expired. Generate a new code in Minecraft.
+invalid-code: "That code is invalid or expired. Generate a new code in Minecraft."
+# An account is already linked. Unlink it first.
+already-linked: "An account is already linked. Unlink it first."
+# Too many attempts. Please try again later.
+rate-limit: "Too many attempts. Please try again later."
+# Account data is unavailable. Contact the server administrator.
+data-unavailable: "Account data is unavailable. Contact the server administrator."
+# You cannot perform this action.
+no-permission: "You cannot perform this action."
+# This confirmation is invalid or expired.
+confirmation-invalid: "This confirmation is invalid or expired."
+# Editable private Discord message; keep placeholders.
+confirm: "Would you like to unlink your account?"
+# Editable private Discord message; keep placeholders.
+confirm-button: "Unlink"
+# Editable private Discord message; keep placeholders.
+cancel-button: "Cancel"
+# Editable private Discord message; keep placeholders.
+cancelled: "Your account link has been kept."
+# Open the account panel to continue privately: {url}
+private-prompt: "Open the account panel to continue privately: {url}"
+# Panel-off response; slash replies are private. Reload applies this text.
+panel-disabled: "The account panel is disabled. Use /link, /account or /unlink."
+# Prefix command guidance. Keep {command}; never include account details here.
+commands-prompt: "Use {command} to continue privately. Only you can see the reply."
+# Command-only help, used while panel.enabled is false; reload applies it.
+commands-help: "Use /link to enter your in-game code, /account to view your account, or /unlink to remove the link. Get your code in Minecraft with /discord link. Replies are private."
+# The account panel is unavailable. Contact the server administrator.
+panel-missing: "The account panel is unavailable. Contact the server administrator."
+# Console request rejected. Check the private console setup and your access.
+console-rejected: "Console request rejected. Check the private console setup and your access."
+# Use bot commands outside the console channel.
+console-prefix: "Use bot commands outside the console channel."
+# The service is busy. Please try again shortly.
+busy: "The service is busy. Please try again shortly."
+# The operation failed. Event {event}; contact the server administrator.
+failed: "The operation failed. Event {event}; contact the server administrator."
+# Show DyDiscord help
+slash-help: "Show DyDiscord help"
+# Open the private account linking form
+slash-link: "Open the private account linking form"
+# Show your own linked account
+slash-account: "Show your own linked account"
+# Unlink your own account with confirmation
+slash-unlink: "Unlink your own account with confirmation"
+# Show the bot connection state
+slash-status: "Show the bot connection state"
+# Server slash-command description (1-100 characters); bot restart applies it.
+slash-server: "Show Minecraft server information"
+# Extra help line. Combined help text must fit 2000 characters; reload applies it.
+help-server: "View server information with /server or dy!server."
+# Embed title, at most 256 characters after {server_name} expands; reload applies it.
+server-info-title: "{server_name}"
+# Player-count field label (1-256 characters); reload applies it.
+server-info-players: "Players"
+# Game-version field label (1-256 characters); reload applies it.
+server-info-version: "Minecraft version"
+
+# Normal Minecraft chat. {rank} includes bold text and a trailing space when present.
+chat-to-discord: "{rank}{name} **»** {message}"
+# Minecraft colors apply only to this template; {role} adds a space only when present.
+chat-to-minecraft: "&9[Discord] &7{role}&f{name} &7» &f{message}"
+# Public join event. Keep {name} unchanged.
+chat-join: "{name} joined the server."
+# Public quit event. Keep {name} unchanged.
+chat-quit: "{name} left the server."
+# Existing death reason, safely escaped; it is not automatically translated.
+chat-death: "{death}"
+# Normal server shutdown only, before the process has fully stopped.
+server-stopping: "The server is shutting down."
+
+# Community commands and private first-link guidance; placeholders must match both languages.
+slash-players: "Show visible online players"
+slash-ip: "Show configured server addresses"
+slash-links: "Show useful server links"
+help-community: "/players — Online players\n/ip — Server addresses\n/links — Useful links"
+information-channel-only: "Use the server information channel for this command."
+players-title: "Online players ({count})"
+players-empty: "No players are online."
+players-more: "And {count} more players."
+addresses-title: "Server addresses"
+address-java: "Java Edition"
+address-bedrock: "Bedrock Edition"
+addresses-empty: "Server addresses have not been configured."
+links-title: "Useful links"
+links-empty: "No links have been configured."
+link-welcome: "Welcome! Your Minecraft and Discord accounts are now connected."
+server-started: "{server_name} is ready. You can join now."
+# Giveaway card text and private participation responses; never mention users.
+giveaway-title: "Giveaway"
+giveaway-enter: "Enter"
+giveaway-open: "Prize: {prize}\nWinners: {winners}\nEnds: {ends}\nSelect Enter to participate. One entry per account."
+giveaway-drawn: "Prize: {prize}\nWinners: {winners}"
+giveaway-cancelled: "Giveaway cancelled. Prize: {prize}"
+giveaway-no-winners: "No eligible entrants"
+giveaway-joined: "You have entered this giveaway."
+giveaway-already: "You have already entered this giveaway."
+giveaway-closed: "This giveaway has closed."
+giveaway-full: "This giveaway has reached its entry limit."
+giveaway-ineligible: "You do not meet the entry requirements."
+giveaway-unavailable: "This giveaway is temporarily unavailable. Please try again later."
+notice-maintenance: "Maintenance will begin shortly."
+notice-restart: "The server will restart shortly."
+
+# Editable display text; reload applies.
+account-date: "Linked on: {date}"
+
+# Editable display text; reload applies.
+account-roles: "Synced roles:"

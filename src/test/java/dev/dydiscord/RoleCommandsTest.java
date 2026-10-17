@@ -22,7 +22,7 @@ class RoleCommandsTest {
         when(engine.work(any())).thenAnswer(i->{try{return CompletableFuture.completedFuture(((Callable<?>)i.getArgument(0)).call());}catch(Exception e){return CompletableFuture.failedFuture(e);}});
         commands=new RoleCommands(plugin,engine);
     }
-    private void execute(String key,String... args){Definition d=Definition.ALL.stream().filter(x->x.key().equals(key)).findFirst().orElseThrow();commands.execute(sender,d,args);}
+    private void execute(String key,String... args){Definition d=Definition.ALL.stream().filter(x->x.key().equals(key)).findFirst().orElseGet(()->new Definition("internal role service",key.equals("roles-groups-remove")?"dydiscord.admin.roles.groups.remove":"dydiscord.admin.roles.linked.add",false,args.length,false,key));commands.execute(sender,d,args);}
     @Test void removalPreservesOtherRolesAndRulePriority()throws Exception{
         configuration.change("bot.yml","roles.groups",List.of(Map.of("group","vip","role-ids",List.of("123456789012345678","223456789012345678"),"priority",7)));
         execute("roles-groups-remove","vip","123456789012345678");

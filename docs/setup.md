@@ -1,16 +1,16 @@
-# DyDiscord 1.0.0
+# DyDiscord 1.0.1
 
 The default JAR is the small distribution. Its declared libraries are resolved
 and cached by Spigot/Paper before plugin enable; initial installation needs
-internet access. Use `DyDiscord-1.0.0-standalone.jar` for an installation
+internet access. Use `DyDiscord-1.0.1-standalone.jar` for an installation
 that must work without downloading libraries. Install exactly one distribution.
 See [distribution packaging](packaging.md) for cache and version-selection limits.
 
 **Claww · DyPlugin** — a Discord bot inside your Minecraft server, with private
-account linking and an optional private console channel. English and Turkish are
+account linking and an optional console channel. English and Turkish are
 included. No separate Node.js service or external database is required.
 
-This release is named 1.0.0. Human account-linking and visual client acceptance
+This release is named 1.0.1. Human account-linking and visual client acceptance
 remain incomplete. See [test evidence](compatibility-test.md). DyDiscord has
 no dependency on DyClaim. Project terms are GPL v3 with additional attribution, non-commercial
 distribution and public-source requirements; see [LICENSE](../LICENSE).
@@ -21,7 +21,7 @@ Run `gradlew.bat clean build` on Windows, or `./gradlew clean build` elsewhere.
 Gradle Wrapper 9.1.0, dependency locks and SHA-256 verification metadata are included.
 The build was checked with JDK 21.0.12.1 and produces Java 17 bytecode against
 Spigot API 1.20.4. Use a JDK supported by Gradle 9.1; JDK 17–25 is the build target.
-Install **`build/libs/DyDiscord-1.0.0.jar`**, not the `plain` JAR.
+Install **`build/libs/DyDiscord-1.0.1.jar`**, not the `plain` JAR.
 
 The API baseline is not proof of runtime compatibility. Spigot 1.20.4 / Java 17
 is the initial candidate; newer Spigot/Paper builds need their own live evidence.
@@ -31,19 +31,21 @@ third-party hot loaders are not supported claims for this release.
 ## First setup
 
 1. Put the bundled JAR in your server's `plugins` directory and start the server.
-   DyDiscord creates config/message files and a local SQLite database. The bot,
-   log relay and remote commands start **disabled**. A missing token is harmless.
+   DyDiscord creates config/message files and a local SQLite database. New bot
+   and log-relay switches are enabled, but connection waits for credentials and
+   output waits for a configured accessible channel. Remote commands remain **disabled**.
 2. In the [Discord Developer Portal](https://discord.com/developers/applications),
    create your own application and bot. Invite it with `bot` and
    `applications.commands` scopes. Do not grant the bot Administrator.
 3. Locally edit `plugins/DyDiscord/bot.yml`: fill `token` and a quoted `guild-id`.
-   Optional `DYDISCORD_BOT_TOKEN` overrides the file token. Tokens never belong
-   in Minecraft commands, public messages or support reports. One token must be
+   Optional `DYDISCORD_BOT_TOKEN` overrides the file token. Never paste a token as a normal command argument, public message or support report. Authorized players may instead open `/dyda bot token` with no argument and follow its private interception prompt; local file editing is preferred because third-party logging/client history cannot be guaranteed. One token must be
    used by only one bot process.
 4. Set the invitation with `/dydiscord admin invite https://discord.gg/YourCode`.
    Set `server-name` in `config.yml`. Run `/dydiscord admin reload` after file edits,
-   then `/dydiscord admin bot enable`.
-5. Run `/dydiscord admin panel channel <id>` and `/dydiscord admin panel send`.
+   which starts a newly configured bot. If you explicitly disabled it, run
+   `/dydiscord admin bot enable`. Running sessions still report required restarts.
+5. Run `/dydiscord admin panel channel <id>`; the first panel is sent automatically
+   when connected. `panel send` / `panel refresh` remain available for repair.
    One Components V2 Container holds the Discord server icon and a compact explanation of
    each account action. A small divider separates the text from the three
    account buttons; the card has no brand label or footer. Sends, refreshes and restarts update the recorded
@@ -52,18 +54,20 @@ third-party hot loaders are not supported claims for this release.
 
 Initial `bot.yml` edits can be loaded with `/dydiscord admin reload` while the bot
 is disabled. Reload stages the local settings; Discord channel/role checks happen
-before use after connection. Then use `/dydiscord admin bot enable`. Missing token
+before use after connection. A new enabled setup connects after reload; explicitly disabled installations use `/dydiscord admin bot enable`. Missing token
 or guild gives a setup-specific response. Existing active channel policies still
 require live validation when changed.
 
 Minecraft's default prefix is blue: `&7[&9DyDiscord&7]`. The former exact default
 `&7[&dDyDiscord&7]` is upgraded on successful load/reload; custom prefixes survive.
 
-The bot needs View Channel, Send Messages, Embed Links and Read Message History
-in feature channels. History is needed for panel recovery. No Manage Messages,
-pinning, presence intent or member intent is requested. Enable **Message Content**
-in the Portal for `dy!` commands or plain console input. If Discord rejects that
-intent, the bot reconnects for slash/panel only and reports degraded operation.
+The account panel needs View Channel, Send Messages, Embed Links and Read Message
+History. Plain console output needs View Channel and Send Messages; the optional
+shutdown embed additionally needs Embed Links. Console channels may be public, exposing output to everyone with channel access. Remote execution still requires explicit configured authority and fresh membership/channel checks. No Manage Messages
+or presence intent is required. Role/boost member-event features request Server
+Members Intent when enabled. Enable **Message Content Intent** in the Portal for
+`dy!`, console input or Discord-to-Minecraft chat. Rejection (4014) logs the affected
+features and reconnects for slash/panel only; fix Portal settings and restart the bot.
 The bot name, avatar and application description are Portal settings; a panel
 title is not a bot profile edit. DyDiscord does not set a profile activity/status
 line. A legacy `bot.activity-text` value is ignored; diagnostic status commands
@@ -103,17 +107,16 @@ or from the console with `/dydiscord admin language tr`; personal preference use
 `/discord language tr` in-game and follows the documented global override.
 
 Generate your code in your current Minecraft session. The in-game reply contains
-only the code; use `/discord` separately if you need the invitation. Open the
+the copyable code with a hover hint, then a separate clickable invitation. Open the
 shared panel, press Link Account and enter the code in the modal. New setups use
-12 unambiguous random characters by default; configured custom lengths are kept.
+6 unambiguous random characters by default; the previous shipped length of 8 migrates to 6, while other custom lengths are kept.
 Codes expire after 5 minutes and have a 30-second
 generation cooldown. Leave the game and your code is revoked. Codes do not
 survive restart. The owner's current online session and permission are checked
 again at redemption. Linking grants no Minecraft or Discord permissions.
 
 Accounts are one UUID to one Discord user ID. Success on both sides shows the
-Minecraft name and Discord username. Status shows those names privately without
-raw account IDs or dates; older records without a stored Discord username use a
+Minecraft name. Private Discord account details include a readable link date and optional assigned managed-role names, never raw IDs; older records without a stored Discord username use a
 localized account label. Unlink responses are private and require a single-use,
 actor/record-bound confirmation (30 seconds
 by default). Local status and unlink can work while the bot is offline. New codes
@@ -162,14 +165,17 @@ Help and TAB show only permitted paths in the effective language.
 
 ## Language and reload
 
-Minecraft `lang: en/tr` overrides personal preferences. Under `lang: auto`, the
-stored UUID preference wins; personal `auto` follows the current client locale
-(`tr` → Turkish, everything else or missing locale → English). The console uses
-English under global auto. Preferences remain stored while a global override is
-active. `/dydiscord admin lang tr` changes the global language.
+Minecraft `lang: en/tr` overrides personal preferences. Under `lang: auto`, a
+saved `en/tr` preference wins, followed by the bot language. Preferences remain
+stored while a global override is active. `/dydiscord admin lang tr` changes the
+global game language. If a connected bot follows that setting through auto, the
+command restarts it to apply the changed slash-command language.
 
-Discord `bot.language: en/tr` is independent. After reload, **bot restart is
-required** for token, guild, bot language or Message Content requirements.
+Discord `bot.language: auto/en/tr` selects the bot language. Auto follows an
+explicit global game language; both auto resolves to English. Changing the bot
+language also changes the fallback for players without an explicit game choice.
+`/dydiscord admin bot language tr` changes it with a controlled restart. File
+edits to token, guild, bot language or Message Content require reload and restart.
 Requested and applied states are distinct in status. Only recorded DyDiscord
 guild slash command IDs are replaced/deleted; unrelated commands are preserved.
 Name collisions with unowned commands fail rather than overwrite them.
@@ -262,3 +268,11 @@ installation is up to date. Failed requests retry after at least 15 minutes.
 
 Bidirectional text chat, optional join/quit/death embeds and a bounded shutdown
 notice are now included. See [chat bridge setup and compatibility](chat-bridge.md).
+
+## Automatic invitation and private account details
+
+A blank `discord.invite-url` asks the connected bot to create one permanent, unlimited-use invite and persist it. It needs Create Invite permission in a suitable text channel; the private console channel is excluded. Missing permission produces console guidance, with attempts limited to once per minute. A manually supplied invite is preserved, including an owner edit made while the network request was pending.
+
+`bot.yml` supports `account.show-integrated-roles: true` and `account.time-zone: UTC` (an IANA time zone, e.g. `Europe/Istanbul`). Roles are displayed only if assigned and explicitly managed by role synchronization. This display does not mean pending role operations succeeded. Private unlink confirmation uses a red Components V2 Container with green Unlink and red Cancel buttons. In-game confirmation tokens are short and retain actor, permission, record and expiry checks.
+
+Admin help starts with topic navigation. Example: `/dydiscord admin help console`; numbered pages remain available. All leaf permission checks and aliases are retained.

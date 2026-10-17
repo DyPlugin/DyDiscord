@@ -1,222 +1,344 @@
-# Editable Minecraft text. Keep {placeholders}; & color codes are supported. Reload after editing.
-# You do not have permission to use this command!
+# Setting descriptions follow their settings.
 no-permission: "&cBu komutu kullanma izniniz yok!"
-# Only players can use this command!
+# Text shown when the sender lacks permission.
+startup-failed: "&cDyDiscord başlatılamadı. Sunucu kaydındaki başlangıç hatasını kontrol edin."
+# Text shown when plugin startup fails.
+help-page: "&7Sayfa &f{page}/{pages}&7. Devamı için &6{command} <sayfa>&7."
+# Text shown for help page.
+help-page-invalid: "&cBöyle bir yardım sayfası yok. /dydiscord admin yardım 1 kullanın."
+# Text shown for help page invalid.
+setup-channel-missing: "Önce kanal belirleyin: /dydiscord admin panel kanal <id> veya /dydiscord admin konsol kanal <id>."
+# Text shown for setup channel missing.
+setup-bot-unavailable: "Bot bağlı değil. bot.yml token/guild-id ayarlarını ve /dydiscord admin kontrol çıktısını kontrol edin."
+# Text shown for setup bot unavailable.
+setup-channel-invisible: "Kanala erişilemiyor. Kanal ID'sini, Discord sunucusunu ve botun Kanalı Görüntüle iznini kontrol edin."
+# Text shown for setup channel invisible.
+setup-channel-permissions: "Bota Kanalı Görüntüle ve Mesaj Gönder izinlerini verin. Hesap paneli için Bağlantı Yerleştir ve Mesaj Geçmişini Oku izinleri de gerekir."
+# Text shown for setup channel permissions.
+setup-console-private: "Konsol kanalı herkese açık. Kanalı görenler sunucu kayıtlarını okuyabilir; komut çalıştırmak ayrıca izin gerektirir."
+# Text shown for setup console private.
+setup-access-denied: "Discord erişimi reddetti. Bot anahtarını, sunucu üyeliğini ve kanal izinlerini kontrol edin."
+# Text shown for setup access denied.
+setup-rate-limited: "Discord izin sorgularını sınırladı. Biraz bekleyip tekrar deneyin; güvenli olmayan hiçbir işleme izin verilmedi."
+# Text shown for setup rate limited.
+setup-restart-required: "Discord sunucusunu değiştirdikten sonra botu yeniden başlatın: /dydiscord admin bot yenidenbaşlat."
+# Text shown for setup restart required.
+setup-intents-denied: "Discord bir özel intent isteğini reddetti (4014). Developer Portal > Bot bölümünden mesaj komutları, konsol girişi ve Discord'dan oyuna sohbet için Message Content Intent'i; üye olayları için Server Members Intent'i açın. Slash/panel bağlantısı yeniden deneniyor. Etkilenen özellikler ayar düzeltilip bot yeniden başlatılana kadar çalışmaz."
+# Text shown for setup intents denied.
 player-only: "&cBu komutu sadece oyuncular kullanabilir!"
-# Configuration reloaded successfully!
+# Only players can use this command!
 reload-success: "&aYapılandırma başarıyla yeniden yüklendi!"
-# Configuration could not be reloaded. Previous settings remain active.
+# Configuration reloaded successfully!
 reload-invalid: "&cAyarlar yüklenemedi. Önceki ayarlarla devam ediliyor."
-# Bot restart required to apply connection settings.
+# Configuration could not be reloaded. Previous settings remain active.
 restart-required: "&eBağlantı ayarlarını uygulamak için bot yeniden başlatılmalı."
-# Join our Discord: {invite_url}
-invite: "&7Discord sunucumuza katılın: &b{invite_url}"
-# The Discord invite has not been configured yet.
+# Bot restart required to apply connection settings.
+invite: "&7Discord: &b{invite_url}"
+# Editable Minecraft message; keep placeholders.
 invite-not-set: "&eDiscord davet bağlantısı henüz ayarlanmadı."
-# Your linking code: {code}
-link-code: "&7Eşleştirme kodunuz: &e{code}"
-# Linking panel: {url}
+# The Discord invite has not been configured yet.
+link-code: "&7Eşleme kodunuz: &e{code}"
+# Editable Minecraft message; keep placeholders.
 panel-link: "&7Eşleme paneli: &b{url}"
-# Panel-off notice. Discord slash commands remain available.
+# Linking panel: {url}
 panel-disabled: "&eHesap paneli kapalı. Discord'daki / komutlarını kullanın."
-# Enable the panel without changing links or its recorded message.
+# Panel-off notice. Discord slash commands remain available.
 help-panel-enable: "Hesap panelini aç"
-# Disable panel buttons; Discord account commands stay available.
+# Enable the panel without changing links or its recorded message.
 help-panel-disable: "Paneli kapatıp komutları kullan"
-# Discord is temporarily unavailable. Please try again shortly.
+# Disable panel buttons; Discord account commands stay available.
 bot-unavailable: "&eDiscord bağlantısı geçici olarak kullanılamıyor. Lütfen biraz sonra tekrar deneyin."
-# Set token and guild-id in bot.yml, then run /dydiscord admin reload before enabling the bot.
+# Discord is temporarily unavailable. Please try again shortly.
 bot-setup-incomplete: "&eBotu açmadan önce bot.yml içinde token ve guild-id ayarlayın, sonra /dydiscord admin yenile çalıştırın."
+# Set token and guild-id in bot.yml, then run /dydiscord admin reload before enabling the bot.
+discord-validation-pending: "&eBot bağlı değil. Kanal ve rol izinleri bağlantı kurulduğunda kontrol edilecek."
 # Discord is not connected; channel and role access will be checked before use after connection.
-discord-validation-pending: "&eDiscord bağlı değil; kanal ve rol erişimi bağlantıdan sonra kullanım öncesinde doğrulanacak."
-# Account linking is disabled.
 linking-disabled: "&eHesap eşleme kapalı."
-# Account data is unavailable. Contact the server administrator.
-data-unavailable: "&cHesap verilerine erişilemiyor. Sunucu yöneticisine başvurun."
+# Account linking is disabled.
+data-unavailable: "&cHesap bilgilerinize şu anda ulaşılamıyor. Sunucu yöneticisine haber verin."
+# Editable Minecraft message; keep placeholders.
+already-linked: "&eBu hesap zaten @{discord} hesabıyla eşli!"
 # An account is already linked. Unlink it first.
-already-linked: "&eBu hesap zaten eşleştirilmiş. Önce mevcut eşleştirmeyi kaldırın."
-# Your account is not linked.
-not-linked: "&7Hesaplarınız henüz eşleştirilmemiş."
-# Minecraft: {name} | Discord: {discord}
+not-linked: "&7Minecraft hesabınız bir Discord hesabıyla eşleştirilmemiş."
+# Editable Minecraft message; keep placeholders.
 account: "&7Minecraft: &f{name} &7| Discord: &f{discord}"
-# Discord account
+# Minecraft: {name} | Discord: {discord}
 discord-account: "Discord hesabı"
-# Accounts linked! Minecraft: {name} | Discord: {discord}
-linked: "&aHesaplarınız eşleştirildi! &f{name} &7Minecraft hesabınız, &f{discord} &7Discord hesabınızla eşleştirildi."
-# Account unlinked successfully.
+# Discord account
+linked: "&a{name} adlı Minecraft hesabınız, {discord} adlı Discord hesabıyla eşleştirildi!"
+# Editable Minecraft message; keep placeholders.
 unlinked: "&aHesap eşleştirmeniz kaldırıldı."
-# Confirm within {seconds} seconds: /dydiscord confirm {token}
-confirm: "&e{seconds} saniye içinde onaylayın: &6/dydiscord onayla {token}"
-# That confirmation is invalid or expired.
-confirmation-invalid: "&cBu onay artık geçerli değil. İşlemi yeniden başlatın."
-# Pending confirmation cancelled.
-cancelled: "&7İşlem iptal edildi."
-# Please wait before generating another code.
-cooldown: "&eYeni kod almak için biraz bekleyin."
-# The service is busy. Please try again shortly.
-busy: "&eŞu anda yoğunluk var. Biraz sonra tekrar deneyin."
-# That linking code is invalid or expired.
+# Account unlinked successfully.
+confirm: "&eEşlemeyi kaldırmak istiyor musunuz? &6/dydiscord onayla {token} &7({seconds} saniye)"
+# Editable Minecraft message; keep placeholders.
+confirmation-invalid: "&cOnayın süresi dolmuş veya işlem zaten tamamlanmış. Yeniden deneyin."
+# Editable Minecraft message; keep placeholders.
+cancelled: "&7İşlemden vazgeçtiniz."
+# Editable Minecraft message; keep placeholders.
+cooldown: "&eYeni bir kod almak için biraz bekleyin."
+# Editable Minecraft message; keep placeholders.
+busy: "&eBiraz bekleyip tekrar deneyin."
+# Editable Minecraft message; keep placeholders.
 invalid-code: "&cKod yanlış veya süresi dolmuş. Oyundan yeni bir kod alın."
-# Too many attempts. Please try again later.
-rate-limit: "&eÇok fazla deneme. Lütfen daha sonra tekrar deneyin."
-# Invalid command arguments. Use /dydiscord help.
-usage: "&eKomutu doğru yazdığınızdan emin olun. Yardım için /dydiscord yardım yazın."
-# Settings saved successfully.
+# That linking code is invalid or expired.
+rate-limit: "&eÇok hızlı işlem yapıyorsunuz. Biraz bekleyip tekrar deneyin."
+# Editable Minecraft message; keep placeholders.
+usage: "&eKomutu kontrol edin. Yardım için /dydiscord yardım yazın."
+# Editable Minecraft message; keep placeholders.
 saved: "&aAyarlar başarıyla kaydedildi."
-# Language preference saved: {language}
+# Settings saved successfully.
 language-saved: "&aDil tercihiniz kaydedildi: &f{language}"
-# Your preference is stored; the server currently forces {language}.
+# Language preference saved: {language}
 language-forced: "&eTercihiniz kaydedildi. Sunucunun dil ayarı şu anda {language}; tercihiniz sunucu dili otomatik olduğunda kullanılacak."
-# Operation failed. Event {event}; see the local server log.
+# Your preference is stored; the server currently forces {language}.
 failed: "&cİşlem tamamlanamadı. Sunucu yöneticisine şu hata kodunu iletin: {event}"
-# {status}
+# Operation failed. Event {event}; see the local server log.
 status-line: "&7{status}"
-# Help
+# {status}
 help: "Yardım"
-# Administrator commands
-help-admin: "Yönetici komutları"
-# Show the Discord invite
+# Help
+help-admin: "Sunucu ayarları ve yönetim komutları"
+# Editable Minecraft message; keep placeholders.
 help-invite-show: "Discord davetini göster"
-# players only
+# Show the Discord invite
 help-player-only: "sadece oyuncular"
-# Confirm your pending unlink
-help-confirm: "Bekleyen eşleme kaldırmayı onayla"
-# Cancel your pending confirmation
-help-cancel: "Bekleyen onayı iptal et"
-# Show available commands
+# players only
+help-confirm: "Eşlemeyi kaldır"
+# Editable Minecraft message; keep placeholders.
+help-cancel: "İşlemden vazgeç"
+# Editable Minecraft message; keep placeholders.
 help-help: "Kullanılabilir komutları göster"
-# Link your Minecraft account
-help-link: "Hesaplarınızı eşleştirmek için kod alın"
-# Show your linked account
-help-status: "Eşlenen hesabınızı göster"
-# Unlink your account with confirmation
-help-unlink: "Hesap eşleştirmenizi kaldırın"
-# Save your language preference
+# Show available commands
+help-link: "Hesaplarını eşleştirmek için kod al"
+# Editable Minecraft message; keep placeholders.
+help-status: "Eşlenen hesabını gör"
+# Editable Minecraft message; keep placeholders.
+help-unlink: "Hesap eşlemesini kaldır"
+# Editable Minecraft message; keep placeholders.
 help-language: "Dil tercihinizi kaydedin"
-# Set the Discord invite
+# Save your language preference
 help-invite: "Discord davetini ayarla"
-# Set the server language
+# Set the Discord invite
 help-global-language: "Sunucu dilini ayarla"
-# Validate and reload settings
-help-reload: "Ayarları doğrula ve yeniden yükle"
-# Show bot, data, panel and console health
-help-admin-status: "Botun, hesap kayıtlarının, panelin ve konsolun durumunu göster"
-# Check setup and permissions
-help-doctor: "Kurulumu ve izinleri kontrol et"
-# Enable the Discord bot
+# Set the server language
+help-reload: "Ayarları yeniden yükle"
+# Editable Minecraft message; keep placeholders.
+help-admin-status: "Eklentinin ve botun durumunu gör"
+# Editable Minecraft message; keep placeholders.
+help-doctor: "Kurulumu ve bağlantıyı kontrol et"
+# Editable Minecraft message; keep placeholders.
 help-bot-enable: "Discord botunu aç"
-# Disable the Discord bot
+# Enable the Discord bot
 help-bot-disable: "Discord botunu kapat"
-# Restart the Discord bot
+# Disable the Discord bot
 help-bot-restart: "Discord botunu yeniden başlat"
-# Set the linking channel
+# Restart the Discord bot
 help-panel-channel: "Eşleme kanalını ayarla"
-# Create or update the single panel
+# Set the linking channel
 help-panel-send: "Hesap panelini oluştur veya güncelle"
-# Repair the existing panel
+# Create or update the single panel
 help-panel-refresh: "Mevcut paneli onar"
+# Repair the existing panel
+help-console-channel: "Konsol kanalını belirler"
 # Set the private console channel
-help-console-channel: "Özel konsol kanalını ayarla"
-# Enable log relay
 help-console-enable: "Log aktarımını aç"
-# Disable log relay
+# Enable log relay
 help-console-disable: "Log aktarımını kapat"
-# Enable remote console commands
+# Disable log relay
 help-commands-enable: "Uzaktan konsol komutlarını aç"
-# Disable remote console commands
+# Enable remote console commands
 help-commands-disable: "Uzaktan konsol komutlarını kapat"
-# Authorize a trusted administrator role
+# Disable remote console commands
 help-role-add: "Güvenilen yönetici rolüne izin ver"
-# Remove an authorized role
+# Authorize a trusted administrator role
 help-role-remove: "İzin verilen rolü kaldır"
-# List authorized role IDs
+# Remove an authorized role
 help-role-list: "İzin verilen rolleri listele"
-# Allow Discord Administrators
+# List authorized role IDs
 help-administrator-on: "Discord Administrator yetkisini kabul et"
-# Require an authorized role
+# Allow Discord Administrators
 help-administrator-off: "İzinli rol gerektir"
-# Unlink a target UUID with reason and confirmation
+# Require an authorized role
 help-admin-unlink: "Oyuncunun hesap eşleştirmesini gerekçe belirterek kaldır"
-# English
+# Unlink a target UUID with reason and confirmation
 language-name-en: "İngilizce"
-# Turkish
+# English
 language-name-tr: "Türkçe"
-# Automatic
+# Turkish
 language-name-auto: "Otomatik"
-# Disabled
+# Automatic
 state-disabled: "Kapalı"
-# Connecting
+# Disabled
 state-starting: "Bağlanıyor"
-# Connected
+# Connecting
 state-connected: "Bağlı"
-# Partially available
+# Connected
 state-degraded: "Bağlantı kısıtlı"
-# Stopping
+# Partially available
 state-stopping: "Kapatılıyor"
-# Connection failed
+# Stopping
 state-failed: "Bağlantı kurulamadı"
-# DyDiscord {version} is available: {url}
+# Connection failed
 update-available: "&eDyDiscord {version} çıktı. İndirme sayfası: &b{url}"
+# DyDiscord {version} is available: {url}
 help-roles-status: "Rol eşitlemesinin durumunu göster"
+# Text shown for help roles status.
 help-roles-linked-list: "Eşlenen hesap rollerini listele"
+# Text shown for help roles linked list.
 help-roles-linked-add: "Eşlenen hesaplara verilecek rol ekle"
+# Text shown for help roles linked add.
 help-roles-linked-remove: "Eşlenen hesap rollerinden birini çıkar"
+# Text shown for help roles linked remove.
 help-roles-groups-list: "Minecraft grup ve rol kurallarını listele"
+# Text shown for help roles groups list.
 help-roles-groups-add: "Minecraft grubu için rol kuralı ekle"
+# Text shown for help roles groups add.
 help-roles-groups-remove: "Minecraft grubunun rol kuralını kaldır"
+# Text shown for help roles groups remove.
 help-roles-preview: "Eşlenen hesap için değişiklikleri önizle"
+# Text shown for help roles preview.
 help-roles-sync-all: "Eşlenen bütün hesapları eşitle"
+# Text shown for help roles sync all.
 help-roles-sync: "Eşlenen bir hesabı eşitle"
+# Text shown for help roles sync.
 help-roles-cleanup-preview: "Eski yönetilen rollerin temizliğini önizle"
+# Text shown for help roles cleanup preview.
 help-roles-cleanup-confirm: "Eski yönetilen rollerin temizliğini onayla"
+# Text shown for help roles cleanup confirm.
 roles-summary: "&7Rol eşitlemesi: &f{status}"
+# Text shown for roles summary.
 roles-preview-result: "&7Eklenecek roller: &f{add}&7; kaldırılacak: &f{remove}&7; belirlenemeyen: &f{unknown}"
+# Text shown for roles preview result.
 roles-cleanup-confirmation: "&eÖnizlediğiniz rol temizliğini {seconds} saniye içinde /dydiscord admin roller temizle onayla {token} ile onaylayın."
+# Text shown for roles cleanup confirmation.
 roles-disabled: "&eRol eşitlemesi kapalı."
+# Text shown for roles disabled.
 roles-started: "&aRol eşitlemesi sıraya alındı."
+# Text shown for roles started.
 roles-saved: "&aRol ayarları kaydedildi."
+# Text shown for roles saved.
 roles-unavailable: "&eRol eşitlemesi kullanılamıyor. Botu ve izin sağlayıcısını kontrol edin."
+# Text shown for roles unavailable.
 roles-invalid-confirmation: "&cBu rol temizleme onayı geçersiz veya süresi dolmuş."
+# Text shown for roles invalid confirmation.
 
-# Community commands and private first-link guidance; placeholders must match both languages.
-community-notice: "&e{text}"
-notice-preview-minecraft: "&7Minecraft önizlemesi: &f{text}"
-notice-preview-discord: "&7Discord önizlemesi: &f{text}"
-notice-queued: "&aDuyuru istendi. Discord'a ulaşması bağlantıya ve kanal ayarlarına bağlıdır."
-report-saved: "&aGizli bilgiler içermeyen rapor reports/diagnostic.txt dosyasına kaydedildi."
-validation-result: "&aDosyalar geçerli. İngilizce varsayılanı kullanan eksik çeviri: {count}."
-setup-guide: "&eToken ve guild-id değerlerini bot.yml dosyasında gizli tutarak ayarlayın. Kanalları seçin, yenileyin ve botu açın. Tokeninizi paylaşmayın."
-reward-preview: "&7Ödüller: &f{enabled} &7| İlk eşleme: &f{eligible} &7| Ayarlanmış komut: &f{count}&7. Hiçbir komut çalıştırılmadı."
 link-welcome: "&aHoş geldiniz! Minecraft ve Discord hesaplarınız eşlendi."
+# Text shown for link welcome.
 help-chat-inbound: "Discord sohbetini kendiniz için gösterir veya gizler"
-help-chat-outbound: "Sohbetinizin Discord'a aktarılmasını açar veya kapatır"
-help-chat-notify: "Adınız yazıldığında gelen bildirimi açar veya kapatır"
-help-chat-pause: "Sohbet aktarımını geçici durdurur"
-help-chat-resume: "Sohbet aktarımını devam ettirir"
-help-announce-preview: "Duyuru şablonunu önizler"
-help-announce-send: "Duyuru şablonunu gönderir"
-help-announce-set: "Duyuru şablonunu düzenler"
-help-announcements-pause: "Planlı duyuruları belirtilen dakika boyunca durdurur"
-help-announcements-resume: "Planlı duyuruları devam ettirir"
-help-maintenance: "Bakım duyurusunu gönderir"
-help-restart-notice: "Sunucuyu yeniden başlatmadan duyurusunu gönderir"
-help-support-report: "Gizli bilgiler içermeyen tanı raporu kaydeder"
-help-config-validate: "Ayarları uygulamadan kontrol eder"
-help-translations-validate: "Çevirileri ve değişkenlerini kontrol eder"
-help-setup: "Kurulum adımlarını ve eksik ayarları gösterir"
-help-rewards-preview: "İlk eşleme komutlarını çalıştırmadan önizler"
-# Giveaway administration; placeholders match English.
+# Text shown for help chat inbound.
 giveaway-created: "&aÇekiliş oluşturuldu. Çekiliş kodu: &f{id}"
+# Giveaway administration; placeholders match English.
 giveaway-not-found: "&eÇekiliş bulunamadı veya zaten sona erdi."
+# Text shown for giveaway not found.
 help-giveaway-start: "Çekiliş başlatır: saniye, kazanan sayısı, ödül"
+# Text shown for help giveaway start.
 help-giveaway-end: "Katılımı kapatır ve kazanan seçimini başlatır"
+# Text shown for help giveaway end.
 help-giveaway-cancel: "Kazanan seçmeden çekilişi iptal eder"
+# Text shown for help giveaway cancel.
 help-giveaway-list: "Çekilişleri ve çekiliş kodlarını listeler"
+# Text shown for help giveaway list.
 giveaway-ending: "&aKatılım kapatıldı. Kontroller tamamlandığında kazananlar gösterilecek."
+# Text shown for giveaway ending.
 giveaway-cancelled-admin: "&aÇekiliş iptal edildi. Discord kartı bağlantı kurulduğunda güncellenecek."
+# Text shown for giveaway cancelled admin.
 giveaway-none: "&7Henüz çekiliş oluşturulmadı."
+# Text shown for giveaway none.
 giveaway-list-entry: "&f{id} &7| {state} | &f{prize}"
+# Text shown for giveaway list entry.
 giveaway-state-draft: "Gönderim doğrulanamadı"
+# Text shown for giveaway state draft.
 giveaway-state-active: "Katılıma açık"
+# Text shown for giveaway state active.
 giveaway-state-drawn: "Kazananlar seçildi"
+# Text shown for giveaway state drawn.
 giveaway-state-cancelled: "İptal edildi"
+# Text shown for giveaway state cancelled.
+
+copy-code-hint: "Kodu kopyalamak için tıklayın."
+# Editable display text; reload applies.
+
+confirm-click-hint: "Onaylamak için tıklayın. İsterseniz bu kısa komutu da yazabilirsiniz."
+# Editable display text; reload applies.
+
+invite-click-hint: "Discord sunucusuna katılmak için tıklayın."
+# Editable display text; reload applies.
+
+invite-auto-unavailable: "Discord daveti ayarlanmamış. Uygun bir kanalda bota Davet Oluştur izni verin veya config.yml içindeki discord.invite-url ayarına bir davet yazın."
+# Console guidance when an automatic permanent invite cannot be created.
+
+
+help-bot-language: "Bot dilini seç; auto oyun ayarını kullanır"
+# Bot language command; shares the existing language leaf permission.
+
+setting-unchanged: "&7Bu ayar zaten seçili."
+# Message shown for setting unchanged.
+
+help-prefix: "Mesaj önekini değiştirir"
+# Message shown for help prefix.
+
+help-bot-guild: "Botun Discord sunucusunu belirler"
+# Message shown for help bot guild.
+
+help-bot-token: "Bot anahtarını özel girişle kaydeder"
+# Message shown for help bot token.
+
+help-chat-to-minecraft: "Discord → Minecraft sohbetini açar veya kapatır"
+# Message shown for help chat to minecraft.
+
+help-chat-to-discord: "Minecraft → Discord sohbetini açar veya kapatır"
+# Message shown for help chat to discord.
+
+help-chat-both: "İki yöndeki sohbet aktarımını açar veya kapatır"
+# Message shown for help chat both.
+
+help-chat-channel: "Discord sohbet kanalını belirler"
+# Message shown for help chat channel.
+
+chat-personal-already-on: "&7Discord mesajları sizin için zaten açık."
+# Message shown for chat personal already on.
+
+chat-personal-already-off: "&7Discord mesajları sizin için zaten kapalı."
+# Message shown for chat personal already off.
+
+chat-personal-on: "&aDiscord mesajlarını artık görebilirsiniz."
+# Message shown for chat personal on.
+
+chat-personal-off: "&7Discord mesajları sizin için gizlendi."
+# Message shown for chat personal off.
+
+chat-already-on: "&7{direction} sohbet aktarımı zaten açık."
+# Message shown for chat already on.
+
+chat-already-off: "&7{direction} sohbet aktarımı zaten kapalı."
+# Message shown for chat already off.
+
+chat-enabled: "&a{direction} sohbet aktarımı açıldı."
+# Message shown for chat enabled.
+
+chat-disabled: "&7{direction} sohbet aktarımı kapatıldı."
+# Message shown for chat disabled.
+
+token-entry-prompt: "&e60 saniye içinde / ile başlayarak bot anahtarını girin. Bu giriş yayınlanmaz. Vazgeçmek için /dyda iptal yazın."
+# Message shown for token entry prompt.
+
+token-entry-expired: "&eAnahtar girişi için süre doldu. /dyda bot token ile yeniden başlayın."
+# Message shown for token entry expired.
+
+token-entry-invalid: "&cAnahtarın biçimi uygun değil. Developer Portal > Bot bölümündeki anahtarı kullanın."
+# Message shown for token entry invalid.
+
+token-entry-environment: "&eAnahtar DYDISCORD_BOT_TOKEN ortam değişkeninden alınıyor. Önce bu değişkeni güncelleyin veya kaldırın."
+# Message shown for token entry environment.
+
+token-entry-saved: "&aBot anahtarı kaydedildi. Bağlantı yeniden başlatılıyor."
+# Message shown for token entry saved.
+
+token-entry-failed: "&cAnahtar kaydedilemedi. Dosya izinlerini ve sunucu kaydını kontrol edin. Önceki ayarlar korundu."
+# Message shown for token entry failed.
+
+token-entry-busy: "&eŞu anda yeni anahtar girişi açılamıyor. Biraz sonra tekrar deneyin."
+# Message shown for token entry busy.
+
+setup-connection-failed: "&cDiscord botu bağlanamadı. bot.yml içindeki token ve guild-id değerlerini, Developer Portal > Bot ayarlarını ve internet bağlantısını kontrol edin. Düzelttikten sonra /dyda bot yenidenbaşlat yazın."
+# Explain how to repair a failed Discord connection.

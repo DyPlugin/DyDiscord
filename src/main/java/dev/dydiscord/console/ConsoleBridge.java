@@ -35,19 +35,21 @@ public final class ConsoleBridge implements AutoCloseable {
                 }
             };appender.start();root.addAppender(appender);
         }catch(LinkageError|ClassCastException e){plugin.getLogger().warning("Log relay unavailable: unsupported logging backend.");}
-        timer.scheduleWithFixedDelay(this::flush,2,2,TimeUnit.SECONDS);
+        timer.scheduleWithFixedDelay(this::flush,250,250,TimeUnit.MILLISECONDS);
     }
     public void invalidate(){synchronized(buffer){policy.incrementAndGet();buffer.clear();}synchronized(users){users.clear();channelTimes.clear();}}
     private boolean relayCurrent(long version,long session,Settings captured){return !closed&&plugin.ready()&&version==policy.get()&&plugin.bot().alive(session)&&plugin.bot().usable()&&captured.equals(plugin.settings())&&captured.consoleEnabled();}
     private void flush(){
-        if(closed||buffer.size()==0||System.nanoTime()<nextFlushNanos||!plugin.ready()||!plugin.settings().consoleEnabled()||!plugin.bot().usable()||!flushPending.compareAndSet(false,true))return;
+        if(closed||buffer.size()==0||System.nanoTime()<nextFlushNanos||!plugin.ready()||!plugin.settings().consoleEnabled()||plugin.settings().consoleChannel().isEmpty()||!plugin.bot().usable()||!flushPending.compareAndSet(false,true))return;
         long version=policy.get(),session=plugin.bot().generation();Settings captured=plugin.settings();
-        plugin.submit(()->{
-            if(!relayCurrent(version,session,captured))return null;plugin.bot().validateChannel(captured.consoleChannel(),true);TextChannel target=plugin.bot().channel(captured.consoleChannel());String text;
-            synchronized(buffer){if(!relayCurrent(version,session,captured))return null;text=buffer.drain();}
+        try{
+            if(!relayCurrent(version,session,captured))return;plugin.bot().validateChannel(captured.consoleChannel(),true);TextChannel target=plugin.bot().channel(captured.consoleChannel());String text;
+            synchronized(buffer){if(!relayCurrent(version,session,captured))return;text=buffer.drain();}
             if(!text.isEmpty())plugin.bot().await(target.sendMessage(text).setAllowedMentions(List.of()).setCheck(()->relayCurrent(version,session,captured)));
-            return null;
-        }).whenComplete((v,e)->{flushPending.set(false);if(closed||version!=policy.get()||!plugin.bot().alive(session))return;if(e!=null){failures=Math.min(failures+1,5);nextFlushNanos=System.nanoTime()+TimeUnit.SECONDS.toNanos(Math.min(60,2L<<failures))+ThreadLocalRandom.current().nextLong(1_000_000_000L);Instant now=plugin.clock().instant();if(now.isAfter(lastFailureLog.plusSeconds(60))){lastFailureLog=now;plugin.error(e);}}else{failures=0;nextFlushNanos=0;}});
+            failures=0;nextFlushNanos=0;
+        }catch(Exception failure){
+            if(!closed&&version==policy.get()&&plugin.bot().alive(session)){failures=Math.min(failures+1,5);nextFlushNanos=System.nanoTime()+TimeUnit.SECONDS.toNanos(Math.min(60,2L<<failures))+ThreadLocalRandom.current().nextLong(1_000_000_000L);Instant now=plugin.clock().instant();if(now.isAfter(lastFailureLog.plusSeconds(60))){lastFailureLog=now;plugin.error(failure);}}
+        }finally{flushPending.set(false);}
     }
     private boolean rate(String user){synchronized(users){Instant now=plugin.clock().instant();users.values().removeIf(t->!now.isBefore(t.plusSeconds(120)));while(!channelTimes.isEmpty()&&!now.isBefore(channelTimes.peekFirst().plusSeconds(60)))channelTimes.removeFirst();if(users.size()>=4096&&!users.containsKey(user)||users.containsKey(user)&&now.isBefore(users.get(user).plusSeconds(2))||channelTimes.size()>=20)return false;users.put(user,now);channelTimes.addLast(now);return true;}}
     private boolean access(Member member,TextChannel channel,Settings settings){return member.hasPermission(channel,Permission.VIEW_CHANNEL)&&ConsolePolicy.authorized(member.hasPermission(Permission.ADMINISTRATOR),member.getRoles().stream().map(Role::getId).collect(java.util.stream.Collectors.toSet()),settings);}

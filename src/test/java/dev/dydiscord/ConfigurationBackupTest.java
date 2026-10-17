@@ -27,7 +27,7 @@ class ConfigurationBackupTest {
         Map<Path,String> originals=new LinkedHashMap<>();
         for(String resource:List.of("config.yml","bot.yml","messages_en.yml","messages_tr.yml","discord/messages_en.yml","discord/messages_tr.yml")) {
             Path file=folder.resolve(resource);
-            String ownerText=Files.readString(file).replace("\n","\r\n")+"\r\n# Owner keeps Windows line endings.\r\n";
+            String ownerText=Files.readString(file).replace("\r\n","\n").replace("\n","\r\n")+"\r\n# Owner keeps Windows line endings.\r\n";
             Files.writeString(file,ownerText);originals.put(file,ownerText);
         }
         long count=backups().size();

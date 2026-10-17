@@ -51,19 +51,19 @@ class MessageUpgradeTest {
         String dc="account: \"Minecraft: {name}\\nDiscord: {discord}\\n"+(tr?"Eşleme":"Linked")+": {date}\"\nlinked: \""+(tr?"Hesaplarınız eşlendi.":"Your accounts are now linked.")+"\"\n";
         Files.writeString(folder.resolve("messages_"+lang+".yml"),mc);Files.writeString(folder.resolve("discord/messages_"+lang+".yml"),dc);c.load();
         for(boolean discord:List.of(false,true))for(String key:List.of("account","linked")){
-            String rendered=c.active().messages().render(discord,lang,key,Map.of("name","Alice","discord","the_claww"));assertTrue(rendered.contains("Alice"));assertTrue(rendered.contains(discord?dev.dydiscord.language.Messages.safeDiscord("the_claww"):"the_claww"));assertFalse(rendered.contains("{date}"));assertFalse(rendered.contains("UTC"));
+            String rendered=c.active().messages().render(discord,lang,key,Map.of("name","Alice","discord","the_claww"));assertTrue(rendered.contains("Alice"));if(!discord)assertTrue(rendered.contains("the_claww"));else assertFalse(rendered.contains("the_claww"));assertFalse(rendered.contains("{date}"));assertFalse(rendered.contains("UTC"));
         }
         assertTrue(Files.readString(folder.resolve("messages_"+lang+".yml")).contains("# owner's translation comment"));assertTrue(Configuration.read(folder.resolve("messages_"+lang+".yml")).entrySet().containsAll(Configuration.parse(mc).entrySet()));
     }
-    @Test void validCustomTemplatesRemainWhileIncompatibleLegacyCustomTemplatesRejectReload()throws Exception{
+    @Test void validCustomTemplatesRemainWhileUnknownPlaceholdersRejectReload()throws Exception{
         Configuration c=TestSupport.config(folder);Files.writeString(folder.resolve("discord/messages_en.yml"),"linked: 'Welcome {name}, paired with {discord}!'");c.load();assertEquals("Welcome Alice, paired with Claww!",c.active().messages().render(true,"en","linked",Map.of("name","Alice","discord","Claww")));
-        var active=c.active();Files.writeString(folder.resolve("discord/messages_en.yml"),"account: 'Custom {name}, {discord}, on {date}'");assertThrows(java.io.IOException.class,c::load);assertSame(active,c.active());
+        var active=c.active();Files.writeString(folder.resolve("discord/messages_en.yml"),"account: 'Custom {name}, {discord}, secret {token}'");assertThrows(java.io.IOException.class,c::load);assertSame(active,c.active());
     }
     @Test void invalidContainerTextRetainsPreviousSnapshot()throws Exception{
         Configuration c=TestSupport.config(folder);var active=c.active();Files.writeString(folder.resolve("discord/messages_en.yml"),"panel-description: ''");assertThrows(IllegalArgumentException.class,c::load);assertSame(active,c.active());
         Files.writeString(folder.resolve("discord/messages_en.yml"),"panel-description: '"+"a".repeat(3500)+"'\npanel-privacy: '"+"b".repeat(500)+"'");assertThrows(IllegalArgumentException.class,c::load);assertSame(active,c.active());
     }
     @Test void shorterDefaultPreservesExplicitExistingLength()throws Exception{
-        Configuration c=TestSupport.config(folder);assertEquals(8,c.active().settings().codeLength());c.change("config.yml","linking.code-length",12);c.load();assertEquals(12,c.active().settings().codeLength());assertEquals(12,((Map<?,?>)Configuration.read(folder.resolve("config.yml")).get("linking")).get("code-length"));
+        Configuration c=TestSupport.config(folder);assertEquals(6,c.active().settings().codeLength());c.change("config.yml","linking.code-length",12);c.load();assertEquals(12,c.active().settings().codeLength());assertEquals(12,((Map<?,?>)Configuration.read(folder.resolve("config.yml")).get("linking")).get("code-length"));
     }
 }

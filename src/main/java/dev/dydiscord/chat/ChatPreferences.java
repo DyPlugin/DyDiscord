@@ -61,14 +61,14 @@ public final class ChatPreferences implements AutoCloseable {
         return result;
     }
     public synchronized CompletableFuture<Preference> set(UUID id,String key,boolean enabled){
-        if(!Set.of("inbound","outbound","notify").contains(key))throw new IllegalArgumentException("Unknown chat preference");
+        if(!Set.of("inbound").contains(key))throw new IllegalArgumentException("Unknown chat preference");
         if(closed)return CompletableFuture.failedFuture(new IllegalStateException("Chat preferences closed"));
         var result=new CompletableFuture<Preference>();
         this.pending.add(result);result.whenComplete((v,e)->this.pending.remove(result));
         loading.put(id,result);Object session=sessions.computeIfAbsent(id,ignored->new Object());
         try{worker.execute(()->{try{
             if(closed)throw new IllegalStateException("Chat preferences closed");Preference previous=read(id);Preference value=new Preference(key.equals("inbound")?enabled:previous.inbound(),key.equals("outbound")?enabled:previous.outbound(),key.equals("notify")?enabled:previous.notifications());
-            try(var query=db().prepareStatement("INSERT INTO chat_preferences(uuid,inbound,outbound,notify) VALUES(?,?,?,?) ON CONFLICT(uuid) DO UPDATE SET inbound=excluded.inbound,outbound=excluded.outbound,notify=excluded.notify")){
+            if(!value.equals(previous))try(var query=db().prepareStatement("INSERT INTO chat_preferences(uuid,inbound,outbound,notify) VALUES(?,?,?,?) ON CONFLICT(uuid) DO UPDATE SET inbound=excluded.inbound,outbound=excluded.outbound,notify=excluded.notify")){
                 query.setString(1,id.toString());query.setBoolean(2,value.inbound());query.setBoolean(3,value.outbound());query.setBoolean(4,value.notifications());query.executeUpdate();
             }
             synchronized(this){if(sessions.get(id)==session)remember(id,value);release(id,result);}result.complete(value);

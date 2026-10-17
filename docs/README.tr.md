@@ -1,6 +1,18 @@
-# DyDiscord 1.0.0
+# DyDiscord 1.0.1
 
-Küçük `DyDiscord-1.0.0.jar`, kütüphaneleri ilk kurulumda Spigot/Paper'ın
+1.0.1 kurulumu kolaylaştırır: yeni dosyalarda bot bağlantısı ve konsol kayıt
+aktarımı açıktır; bağlantı için token/sunucu, aktarım için erişilebilir ayrı kanal
+ayarlanmalıdır. Uzaktan konsol komutları ayrıca açılır. Eski açık/kapalı
+tercihleriniz korunur. Token için yerel dosya düzenleme önerilir; aşağıdaki oyuncuya özel süreli giriş de kullanılabilir.
+
+`/dydiscord admin panel kanal <id>` ilk paneli bot bağlandığında otomatik gönderir.
+Yenileme ve yeniden bağlantı aynı paneli kullanır. Yönetici yardımı sekizer
+komutluk sayfalardadır: `/dydiscord admin yardım 2`. Discord yardımı ve `dy!`
+yanıtları düzenli embed kullanır. Rütbeler Discord'daki gerçek birincil RGB
+rengiyle gösterilir; gradyan rollerin ilk rengi alınır. Başlangıç/kanal/izin ve
+intent hataları artık ilgili ayara yönlendirir. [Doğrulama kaydı](release-1.0.1-verification.md).
+
+Küçük `DyDiscord-1.0.1.jar`, kütüphaneleri ilk kurulumda Spigot/Paper'ın
 yerleşik yükleyicisiyle indirir; sunucunun kütüphane önbelleğinde saklanırlar.
 İlk kurulum internet gerektirir ve daha uzun sürebilir. Bağımlılıklar alınamazsa
 eklenti yüklenemez. Çevrimdışı kurulum için `-standalone.jar` tam paketini kullanın.
@@ -19,10 +31,10 @@ Dosyadan ayarlamak için `bot.yml` içinde `panel.enabled: false` yapıp
 gösterir. [Panel/komut modu rehberi](panel-mode.md).
 
 **Claww · DyPlugin** tarafından geliştirilen DyDiscord, Minecraft sunucusu içinde
-Discord botu çalıştırır. Özel hesap eşleme ve isteğe bağlı özel konsol kanalı sunar.
+Discord botu çalıştırır. Özel hesap eşleme ve isteğe bağlı konsol kanalı sunar.
 Ayrı Node.js botu veya harici veritabanı gerekmez. İngilizce ve Türkçe dahildir.
 
-Bu sürüm 1.0.0 adını kullanır; otomatik kontroller uygulanır. Gerçek Minecraft/Discord,
+Bu sürüm 1.0.1 adını kullanır; otomatik kontroller uygulanır. Gerçek Minecraft/Discord,
 istemci ve mobil testleri tamamlanmadığı için yayına hazır kabul edilmez.
 Uyumluluk adayları ve test sonuçları [test belgesindedir](compatibility-test.md).
 Proje, DyClaim'e benzer GPL v3 ve ek koşullar içeren lisans metnini kullanır.
@@ -42,9 +54,7 @@ sayılır; mevcut grup rolleri korunur, bağımsız eşlenen hesap rolü çalı�
 
 `/dydiscord admin roller durum` durumu, `/dydiscord admin roller önizle <uuid>`
 değişiklikleri gösterir. `eşitle <uuid>` veya `eşitle tümü` işi sıraya alır.
-`eşlenen liste/ekle/çıkar` ve `gruplar liste/ekle/çıkar` ayrı yaprak izinlere
-sahiptir. Her yaprak `dydiscord.admin.roles.*` altındadır; oyunculara varsayılan
-rol yönetimi verilmez. ASCII karşılıklar da kabul edilir.
+Eşlenen hesap rolleri ve grup kuralları `bot.yml` içindeki `roles` bölümünden düzenlenir; oyun içi kural düzenleme kaldırılmıştır. Durum, önizleme, eşitleme ve onaylı temizleme komutları korunur. ASCII karşılıklar da kabul edilir.
 
 Rol vermeden önce Manage Roles iznini ve botun rol sırasını doğrulayın. Yönetilen,
 ayrıcalıklı ve konsol erişim rolleri otomatik ekleme/kaldırmada engellenir.
@@ -80,20 +90,21 @@ JDK 25.0.4.1 ile Java 17 bytecode ve Spigot API 1.20.4 tabanı derlendi.
 Bu bilgi gerçek sunucu uyumluluğu kanıtı değildir. Folia, proxy,
 Floodgate/Bedrock ve sunucu açıkken JAR değiştirme desteği ilan edilmez.
 
-1. `build/libs/DyDiscord-1.0.0.jar` dosyasını `plugins` dizinine koyup
+1. `build/libs/DyDiscord-1.0.1.jar` dosyasını `plugins` dizinine koyup
    sunucuyu başlatın. `plain` JAR kurulmaz. Ayarlar, mesajlar ve SQLite oluşturulur.
-   Bot, log aktarımı ve uzaktan komutlar varsayılan kapalıdır. Tokensiz kurulum
-   eklentiyi çökertmez.
+   Yeni kurulumda bot ve log aktarımı ayarları açıktır; token/sunucu ve güvenli
+   ayrı kanal tanımlanana kadar işlem yapılmaz. Uzaktan komutlar varsayılan kapalıdır.
 2. [Discord Developer Portal](https://discord.com/developers/applications)
    üzerinden kendi botunuzu oluşturun. `bot` ve `applications.commands` kapsamları
    ile davet edin. Bot hesabına Administrator vermeyin.
 3. Yerel `plugins/DyDiscord/bot.yml` içinde token ve tırnaklı `guild-id` yazın.
-   `DYDISCORD_BOT_TOKEN` ortam değişkeni dosyanın önüne geçer. Tokeni komutlara,
-   mesajlara veya destek raporlarına koymayın. Aynı token başka süreçte kullanılmaz.
+   `DYDISCORD_BOT_TOKEN` ortam değişkeni dosyanın önüne geçer. Alternatif olarak yetkili çevrimiçi oyuncu `/dyda bot guild <id>` ve değer almayan `/dyda bot token` kullanabilir. Token girişi 60 saniye geçerlidir: sonraki `/` ile başlayan girdiye yalnızca tokeni yazın; `/dyda iptal` ile vazgeçin. Eklenti girdiyi iptal edip yönlendirmeden önce temizler; istemci geçmişi ve başka eklentilerin kayıtları garanti edilemez, bu yüzden yerel dosya önerilir. Ortam tokeni etkinse bu giriş kabul edilmez. Çıkış, yenileme, yeniden başlatma veya izin kaybı oturumu geçersiz kılar. Başarılı kayıt botu yeniden başlatır. Tokeni destek raporlarına koymayın; aynı token başka süreçte kullanılmaz.
 4. `/dydiscord admin davet https://discord.gg/Kodunuz` ile daveti ayarlayın.
    `config.yml` içinde `server-name` değerini düzenleyin. Dosya değişikliklerinden
-   sonra `/dydiscord admin yenile`, ardından `/dydiscord admin bot aç` kullanın.
-5. `/dydiscord admin panel kanal <id>` ve `/dydiscord admin panel gönder` çalıştırın.
+   sonra `/dydiscord admin yenile` kullanın. Botu daha önce kapattıysanız
+   `/dydiscord admin bot aç` ile açın.
+5. `/dydiscord admin panel kanal <id>` ilk paneli bağlantı hazırken otomatik gönderir.
+   Gerektiğinde `/dydiscord admin panel yenile` ile aynı paneli onarın.
    Tek Components V2 Container; avatarı ve her hesap işleminin kısa açıklamasını
    aynı kartta toplar. Metin ile üç hesap butonu arasında küçük ayraç bulunur;
    kartta marka etiketi veya alt yazı yoktur. Sonraki gönderme/yenileme işlemleri kayıtlı tek mesajı
@@ -149,6 +160,7 @@ Yönetim için `/dydiscord admin yardım` kullanın; eski `yönetim/yonetim` gir
 | `/discord onayla <kod>` | `confirm` | bekleyen işlemin izni |
 | `/discord iptal` | `cancel` | bekleyen işlemin sahibi |
 | `/discord dil <en\|tr\|auto>` | `language`, `lang` | `dydiscord.language` |
+| `/discord sohbet <aç\|kapat>` | `chat on\|off` | `dydiscord.chat.preferences` |
 
 `/dydiscord` aynı yönlendiricidir. `/link`, `/esle`, `/eşle`, `/hesap-esle`,
 `/hesap-eşle` kısa yolları kaydedilir; Unicode kökler canlı sunucuda doğrulanmadı.
@@ -156,22 +168,19 @@ Komut çakışmasında `/dydiscord eşle` veya `/dydiscord:dydiscord eşle` kull
 Başka eklentinin komutu zorla ele geçirilmez. Davet bot kapalıyken de sadece
 komutu yazana gönderilir.
 
-Yardım bütün izinli oyuncu komutlarını, davet ve onay/iptal dahil gösterir. Konsolda
+Yardım kendi yardım satırı dışında bütün izinli oyuncu komutlarını, davet ve onay/iptal dahil gösterir. Konsolda
 oyuncuya özel satırlar gizlenmez; “sadece oyuncular” notu taşır. Bu komutların
 çalıştırılması yine oyuncu gerektirir. Oyunda `/discord dil tr` kişisel tercihi,
 `/dydiscord admin dil tr` sunucunun genel dilini değiştirir; genel komut konsolda da
 çalışır. Genel `en/tr` zorlamasında kişisel tercih saklanır ve zorlanan dil bildirilir.
 
-Oyunda kod üretin; yanıt yalnızca kodu içerir. Davet gerekirse ayrıca `/discord`
-kullanın. Discord panelinin Hesap Eşle butonuna basıp açılan forma kodunuzu girin.
-Yeni kurulumlarda varsayılan kod 8 rastgele, karışmayan karakterdir; ayarlanmış
+Oyunda kod üretin; ilk satır kopyalanabilir kodu, ikinci satır tıklanabilir Discord davetini gösterir. Discord panelinin Hesap Eşle butonuna basıp açılan forma kodunuzu girin.
+Yeni kurulumlarda varsayılan kod 6 rastgele, karışmayan karakterdir; ayarlanmış
 özel uzunluklar korunur. Kod 5 dakika geçerlidir. Yeni kod
 için 30 saniye beklenir. Oyundan çıkmak kodu iptal eder. Kodlar sunucu yeniden başladığında geçersiz
 olur. Kullanım anında sahibin mevcut çevrimiçi oturumu ve yaprak izni yeniden
 kontrol edilir. Eşleme izin veya OP vermez. Bir UUID ve bir Discord hesabı yalnızca
-birbirine eşlenebilir. İki taraftaki başarı metni Minecraft adı ve Discord kullanıcı
-adını gösterir. Özel durum yanıtı bu adları içerir; ham hesap ID'si veya tarih
-göstermez. Discord adı bulunmayan eski kayıtlarda yerelleştirilmiş hesap açıklaması
+birbirine eşlenebilir. Oyundaki başarı mesajı iki hesabın adını gösterir; Discord yanıtı tek cümlede Minecraft hesabınızın eşlendiğini belirtir. Hesabım yanıtında ham ID yerine Minecraft adı, okunaklı eşleme tarihi ve varsa entegre roller yer alır. Discord adı bulunmayan eski kayıtlarda yerelleştirilmiş hesap açıklaması
 kullanılır. Eşleme kaldırma özeldir. Kaldırma, varsayılan
 30 saniyelik tek kullanımlık aktör/kayıt sürümü onayı ister. Bot kapalıyken yerel
 durum ve kaldırma çalışabilir. Yeni kod için botun kullanılabilir olması gerekir.
@@ -184,12 +193,19 @@ modunu değiştirmek UUID'leri değiştirebilir; eski eşlemeler otomatik taşı
 
 ## Yönetim ve izinler
 
-Aşağıdaki yollar `/dydiscord admin` altındadır. İngilizce karşılıklar da kabul edilir.
+Aşağıdaki yollar `/dydiscord admin` veya aynı yaprak izinleri kullanan `/dyda` altındadır. İngilizce karşılıklar da kabul edilir.
 Yerel konsol ve RCON yönetebilir; oyuncunun kendi hesabı oyuncu gerektirir.
 
 | Yol | `dydiscord.admin.` sonrası izin |
 | --- | --- |
-| `help` / `yardım` | erişilebilir en az bir yönetici yaprağı |
+| `help [page]` / `yardım [sayfa]` | erişilebilir en az bir yönetici yaprağı |
+| `önek <metin>` | `prefix` |
+| `bot sunucu <id>` | `bot.guild` |
+| `bot token` (değer almayan, sadece oyuncu) | `bot.token` |
+| `sohbet discord-minecraft <aç\|kapat>` (Discord → Minecraft) | `chat` |
+| `sohbet minecraft-discord <aç\|kapat>` (Minecraft → Discord) | `chat` |
+| `sohbet tümü <aç\|kapat>` | `chat` |
+| `sohbet kanal <id>` | `chat.channel` |
 | `davet <url>` | `invite` |
 | `dil <en\|tr\|auto>` | `language` |
 | `yenile` | `reload` |
@@ -201,8 +217,6 @@ Yerel konsol ve RCON yönetebilir; oyuncunun kendi hesabı oyuncu gerektirir.
 | `konsol kanal <id>` | `console.channel` |
 | `konsol aç\|kapat` | `console.toggle` |
 | `konsol komutlar aç\|kapat` | `console.commands` |
-| `konsol rol ekle\|çıkar <id>` / `konsol rol liste` | `console.roles` |
-| `konsol yönetici on\|off` | `console.administrator` |
 | `kaldır <uuid> <gerekçe>` | `unlink` |
 
 `/discord ayarla <url>` ve `/discord setinvite <url>` doğrudan yönetici davet
@@ -220,11 +234,10 @@ ve hesap eşleme Minecraft yetkisi vermez.
 
 `lang: en` veya `lang: tr`, sunucudaki herkesin dilini belirler. `lang: auto`
 seçildiğinde kişisel tercihiniz kullanılır. Kişisel tercihiniz de `auto` ise
-Minecraft'ın diline bakılır: Türkçeyse Türkçe, diğer dillerde İngilizce kullanılır.
-Konsolda `auto`, İngilizce anlamına gelir. Sunucu dili zorunlu olsa da kişisel
+bot dili kullanılır. Konsol da ayrıca oyun dili seçilmemişse bot dilini kullanır. Sunucu dili zorunlu olsa da kişisel
 tercihiniz saklanır. `/dydiscord admin dil tr` sunucunun genel dilini değiştirir.
 
-Discord botunun dili `bot.language: en/tr` ile ayrıca seçilir. Bot anahtarı,
+Discord botunun dili `bot.language: auto/en/tr` ile seçilir. Auto, ortak oyun dilini kullanır; iki ayar da auto ise İngilizceye döner. Bot anahtarı,
 Discord sunucusu, bot dili veya gerekli izinler değiştiğinde ayarları yenileyip
 botu yeniden başlatın. Durum ekranı seçilen dili ve gerçekten kullanılan dili
 ayrı gösterir. Yalnızca DyDiscord'un kaydettiği Discord komutları güncellenir;
@@ -244,14 +257,9 @@ dosya yorumları korunur. Bot kapalıyken de `/dydiscord admin yenile` ile ilk
 ayarlar yüklenebilir. Panel, kayıt aktarımı ve konsol komutlarında erişim izinleri
 kullanım anında tekrar kontrol edilir. Discord ID'lerini tırnak içinde yazın.
 
-## Özel konsol
+## Konsol kanalı
 
-Panelden farklı özel metin kanalı seçin. `@everyone` View Channel kapalı olmalı;
-yalnızca güvenilen yönetici rolleri ve bot erişebilmelidir. Bot dışındaki kişisel
-üye allow override'ları ihtiyatlı biçimde reddedilir. Administrator kanal retlerini
-aşabilir. Önce izinli rolleri belirleyin, kanalı seçin, log aktarımını ve uzaktan
-komutları ayrı açın. Rolün kaldırılması kanalı eski role açık bırakacaksa politika
-değişimi reddedilir; Discord kanal erişimini de düzeltin.
+Panel ve sohbet kanalından ayrı bir metin kanalı seçin. Kanal herkese açık olabilir; erişebilen herkes sunucu çıktısını okuyabilir. Komut çalıştırma yine açık etkinleştirme, güncel üyelik/kanal kontrolleri ve yapılandırılmış güvenilir rol veya izin verilen Discord Administrator yetkisi gerektirir. Rol listesi ve Administrator kabulü `bot.yml` içinde düzenlenir; oyun içi düzenleme komutları kaldırılmıştır. Log aktarımı ile komut çalıştırma ayrı açılır.
 
 İzinli kişinin bu kanala yazdığı yeni düz mesaj gerçek Minecraft **konsol** komutudur.
 `op`, izin yönetimi ve bütün eklenti komutları dahil tam güç verir. Kısıtlı moderatör
@@ -316,18 +324,39 @@ Sohbet köprüsü, ayarlar ve sınırlar: [rehber](chat-bridge.md).
 para/site kredisi, insan eşleme formu ve Java 17 çalışma ortamı ayrı canlı kanıt
 gerektirir; Java 17 bytecode hedefi bunları doğrulamaz.
 
-## 1.0.0 topluluk araçları
+## 1.0.1 topluluk araçları
 
-Discord tarafında `/oyuncular`, `/ip`, `/bağlantılar` ve genişletilmiş `/sunucu`
-komutları bulunur. Adresleri siz ayarlarsınız; gerçek makine IP’si paylaşılmaz.
-Oyuncular `/dydiscord sohbet gelen|giden|bildirim aç|kapat` ile tercihlerini
-kalıcı kaydeder. `/dydiscord admin duyuru önizle <şablon>` ve `gönder` duyuru
-akışını yönetir; `duyurular duraklat <dakika>` planlı gönderimleri durdurur.
-İlk eşleme ödülü, karşılama, açılış bildirimi ve çekiliş varsayılan kapalıdır.
-`/dydiscord admin çekiliş başlat <saniye> <kazanan> <ödül>` çekiliş açar;
-`bitir`, `iptal`, `liste` ayrı izinlerle çalışır. Çekiliş ödülünü siz teslim
-edersiniz; para/site işlemi otomatik yapılmaz.
-`admin ayarlar doğrula` değişiklikleri uygulamadan kontrol eder;
-`admin rapor` gizli bilgiler içermeyen destek raporu üretir.
-Ayrıntılar: [topluluk araçları](community-features.md), [ödüller](link-rewards.md),
-[çekilişler](giveaways.md). Eski hesaplar tekrar eşleme gerektirmez.
+Discord tarafında oyuncu listesi, ayarlanmış adresler/bağlantılar ve sunucu bilgisi bulunur. Oyuncu `/dydiscord sohbet aç|kapat` ile yalnızca kendisine gelen Discord sohbetini açar veya gizler; Minecraft → Discord aktarımını veya olay bildirimlerini değiştirmez. Tercih kalıcıdır. Yönetici iki yönü yukarıdaki açık yön komutlarıyla ayrı ayrı veya birlikte yönetir.
+
+Duyuru komutları, planlı duyurular ve açılış bildirimi kaldırılmıştır. Rol kuralları, konsol yetkileri ve ödül ayrıntıları YAML dosyasından düzenlenir. Eski rapor, kurulum, yapılandırma/çeviri doğrulama ve ödül önizleme komutları kaldırılmıştır; dosya değişikliklerini yenilemeyle doğrulayıp uygulayın. İlk eşleme ödülleri ve çekilişler isteğe bağlıdır. `/dyda çekiliş başlat <saniye> <kazanan> <ödül>`, `bitir`, `iptal`, `liste` korunur. Ödül teslimini sunucu sahibi yapar.
+
+## 1.0.1 hesap mesajları ve ortak dil
+
+`/discord eşle` ve `/eşle`, altı karakterli kodu ve ayrı bir Discord davetini
+gösterir. Kodun üzerine gelince kopyalama açıklaması çıkar; tıklayınca kod
+kopyalanır. Davete tıklayınca Discord açılır. Önceki varsayılan 8 karakterlik
+ayar 6'ya taşınır; diğer özel uzunluklar korunur. Kaldırma onay kodu da kısadır;
+onay komutuna tıklanabilir veya elle yazılabilir.
+
+Oyun dili ayrıca seçilmemişse bot dili kullanılır. Kayıtlı kişisel tercihler ve
+`lang: en/tr` seçimleri korunur. Botun `auto` seçimi oyun için seçilen ortak
+dili kullanır; ikisi de auto ise İngilizce kullanılır. Bot dilini değiştirmek
+ve uygulamak için `/dydiscord admin bot dil tr` kullanılabilir.
+
+Discord'daki başarı yanıtı başlıksız tek cümledir. Hesabım ekranında Minecraft
+ve Discord hesap adları, yerelleştirilmiş okunaklı tarih ve varsa atanmış entegre rol adları görünür; ham hesap ID’leri gösterilmez.
+`account.show-integrated-roles: false` rol satırını gizler;
+`account.time-zone: Europe/Istanbul` tarihlerin Türkiye saatinde gösterilmesini
+sağlar; varsayılan saat dilimi UTC’dir. Bu seçenekler `bot.yml` içindedir ve yenilemeyle uygulanır.
+Eşleme kaldırma onayı kırmızı Container içinde kırmızı **Kaldır** ve yeşil **Vazgeç**
+butonlarıyla verilir; yanıt sadece hesabın sahibine görünür.
+
+Davet ayarı boşsa bot, izin verilen bir kanalda süresiz ve kullanım sınırı
+olmayan bir davet oluşturup kaydeder. Elle yazılan davet korunur. Botun uygun
+kanalda **Davet Oluştur** izni olmalıdır; ayarlanan konsol kanalı seçilmez.
+
+`/dydiscord admin yardım [sayfa]` veya `/dyda yardım [sayfa]` yalnızca numaralı yardım açar; konu yardımı kaldırılmıştır. Başlıkta önek bir kez görünür, sayfa alt satırında önek yoktur. Kısa sohbet serileri aktarılır; tekrar, gizlilik ve hız kontrolleri korunur. Konsolun ayrı çalışanı çıktıyı 250 ms aralıkla kontrol eder; güncel erişim kontrolleri sürer. Ağ ve Discord sınırları gerçek gecikmeyi etkiler.
+
+`dydiscord.admin.alerts` izni olan çevrimiçi yöneticiler sınırlanmış kurulum/doğrulama uyarılarını alır. Altı YAML şablonunda açıklamalar ilgili ayarın altında yer alır; sahip yorumları korunur.
+
+Güncel kaynak ve doğrulama sınırları: [1.0.1 sadeleştirme kaydı](simplify-1.0.1-verification.md). Önceki sayılar ve canlı kanıtlar yalnızca kendi artifact’lerine aittir.

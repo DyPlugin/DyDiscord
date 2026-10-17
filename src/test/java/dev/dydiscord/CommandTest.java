@@ -54,15 +54,14 @@ class CommandTest {
         ConsoleCommandSender sender=mock(ConsoleCommandSender.class);when(sender.hasPermission(anyString())).thenReturn(true);
         new Router(plugin,false).onCommand(sender,mock(Command.class),"dydiscord",new String[]{"help"});
         ArgumentCaptor<String> lines=ArgumentCaptor.forClass(String.class);verify(sender,atLeastOnce()).sendMessage(lines.capture());String text=String.join("\n",lines.getAllValues());
-        for(String word:List.of("help","link","status","unlink","language","confirm","cancel"))assertTrue(text.contains("/dydiscord "+Words.display(word,language)),word);
+        for(String word:List.of("link","status","unlink","language","confirm","cancel"))assertTrue(text.contains("/dydiscord "+Words.display(word,language)),word);
         assertTrue(text.contains("/dydiscord §7-"));assertTrue(text.contains(plugin.messages().get(false,language,"help-player-only")));
     }
     @Test void helpStillHidesDeniedPlayerAndAdminLeaves()throws Exception{
         DyDiscord plugin=mock(DyDiscord.class);when(plugin.ready()).thenReturn(true);when(plugin.language(any())).thenReturn("en");when(plugin.messages()).thenReturn(TestSupport.config(folder).active().messages());
         Player sender=mock(Player.class);when(sender.hasPermission("dydiscord.help")).thenReturn(true);
         new Router(plugin,false).onCommand(sender,mock(Command.class),"discord",new String[]{"help"});
-        ArgumentCaptor<String> lines=ArgumentCaptor.forClass(String.class);verify(sender,atLeastOnce()).sendMessage(lines.capture());String text=String.join("\n",lines.getAllValues());
-        assertTrue(text.contains("/dydiscord help"));for(String word:List.of("link","status","unlink","language","confirm","cancel","admin"))assertFalse(text.contains("/dydiscord "+word),word);assertFalse(text.contains("setinvite"));
+        verify(plugin).helpHeader(sender);verify(sender,never()).sendMessage(anyString());
     }
     @Test void pluginGroupsAndBukkitExplicitDeny()throws Exception{
         Map<String,Object> descriptor;try(var in=getClass().getResourceAsStream("/plugin.yml")){descriptor=Configuration.parse(new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8));}

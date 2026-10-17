@@ -1,7 +1,22 @@
 # Backup, upgrade and rollback
 
-For 1.0.0 choose either the small `DyDiscord-1.0.0.jar` or the bundled
-`DyDiscord-1.0.0-standalone.jar`; install only one. Both use the existing
+1.0.1 does not change database schema or require relinking. It preserves explicit
+disabled values. Newly created configuration enables bot connection and log relay,
+but waits for credentials/a configured accessible channel. Remote commands, roles and
+rewards remain opt-in. Panel creation becomes automatic once configured; disabling
+the panel still keeps private slash account access. New localized diagnostics/help
+keys are merged without replacing custom text or duplicating unchanged backups.
+
+The latest 1.0.1 simplification keeps numbered help only and adds `/dyda` as the administration shortcut with identical leaf checks. Player `chat on|off` controls incoming Discord visibility only; old outbound/notify preferences are ignored. Global chat direction and channel commands persist their settings. Announcement commands, startup/scheduled announcements and advanced in-game rule editing are removed. Edit role mappings, console authorization and reward details in `bot.yml`; reload validates files before applying them. Existing links and the panel record remain.
+
+The console channel may be public. Its viewers can read relayed server output; command execution still requires configured trusted authorization, explicit enablement and current Discord access checks. Existing channel visibility is not changed automatically.
+
+Prefer file-based token changes. `/dyda bot token` is a no-argument player-only 60-second entry flow; the next slash-prefixed token entry is cancelled and scrubbed before routing. It cannot guarantee protection from client history or third-party loggers. An environment token blocks file-token entry. Session/permission checks and invalidation on logout/reload/restart remain; successful save restarts the bot. `/dyda bot guild <id>` sets the guild separately.
+
+New packaged YAML descriptions appear below their setting; owner comments and values remain. Current evidence is recorded in [the simplification report](simplify-1.0.1-verification.md), separately from previous artifact results.
+
+For 1.0.1 choose either the small `DyDiscord-1.0.1.jar` or the bundled
+`DyDiscord-1.0.1-standalone.jar`; install only one. Both use the existing
 DyDiscord data folder and do not require account relinking. The small package
 needs Maven access for initial dependency resolution. Preserve the server's
 library cache for offline restarts, or use standalone for offline installation.
@@ -20,7 +35,7 @@ use a supported consistent backup, stop the server before copying all files.
 Apply the same rule to the separate `data/boosts.db` reward database and its WAL;
 both databases and the provider's reward records matter for a consistent restore.
 
-Install `DyDiscord-1.0.0.jar` and start normally. Preserve custom config,
+Install `DyDiscord-1.0.1.jar` and start normally. Preserve custom config,
 comments and language files. The current SQLite schema is **3**; `config-version`
 in `config.yml` and `bot.yml` is **2**. Future/unsupported versions are refused.
 Take the stopped-server backup before the first startup with the updated JAR;
@@ -60,16 +75,24 @@ are upgraded **in memory only when their text exactly matches a recognized old
 English/Turkish default**. An old default panel also receives its language's new
 privacy note in memory if that key is absent. Message values remain unchanged on disk; short English
 comments can be added with a pre-change sibling backup. Other custom text is preserved when it passes the
-current validation. Incompatible placeholder sets, including a custom account
-template that still requires `{date}`, are rejected; update that custom template
-to the new placeholders instead of deleting all translations. `account` and
-`linked` now use `{name}` and `{discord}`. Failed reload keeps the active snapshot.
-Missing keys otherwise use the documented bundled-English fallback and warning.
+current validation. Unknown placeholders are rejected. Private Discord `account` templates may keep
+`{name}`, `{discord}` and an optional `{date}`; dates are rendered once in the
+configured time zone. Previous owner-written linked-account templates keep their
+supported placeholders. Failed reload retains the active snapshot. Missing keys
+otherwise use the documented bundled-English fallback and warning.
 
-New setups default to 8-character linking codes. Existing explicit
-`linking.code-length` values, including the former default of 12, are retained.
-The supported range remains 8–16. Change the value deliberately if you want
-an existing installation to use the shorter default.
+The previous shipped code length of 8 migrates to 6 on reload/startup, with one
+deduplicated pre-change backup. Other explicit custom lengths, including 12,
+remain. The accepted range is 6–16. Existing linked accounts need no new link.
+Unlink confirmation tokens become six characters while keeping actor, record,
+permission and timeout checks. No database schema changes are introduced.
+
+Game auto now uses a saved player preference, then bot language. Bot auto follows
+a configured global game language and falls back to English when both are auto.
+Existing explicit language selections and disabled feature settings are retained.
+New account display options merge without resetting owner translations/comments.
+Only recognized obsolete shipped explanatory comments are replaced. Repeated
+reload does not multiply comments/backups.
 
 v1.0.0-BETA refuses schema 3. Rollback with the earlier JAR **and its compatible
 schema-1/schema-2 data backup**, while the server

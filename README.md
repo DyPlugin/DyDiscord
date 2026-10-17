@@ -4,7 +4,11 @@
 
 DyDiscord is a Discord integration plugin for Minecraft servers. Connect your community, link player accounts and manage your server through your own Discord bot.
 
-**Version 1.0.0** includes private account linking, two-way chat, role synchronization, configurable rewards, community announcements, player preferences and giveaways, with English and Turkish support. The bot runs inside the plugin; no separate bot service or external database is required.
+**Version 1.0.1** includes private account linking, two-way chat, role synchronization, configurable rewards, a personal chat visibility preference and giveaways, with English and Turkish support. The bot runs inside the plugin; no separate bot service or external database is required.
+
+**Minecraft:** 1.20.x–26.x · **Platforms:** Paper, Purpur, Bukkit and Spigot. Server-version support and agent verification evidence are distinguished in the compatibility notes.
+
+New setups connect automatically after the token and guild are configured and reloaded. Choosing a panel channel sends the first panel automatically; restarts and refreshes reuse it. Explicitly disabled settings stay disabled. Administrator help is paginated with `/dydiscord admin help <page>` (Turkish: `/dydiscord admin yardım <sayfa>`). Discord help uses the same organized embed for slash and `dy!` commands.
 
 ---
 
@@ -14,7 +18,7 @@ DyDiscord is a Discord integration plugin for Minecraft servers. Connect your co
 
 **Private account linking.** Players connect their accounts with an in-game code and a private Discord form. Account details stay private, and unlinking requires confirmation.
 
-**Automatic language.** Minecraft messages and TAB suggestions follow the player's language or saved preference. **English** and **Turkish** are included. Discord has its own language setting.
+**Automatic language.** Minecraft messages and TAB suggestions follow an explicit global language, otherwise the saved player preference and bot language. **English** and **Turkish** are included. Discord has its own language setting.
 
 **Optional features.** Enable the chat directions, player notifications, role synchronization, boost rewards and console features you want. Use the account panel or switch to command-only access.
 
@@ -22,7 +26,7 @@ DyDiscord is a Discord integration plugin for Minecraft servers. Connect your co
 
 ## Link your accounts, your way
 
-Get your code with `/dydiscord link`, then select **Link Account** on the Discord panel or use Discord `/link` to enter it in a private form. Codes are random, short-lived and single-use. New installations use 8-character codes; existing configured lengths are preserved. Each Minecraft account can be linked to one Discord account.
+Get your code with `/dydiscord link`, then select **Link Account** on the Discord panel or use Discord `/link` to enter it in a private form. Codes are random, short-lived and single-use. Codes default to six unambiguous characters; the former shipped length of eight is migrated to six, while other custom lengths are preserved. The code can be copied with a click; hover for the hint. A separate clickable invitation is included. Each Minecraft account can be linked to one Discord account.
 
 The panel keeps everything in one card: **Link Account**, **Unlink** and **My Account**. It uses your Discord server icon or a custom image and remains recorded across bot restarts.
 
@@ -66,21 +70,21 @@ Configure rewards under `boost-rewards` in `bot.yml`, using `commands`, optional
 
 ## Manage your server from Discord
 
-Follow actual server output in a separate private console channel. Optionally allow trusted Discord roles to run Minecraft console commands from that channel.
+Follow actual server output in a separate console text channel. Optionally allow trusted Discord roles to run Minecraft console commands from that channel.
 
 Log forwarding and command execution are controlled separately. The channel shows real server output without additional command acceptance or rejection replies. Normal shutdown attempts a short yellow **“The server is shutting down.”** embed before the bot disconnects. Bot restart and configuration reload do not produce this shutdown notification.
 
-Console access gives full Minecraft console power; reserve it for trusted administrators. Local audit records, bounded queues and known-sensitive-value masking support the relay. Log and shutdown-notice delivery cannot be guaranteed during crashes or network failures.
+The console channel may be public. Everyone who can view it can read relayed server output; choose its visibility deliberately. Command execution still requires the configured trusted role or permitted Discord Administrator, current membership and fresh channel checks. Console access gives full Minecraft console power; reserve command authorization for trusted administrators. Local audit records, bounded queues and known-sensitive-value masking support the relay. Log and shutdown-notice delivery cannot be guaranteed during crashes or network failures.
 
 ## English and Turkish, automatically
 
-With `lang: auto`, messages and TAB suggestions use the player's saved preference or Minecraft language. Turkish clients receive Turkish; other languages fall back to English.
+With `lang: auto`, messages and TAB suggestions use the player's saved en/tr preference, otherwise the bot language. An explicit global game language takes priority.
 
 **TAB shows only the effective language. Both languages still work when typed.** Turkish ASCII spellings are accepted too.
 
 Players can choose `/dydiscord language auto|en|tr`. Administrators can force a language with `/dydiscord admin language auto|en|tr`, taking priority over personal preferences. The `admin` branch stays the same in both languages.
 
-Discord's `bot.language` controls its panel, forms and messages independently; changing it requires a bot restart.
+An unset game language follows the bot language after saved personal preferences. Explicit game language overrides are preserved. `bot.language: auto` follows the configured game language, with English when both are auto; `en` and `tr` select the bot language directly. `/dydiscord admin bot language <en|tr|auto>` applies a bot-language change with a controlled restart.
 
 ## Update notifications
 
@@ -106,16 +110,27 @@ The checker provides notifications; it does not download or replace your plugin 
 | `/dydiscord confirm <token>` | Confirm your pending action |
 | `/dydiscord cancel` | Cancel your pending confirmation |
 | `/dydiscord language <en\|tr\|auto>` | Choose your Minecraft language |
+| `/dydiscord chat <on\|off>` | Show or hide incoming Discord chat for yourself |
 
 **`/discord`** uses the same command router. Linking shortcuts include `/dylink`, `/link` and `/esle`; use `/dydiscord link` if another plugin owns a shortcut.
 
 ### Admin Commands
 
-All paths below start with **`/dydiscord admin`** and can also be used from the server console.
+All paths below start with **`/dydiscord admin`** or the equivalent **`/dyda`**. The same leaf permissions apply. Server console access is supported except for the player-only token entry flow.
 
 | Subcommand | What it does |
 | --- | --- |
-| `help` | Show permitted administration commands |
+| `help [page]` | Show numbered, permission-filtered administration pages |
+| `prefix <text>` | Save the Minecraft message prefix, including spaces |
+| `bot guild <id>` | Set the Discord server ID |
+| `bot token` | Open a 60-second player-only token entry session; takes no value argument |
+| `bot language <en\|tr\|auto>` | Set bot language with a controlled restart |
+| `chat discord-minecraft <on\|off>` | Toggle Discord → Minecraft globally |
+| `chat minecraft-discord <on\|off>` | Toggle Minecraft → Discord globally |
+| `chat both <on\|off>` | Toggle both directions globally |
+| `chat channel <id>` | Set the separate chat channel |
+| `giveaway start <seconds> <winners> <prize>` | Start a configured giveaway |
+| `giveaway end\|cancel <id>` / `giveaway list` | Finish, cancel or list giveaways |
 | `invite <url>` | Set the Discord invitation |
 | `language <en\|tr\|auto>` | Set the global Minecraft language |
 | `reload` | Reload valid settings and messages |
@@ -125,12 +140,9 @@ All paths below start with **`/dydiscord admin`** and can also be used from the 
 | `panel channel <id>` | Select the account panel channel |
 | `panel send` / `panel refresh` | Create or update the account panel |
 | `panel enable\|disable` | Enable or disable panel access |
-| `console channel <id>` | Select the private console channel |
+| `console channel <id>` | Select the console text channel |
 | `console enable\|disable` | Toggle log forwarding |
 | `console commands enable\|disable` | Toggle remote console commands |
-| `console role add\|remove <id>` | Manage authorized console roles |
-| `console role list` | List authorized console roles |
-| `console administrator on\|off` | Toggle Discord Administrator access |
 | `unlink <uuid> <reason>` | Start a confirmed administrative unlink |
 
 ### Role administration
@@ -140,11 +152,6 @@ All paths below start with **`/dydiscord admin roles`**.
 | Subcommand | Purpose |
 | --- | --- |
 | `status` | View synchronization status and setup problems |
-| `linked list` | List linked-account roles |
-| `linked add <id>` / `linked remove <id>` | Manage linked-account roles |
-| `groups list` | List group-to-role rules |
-| `groups add <group> <id> <priority>` | Add a group-to-role mapping with explicit priority |
-| `groups remove <group> <id>` | Remove a group-to-role mapping |
 | `preview <uuid>` | Preview an account's expected changes |
 | `sync <uuid>` | Synchronize an account |
 | `sync all` | Start gradual synchronization of linked accounts |
@@ -182,6 +189,7 @@ Every individual permission below defaults to **false** and is granted through i
 | `dydiscord.language` | Set your personal Minecraft language |
 | `dydiscord.chat.send` | Forward your public Minecraft chat to Discord |
 | `dydiscord.chat.receive` | Receive Discord chat in Minecraft |
+| `dydiscord.chat.preferences` | Toggle your incoming Discord chat visibility |
 
 | Administration permission | What it allows |
 | --- | --- |
@@ -191,6 +199,12 @@ Every individual permission below defaults to **false** and is granted through i
 | `dydiscord.admin.status` | View administration status |
 | `dydiscord.admin.doctor` | Run setup diagnostics |
 | `dydiscord.admin.bot` | Enable, disable or restart the bot |
+| `dydiscord.admin.bot.guild` | Set the Discord server ID |
+| `dydiscord.admin.bot.token` | Open protected player-only token entry |
+| `dydiscord.admin.prefix` | Change the Minecraft prefix |
+| `dydiscord.admin.chat` | Toggle global chat directions |
+| `dydiscord.admin.chat.channel` | Set the chat channel |
+| `dydiscord.admin.alerts` | Receive bounded setup and validation warnings |
 | `dydiscord.admin.panel.channel` | Set the panel channel |
 | `dydiscord.admin.panel.send` | Send or update the panel |
 | `dydiscord.admin.panel.refresh` | Refresh the panel |
@@ -198,8 +212,6 @@ Every individual permission below defaults to **false** and is granted through i
 | `dydiscord.admin.console.channel` | Set the console channel |
 | `dydiscord.admin.console.toggle` | Toggle console log forwarding |
 | `dydiscord.admin.console.commands` | Toggle remote command execution |
-| `dydiscord.admin.console.roles` | Manage authorized console roles |
-| `dydiscord.admin.console.administrator` | Configure Discord Administrator access |
 | `dydiscord.admin.unlink` | Remove another player's link with confirmation |
 | `dydiscord.admin.update` | Receive compatible Modrinth update notifications |
 
@@ -208,17 +220,13 @@ Every individual permission below defaults to **false** and is granted through i
 | Permission | Purpose |
 | --- | --- |
 | `dydiscord.admin.roles.status` | View role synchronization status |
-| `dydiscord.admin.roles.linked.list` | List linked-account roles |
-| `dydiscord.admin.roles.linked.add` | Add a linked-account role |
-| `dydiscord.admin.roles.linked.remove` | Remove a linked-account role |
-| `dydiscord.admin.roles.groups.list` | List group rules |
-| `dydiscord.admin.roles.groups.add` | Add group rules |
-| `dydiscord.admin.roles.groups.remove` | Remove group rules |
 | `dydiscord.admin.roles.preview` | Preview account role changes |
 | `dydiscord.admin.roles.sync` | Synchronize an account |
 | `dydiscord.admin.roles.sync.all` | Synchronize all linked accounts gradually |
 | `dydiscord.admin.roles.cleanup.preview` | Preview managed-role cleanup |
 | `dydiscord.admin.roles.cleanup.confirm` | Confirm managed-role cleanup |
+
+Role mappings, authorized console roles/Administrator acceptance, reward commands and other advanced options are edited in `bot.yml`, then applied with reload and any requested bot restart. Announcement commands and scheduled/startup announcements are removed.
 
 Minecraft permissions and Discord console roles are separate. Account linking does not automatically grant either.
 
@@ -228,11 +236,11 @@ Minecraft permissions and Discord console roles are separate. Account linking do
 
 Choose one distribution:
 
-- **`DyDiscord-1.0.0.jar`** is the small download. Spigot/Paper resolves
+- **`DyDiscord-1.0.1.jar`** is the small download. Spigot/Paper resolves
   its declared libraries from Maven Central (or the server's configured mirror)
   and stores them in the server library cache. First installation needs internet
   access and may take longer. Missing required libraries prevent plugin loading.
-- **`DyDiscord-1.0.0-standalone.jar`** bundles runtime dependencies for
+- **`DyDiscord-1.0.1-standalone.jar`** bundles runtime dependencies for
   offline installation. Install only one of the two JARs at a time.
 
 The server resolver can download additional transitive JDA libraries and prefer
@@ -240,14 +248,14 @@ server-provided versions. Its cache and version selection are server-owned;
 this is not a guarantee that effective versions exactly match the build graph.
 No voice feature is enabled. See [packaging](docs/packaging.md).
 
-1. Stop your server, then place **`DyDiscord-1.0.0.jar`** in your server's `plugins/` folder and start the server.
+1. Stop your server, then place **`DyDiscord-1.0.1.jar`** in your server's `plugins/` folder and start the server.
 2. Create your own bot in the [Discord Developer Portal](https://discord.com/developers/applications) and invite it with the `bot` and `applications.commands` scopes and the required channel permissions.
-3. Enter the token and quoted Discord server ID locally in **`plugins/DyDiscord/bot.yml`**. Keep the token private.
+3. Prefer entering the token and quoted Discord server ID locally in **`plugins/DyDiscord/bot.yml`**. Alternatively, an authorized online player can use `/dyda bot guild <id>` and `/dyda bot token` (no argument). The latter opens a 60-second session: submit the token as the next slash-prefixed entry, or `/dyda cancel` to cancel. The plugin cancels and scrubs that entry before routing; client history and third-party loggers cannot be guaranteed. An active `DYDISCORD_BOT_TOKEN` prevents file-token entry. Logout, reload, restart or permission loss invalidates the session; successful saving restarts the bot.
 4. Run **`/dydiscord admin reload`**, then **`/dydiscord admin bot enable`**.
 5. Select the account channel with **`/dydiscord admin panel channel <id>`**, then run **`/dydiscord admin panel send`**. For command-only access, use **`/dydiscord admin panel disable`**.
 6. Configure the separate chat and console channels if needed. Use **`/dydiscord admin doctor`** to check your setup.
 
-The bot, chat forwarding, player-event notifications, role synchronization, boost rewards and console features start disabled. Plain-text Discord chat, `dy!` commands and console input require **Message Content intent**. Slash commands and account interactions can operate without it. Role and boost member events use **Server Members intent**; periodic fresh-member checks provide a fallback. The bot does not need Administrator permission.
+New files enable bot connection and console log relay, but wait for credentials and a configured accessible channel. Remote commands, chat forwarding, player-event notifications, role synchronization and rewards remain opt-in. Plain-text Discord chat, `dy!` commands and console input require **Message Content intent**. Slash commands and account interactions can operate without it. Role and boost member events use **Server Members intent**; periodic fresh-member checks provide a fallback. The bot does not need Administrator permission.
 
 Token, guild, bot language and intent changes require a **bot restart** after reloading. The panel enable flag can be applied through reload without a bot restart.
 
@@ -294,14 +302,14 @@ The project license notice includes attribution, non-commercial distribution and
 
 **By Claww / DyPlugin.**
 
-## Community tools in 1.0.0
+## Community tools in 1.0.1
 
-Use `/players`, `/ip` and `/links` in Discord, with configurable `/server`
-fields and optional command channels. Players control chat visibility/sharing
-and opt-in name sounds. Administrators can preview/send notices, schedule
-announcements, pause bridging, check configuration without applying it and
-create safe support reports. Optional first-link rewards and persistent button
-giveaways are disabled until configured. Existing accounts remain linked.
+Discord offers configured server information, player lists, addresses and useful links. Players use `/dydiscord chat on|off` only to show or hide incoming Discord chat; it does not change Minecraft → Discord sharing or event notifications. The preference is persistent. Administrators use the explicit global direction commands above. First-link rewards and persistent button giveaways remain optional. Role mappings, console authorization and reward details are configured in YAML; the former advanced editing, report, setup and validation command families are removed. Use reload to validate and apply edited files.
 
-See [community tools](docs/community-features.md), [first-link rewards](docs/link-rewards.md)
-and [giveaways](docs/giveaways.md) for setup, permissions, limits and recovery.
+### Account and console presentation in 1.0.1
+
+Discord account details show both account names and a localized readable link date; raw account IDs are omitted. `account.time-zone` in `bot.yml` selects the time zone (default `UTC`); `account.show-integrated-roles` shows only assigned, configured managed roles and defaults to true. Empty role lists are hidden. Unlinking uses a private red Container with a red Unlink button and green Cancel button. Link success bolds the Minecraft name.
+
+When `discord.invite-url` is blank, the connected bot creates and stores a reusable permanent invite in a suitable channel if it has Create Invite permission. Manual invites take priority. The bot never uses the configured console channel for this invitation.
+
+`/dydiscord admin help [page]` and `/dyda help [page]` show numbered pages only; topic help is removed. Player help omits its own help entry. Headers show the prefix once and the pagination footer is unprefixed. Chat accepts short consecutive message bursts while retaining duplicate and bounded rate controls. Console log forwarding uses its own worker, checks for output every 250 ms, and still verifies current guild/channel permissions before each send. Network and Discord rate limits affect end-to-end latency. See [current simplification verification](docs/simplify-1.0.1-verification.md); older reports apply to their recorded artifacts.

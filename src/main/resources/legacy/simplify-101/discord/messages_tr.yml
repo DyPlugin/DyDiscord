@@ -1,0 +1,158 @@
+# Editable Discord templates. Keep {placeholders}; Markdown is supported. Reload after editing.
+# {server_name} - Link Your Account
+panel-title: "{server_name} - Hesap Eşle"
+# To connect your Minecraft and Discord accounts, get your code in-game with `/discord link`, then select **Link Account** below and enter you
+panel-description: "Minecraft ve Discord hesaplarınızı bağlamak için oyunda `/discord eşle` yazıp kodunuzu alın. Ardından **Hesap Eşle** butonuna tıklayıp kodu girin.\n\n**Hesap Eşle:** Oyundaki kodunuzla hesaplarınızı eşleştirir.\n\n**Hesabım:** Eşleştirdiğiniz Minecraft ve Discord hesaplarını gösterir.\n\n**Eşlemeyi Kaldır:** Hesaplarınız arasındaki bağlantıyı kaldırır."
+# Only you can see your account details. Keep your code private.
+panel-privacy: "Hesap bilgilerinizi sadece siz görebilirsiniz. Kodunuzu kimseyle paylaşmayın."
+# Link Account
+link: "Hesap Eşle"
+# My Account
+account-button: "Hesabım"
+# Unlink
+unlink: "Eşlemeyi Kaldır"
+# Linking code
+code-label: "Eşleştirme kodunuz"
+# Link Your Account
+modal-title: "Hesap Eşle"
+# Use the account panel to link, view or unlink your own account. Generate a code in Minecraft with /discord link. Codes expire and do not sur
+help: "Hesaplarınızı eşleştirmek, eşleştirdiğiniz hesapları görmek veya eşleştirmeyi kaldırmak için hesap panelini kullanın. Kod almak için oyunda `/discord eşle` yazın. Kodların süresi dolduğunda, oyundan çıktığınızda veya sunucu yeniden başladığında yeni bir kod almanız gerekir."
+# Structured help card, shared by slash and prefix commands; no footer is added.
+help-card-title: "Komutlar"
+help-card-accounts: "Hesap işlemleri"
+help-card-account-commands: "`/eşle` — Oyun içindeki kodunuzu girin\n`/hesap` — Eşlenen hesaplarınızı görün\n`/kaldır` — Hesap eşlemenizi kaldırın"
+help-card-server: "Sunucu ve topluluk"
+help-card-other: "Yardım ve bağlantı"
+help-card-other-commands: "`/yardım` — Bu menüyü açın\n`/durum` — Bot bağlantısını görün\nMesaj komutlarını `dy!` önekiyle de kullanabilirsiniz. Hesap bilgileriniz yalnızca size gösterilir."
+# DyDiscord {version}: {state}
+status: "DyDiscord {version} • {state}"
+# Disabled
+state-disabled: "Kapalı"
+# Connecting
+state-starting: "Bağlanıyor"
+# Connected
+state-connected: "Bağlı"
+# Partially available
+state-degraded: "Kısmen çalışıyor"
+# Stopping
+state-stopping: "Kapatılıyor"
+# Connection failed
+state-failed: "Bağlantı kurulamadı"
+# Editable private Discord message; keep placeholders.
+account: "Minecraft hesabınız: {name}"
+# Editable private Discord message; keep placeholders.
+not-linked: "Hesabınız bir Minecraft hesabıyla eşleştirilmemiş."
+# Editable private Discord message; keep placeholders.
+linked: "{name} adlı Minecraft hesabınız Discord hesabınızla eşleştirildi!"
+# Editable private Discord message; keep placeholders.
+unlinked: "Hesap eşlemeniz kaldırıldı."
+# Editable private Discord message; keep placeholders.
+invalid-code: "Kod yanlış veya süresi dolmuş. Oyunda /discord eşle yazarak yeni bir kod alın."
+# Editable private Discord message; keep placeholders.
+already-linked: "Bu hesap zaten eşleştirilmiş. Önce mevcut eşlemeyi kaldırın."
+# Editable private Discord message; keep placeholders.
+rate-limit: "Çok hızlı işlem yapıyorsunuz. Biraz bekleyip tekrar deneyin."
+# Editable private Discord message; keep placeholders.
+data-unavailable: "Hesap bilgilerinize şu anda ulaşılamıyor. Sunucu yöneticisine haber verin."
+# Editable private Discord message; keep placeholders.
+no-permission: "Bu işlem için yetkiniz yok."
+# Editable private Discord message; keep placeholders.
+confirmation-invalid: "Bu onay artık geçerli değil. Eşleme kaldırma işlemini yeniden başlatın."
+# Editable private Discord message; keep placeholders.
+confirm: "Eşlemeyi kaldırmak istiyor musunuz?"
+# Editable private Discord message; keep placeholders.
+confirm-button: "Kaldır"
+# Editable private Discord message; keep placeholders.
+cancel-button: "Vazgeç"
+# Editable private Discord message; keep placeholders.
+cancelled: "Eşleme kaldırılmadı. Hesaplarınız bağlı kalacak."
+# Open the account panel to continue privately: {url}
+private-prompt: "Hesap işlemlerinizi yapmak için paneli açın: {url}"
+# Panel-off response; slash replies are private. Reload applies this text.
+panel-disabled: "Hesap paneli kapalı. /eşle, /hesap veya /kaldır komutunu kullanın."
+# Prefix command guidance. Keep {command}; never include account details here.
+commands-prompt: "Hesap işlemi için {command} komutunu kullanın. Yanıtı yalnızca siz görürsünüz."
+# Command-only help, used while panel.enabled is false; reload applies it.
+commands-help: "Kodunuzu girmek için /eşle, hesabınızı görmek için /hesap, eşlemeyi kaldırmak için /kaldır kullanın. Kodunuzu oyunda /discord eşle ile alın. Yanıtlar yalnızca size görünür."
+# The account panel is unavailable. Contact the server administrator.
+panel-missing: "Hesap paneline şu anda ulaşılamıyor. Sunucu yöneticisinden yardım isteyin."
+# Console request rejected. Check the private console setup and your access.
+console-rejected: "Bu konsol komutu çalıştırılamadı."
+# Use bot commands outside the console channel.
+console-prefix: "Bot komutlarını konsol kanalı dışında kullanın."
+# Editable private Discord message; keep placeholders.
+busy: "Biraz bekleyip tekrar deneyin."
+# Editable private Discord message; keep placeholders.
+failed: "İşlem tamamlanamadı. Sunucu yöneticisine bu hata kodunu iletin: {event}"
+# Show DyDiscord help
+slash-help: "Kullanabileceğiniz komutları gösterir"
+# Open the private account linking form
+slash-link: "Hesaplarınızı eşleştirmek için kod girme ekranını açar"
+# Show your own linked account
+slash-account: "Eşleştirdiğiniz Minecraft ve Discord hesaplarını gösterir"
+# Unlink your own account with confirmation
+slash-unlink: "Hesap eşleştirmenizi kaldırır"
+# Show the bot connection state
+slash-status: "Discord bağlantısının durumunu gösterir"
+# Server slash-command description (1-100 characters); bot restart applies it.
+slash-server: "Minecraft sunucusu bilgilerini göster"
+# Extra help line. Combined help text must fit 2000 characters; reload applies it.
+help-server: "Sunucu bilgilerini /sunucu veya dy!sunucu ile görün."
+# Embed title, at most 256 characters after {server_name} expands; reload applies it.
+server-info-title: "{server_name}"
+# Player-count field label (1-256 characters); reload applies it.
+server-info-players: "Oyuncular"
+# Game-version field label (1-256 characters); reload applies it.
+server-info-version: "Minecraft sürümü"
+
+# Normal Minecraft chat. {rank} includes bold text and a trailing space when present.
+chat-to-discord: "{rank}{name} **»** {message}"
+# Minecraft colors apply only to this template; {role} adds a space only when present.
+chat-to-minecraft: "&9[Discord] &7{role}&f{name} &7» &f{message}"
+# Public join event. Keep {name} unchanged.
+chat-join: "{name} sunucuya katıldı."
+# Public quit event. Keep {name} unchanged.
+chat-quit: "{name} sunucudan ayrıldı."
+# Existing death reason, safely escaped; it is not automatically translated.
+chat-death: "{death}"
+# Normal server shutdown only, before the process has fully stopped.
+server-stopping: "Sunucu kapanıyor."
+
+# Community commands and private first-link guidance; placeholders must match both languages.
+slash-players: "Görünür çevrimiçi oyuncuları gösterir"
+slash-ip: "Ayarlanan sunucu adreslerini gösterir"
+slash-links: "Sunucunun yararlı bağlantılarını gösterir"
+help-community: "/oyuncular — Çevrimiçi oyuncular\n/ip — Sunucu adresleri\n/bağlantılar — Yararlı bağlantılar"
+information-channel-only: "Bu komutu sunucunun bilgi kanalında kullanın."
+players-title: "Çevrimiçi oyuncular ({count})"
+players-empty: "Şu anda çevrimiçi oyuncu yok."
+players-more: "Ve {count} oyuncu daha."
+addresses-title: "Sunucu adresleri"
+address-java: "Java Edition"
+address-bedrock: "Bedrock Edition"
+addresses-empty: "Sunucu adresleri henüz ayarlanmadı."
+links-title: "Yararlı bağlantılar"
+links-empty: "Henüz bağlantı ayarlanmadı."
+link-welcome: "Hoş geldiniz! Minecraft ve Discord hesaplarınız eşlendi."
+server-started: "{server_name} hazır. Artık katılabilirsiniz."
+# Giveaway card text and private participation responses; placeholders match English.
+giveaway-title: "Çekiliş"
+giveaway-enter: "Katıl"
+giveaway-open: "Ödül: {prize}\nKazanan sayısı: {winners}\nBitiş: {ends}\nKatıl butonuyla katılabilirsiniz. Her hesap bir kez katılabilir."
+giveaway-drawn: "Ödül: {prize}\nKazananlar: {winners}"
+giveaway-cancelled: "Çekiliş iptal edildi. Ödül: {prize}"
+giveaway-no-winners: "Koşulları sağlayan katılımcı yok"
+giveaway-joined: "Çekilişe katıldınız."
+giveaway-already: "Bu çekilişe zaten katıldınız."
+giveaway-closed: "Bu çekiliş sona erdi."
+giveaway-full: "Çekilişin katılımcı sınırına ulaşıldı."
+giveaway-ineligible: "Çekilişin katılım koşullarını sağlamıyorsunuz."
+giveaway-unavailable: "Çekiliş şu anda kullanılamıyor. Lütfen biraz sonra tekrar deneyin."
+notice-maintenance: "Birazdan bakım başlayacak."
+notice-restart: "Sunucu birazdan yeniden başlatılacak."
+
+# Editable display text; reload applies.
+account-date: "Eşleme tarihi: {date}"
+
+# Editable display text; reload applies.
+account-roles: "Entegre roller:"

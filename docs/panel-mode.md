@@ -20,7 +20,8 @@ While disabled, recorded panel buttons are disabled when the bot is connected.
 Old button interactions and forms opened from the panel are also rejected on the
 server, even if Discord could not update the card. The message and link records
 are retained. Re-enabling updates the same recorded message; it does not create
-a second panel. If no panel existed, choose its channel and use `panel send`.
+a second panel. If no panel existed, choosing its channel creates it automatically
+when connected. Startup, reconnect and reload also reconcile the configured panel.
 Bot startup/reconnect reconciles the saved mode. Missing permissions/timeouts
 can leave a visual update pending; the configured interaction policy still applies.
 

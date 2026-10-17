@@ -1,0 +1,262 @@
+# Editable Minecraft text. Keep {placeholders}; & color codes are supported. Reload after editing.
+# You do not have permission to use this command!
+no-permission: "&cYou do not have permission to use this command!"
+# Startup, paginated help and safe setup guidance. Reload applies message edits.
+startup-failed: "&cDyDiscord could not start. Check the startup error in the server log."
+help-page: "&7Page &f{page}/{pages}&7. Use &6{command} <page>&7."
+help-page-invalid: "&cThat help page does not exist. Use /dydiscord admin help 1."
+setup-channel-missing: "Set a channel first: /dydiscord admin panel channel <id> or /dydiscord admin console channel <id>."
+setup-bot-unavailable: "The bot is not connected. Check bot.yml token/guild-id and /dydiscord admin doctor."
+setup-channel-invisible: "The channel is unavailable. Check its ID, guild and the bot's View Channel permission."
+setup-channel-permissions: "Allow the bot View Channel and Send Messages. Account panels also need Embed Links and Read Message History."
+setup-console-private: "Console channel is not private: deny View Channel for @everyone and untrusted roles/members. Allow only the bot, Administrators and configured console roles."
+setup-access-denied: "Discord denied access. Check the bot token, guild membership and channel permissions."
+setup-rate-limited: "Discord permission checks are rate limited. Wait before retrying; no unsafe operation was allowed."
+setup-restart-required: "Restart the bot after changing its Discord server: /dydiscord admin bot restart."
+setup-intents-denied: "Discord rejected a privileged intent (4014). Enable Message Content Intent in Developer Portal > Bot for message commands, console input and Discord-to-Minecraft chat. Enable Server Members Intent for configured member events. Reconnecting with slash/panel only; affected message/member features remain unavailable until fixed and the bot is restarted."
+# Only players can use this command!
+player-only: "&cOnly players can use this command!"
+# Configuration reloaded successfully!
+reload-success: "&aConfiguration reloaded successfully!"
+# Configuration could not be reloaded. Previous settings remain active.
+reload-invalid: "&cConfiguration could not be reloaded. Previous settings remain active."
+# Bot restart required to apply connection settings.
+restart-required: "&eBot restart required to apply connection settings."
+# Editable Minecraft message; keep placeholders.
+invite: "&7Discord: &b{invite_url}"
+# The Discord invite has not been configured yet.
+invite-not-set: "&eThe Discord invite has not been configured yet."
+# Editable Minecraft message; keep placeholders.
+link-code: "&7Your linking code: &e{code}"
+# Linking panel: {url}
+panel-link: "&7Linking panel: &b{url}"
+# Panel-off notice. Discord slash commands remain available.
+panel-disabled: "&eThe account panel is disabled. Use Discord slash commands."
+# Enable the panel without changing links or its recorded message.
+help-panel-enable: "Enable the account panel"
+# Disable panel buttons; Discord account commands stay available.
+help-panel-disable: "Disable the panel and use commands"
+# Discord is temporarily unavailable. Please try again shortly.
+bot-unavailable: "&eDiscord is temporarily unavailable. Please try again shortly."
+# Set token and guild-id in bot.yml, then run /dydiscord admin reload before enabling the bot.
+bot-setup-incomplete: "&eSet token and guild-id in bot.yml, then run /dydiscord admin reload before enabling the bot."
+# Discord is not connected; channel and role access will be checked before use after connection.
+discord-validation-pending: "&eDiscord is not connected; channel and role access will be checked before use after connection."
+# Account linking is disabled.
+linking-disabled: "&eAccount linking is disabled."
+# Account data is unavailable. Contact the server administrator.
+data-unavailable: "&cAccount data is unavailable. Contact the server administrator."
+# An account is already linked. Unlink it first.
+already-linked: "&eAn account is already linked. Unlink it first."
+# Editable Minecraft message; keep placeholders.
+not-linked: "&7Your Minecraft account is not linked to a Discord account."
+# Minecraft: {name} | Discord: {discord}
+account: "&7Minecraft: &f{name} &7| Discord: &f{discord}"
+# Discord account
+discord-account: "Discord account"
+# Editable Minecraft message; keep placeholders.
+linked: "&aYour Minecraft account {name} is now linked to Discord account {discord}!"
+# Account unlinked successfully.
+unlinked: "&aAccount unlinked successfully."
+# Editable Minecraft message; keep placeholders.
+confirm: "&eRemove your account link? &6/dydiscord confirm {token} &7({seconds}s)"
+# That confirmation is invalid or expired.
+confirmation-invalid: "&cThat confirmation is invalid or expired."
+# Pending confirmation cancelled.
+cancelled: "&7Pending confirmation cancelled."
+# Please wait before generating another code.
+cooldown: "&ePlease wait before generating another code."
+# The service is busy. Please try again shortly.
+busy: "&eThe service is busy. Please try again shortly."
+# That linking code is invalid or expired.
+invalid-code: "&cThat linking code is invalid or expired."
+# Too many attempts. Please try again later.
+rate-limit: "&eToo many attempts. Please try again later."
+# Invalid command arguments. Use /dydiscord help.
+usage: "&eInvalid command arguments. Use /dydiscord help."
+# Settings saved successfully.
+saved: "&aSettings saved successfully."
+# Language preference saved: {language}
+language-saved: "&aLanguage preference saved: &f{language}"
+# Your preference is stored; the server currently forces {language}.
+language-forced: "&eYour preference is stored; the server currently forces {language}."
+# Operation failed. Event {event}; see the local server log.
+failed: "&cOperation failed. Event {event}; see the local server log."
+# {status}
+status-line: "&7{status}"
+# Help
+help: "Help"
+# English
+language-name-en: "English"
+# Turkish
+language-name-tr: "Turkish"
+# Automatic
+language-name-auto: "Automatic"
+# Disabled
+state-disabled: "Disabled"
+# Connecting
+state-starting: "Connecting"
+# Connected
+state-connected: "Connected"
+# Partially available
+state-degraded: "Partially available"
+# Stopping
+state-stopping: "Stopping"
+# Connection failed
+state-failed: "Connection failed"
+# Administrator commands
+help-admin: "Administrator commands"
+# Show the Discord invite
+help-invite-show: "Show the Discord invite"
+# players only
+help-player-only: "players only"
+# Confirm your pending unlink
+help-confirm: "Confirm your pending unlink"
+# Cancel your pending confirmation
+help-cancel: "Cancel your pending confirmation"
+# Show available commands
+help-help: "Show available commands"
+# Link your Minecraft account
+help-link: "Link your Minecraft account"
+# Show your linked account
+help-status: "Show your linked account"
+# Unlink your account with confirmation
+help-unlink: "Unlink your account with confirmation"
+# Save your language preference
+help-language: "Save your language preference"
+# Set the Discord invite
+help-invite: "Set the Discord invite"
+# Set the server language
+help-global-language: "Set the server language"
+# Validate and reload settings
+help-reload: "Validate and reload settings"
+# Show bot, data, panel and console health
+help-admin-status: "Show bot, data, panel and console health"
+# Check setup and permissions
+help-doctor: "Check setup and permissions"
+# Enable the Discord bot
+help-bot-enable: "Enable the Discord bot"
+# Disable the Discord bot
+help-bot-disable: "Disable the Discord bot"
+# Restart the Discord bot
+help-bot-restart: "Restart the Discord bot"
+# Set the linking channel
+help-panel-channel: "Set the linking channel"
+# Create or update the single panel
+help-panel-send: "Create or update the single panel"
+# Repair the existing panel
+help-panel-refresh: "Repair the existing panel"
+# Set the private console channel
+help-console-channel: "Set the private console channel"
+# Enable log relay
+help-console-enable: "Enable log relay"
+# Disable log relay
+help-console-disable: "Disable log relay"
+# Enable remote console commands
+help-commands-enable: "Enable remote console commands"
+# Disable remote console commands
+help-commands-disable: "Disable remote console commands"
+# Authorize a trusted administrator role
+help-role-add: "Authorize a trusted administrator role"
+# Remove an authorized role
+help-role-remove: "Remove an authorized role"
+# List authorized role IDs
+help-role-list: "List authorized role IDs"
+# Allow Discord Administrators
+help-administrator-on: "Allow Discord Administrators"
+# Require an authorized role
+help-administrator-off: "Require an authorized role"
+# Unlink a target UUID with reason and confirmation
+help-admin-unlink: "Unlink a target UUID with reason and confirmation"
+
+# A compatible update is available; click the message to view its Modrinth page.
+update-available: "&eDyDiscord {version} is available: &b{url}"
+help-roles-status: "Show role synchronization health"
+help-roles-linked-list: "List linked-account roles"
+help-roles-linked-add: "Add a linked-account role"
+help-roles-linked-remove: "Remove a linked-account role"
+help-roles-groups-list: "List Minecraft group role rules"
+help-roles-groups-add: "Add a Minecraft group role rule"
+help-roles-groups-remove: "Remove a Minecraft group role rule"
+help-roles-preview: "Preview changes for a linked account"
+help-roles-sync-all: "Synchronize all linked accounts"
+help-roles-sync: "Synchronize a linked account"
+help-roles-cleanup-preview: "Preview obsolete managed role cleanup"
+help-roles-cleanup-confirm: "Confirm obsolete managed role cleanup"
+roles-summary: "&7Role synchronization: &f{status}"
+roles-preview-result: "&7Roles to add: &f{add}&7; remove: &f{remove}&7; unresolved: &f{unknown}"
+roles-cleanup-confirmation: "&eConfirm the previewed role cleanup with /dydiscord admin roles cleanup confirm {token} within {seconds} seconds."
+roles-disabled: "&eRole synchronization is disabled."
+roles-started: "&aRole synchronization queued."
+roles-saved: "&aRole settings saved."
+roles-unavailable: "&eRole synchronization is unavailable. Check the bot and permission provider."
+roles-invalid-confirmation: "&cThis role cleanup confirmation is invalid or expired."
+
+# Community commands and private first-link guidance; placeholders must match both languages.
+community-notice: "&e{text}"
+notice-preview-minecraft: "&7Minecraft preview: &f{text}"
+notice-preview-discord: "&7Discord preview: &f{text}"
+notice-queued: "&aNotice requested. Discord delivery depends on the active connection and channel."
+report-saved: "&aSafe report saved to reports/diagnostic.txt."
+validation-result: "&aFiles are valid. Missing translations using English defaults: {count}."
+setup-guide: "&eConfigure token and guild-id privately in bot.yml. Set channels, reload, then enable the bot. Never share your token."
+reward-preview: "&7Rewards: &f{enabled} &7| First link: &f{eligible} &7| Configured commands: &f{count}&7. Nothing was executed."
+link-welcome: "&aWelcome! Your Minecraft and Discord accounts are now connected."
+help-chat-inbound: "Show or hide Discord chat for yourself"
+help-chat-outbound: "Allow or stop sharing your chat to Discord"
+help-chat-notify: "Enable or disable name notifications"
+help-chat-pause: "Pause one or both chat directions"
+help-chat-resume: "Resume one or both chat directions"
+help-announce-preview: "Preview an announcement template"
+help-announce-send: "Send an announcement template"
+help-announce-set: "Edit an announcement template"
+help-announcements-pause: "Suspend scheduled announcements for minutes"
+help-announcements-resume: "Resume scheduled announcements"
+help-maintenance: "Send the maintenance notice"
+help-restart-notice: "Send the restart notice without restarting"
+help-support-report: "Save a safe diagnostic report"
+help-config-validate: "Check configuration without applying it"
+help-translations-validate: "Check translations and placeholders"
+help-setup: "Show setup guidance and missing settings"
+help-rewards-preview: "Preview first-link commands without executing them"
+# Giveaway administration; an ID identifies the draw, not a player account.
+giveaway-created: "&aGiveaway created. ID: &f{id}"
+giveaway-not-found: "&eThat giveaway is unavailable or already closed."
+help-giveaway-start: "Start a giveaway: seconds, winner count, prize"
+help-giveaway-end: "Close entries and request a draw"
+help-giveaway-cancel: "Cancel a giveaway without selecting winners"
+help-giveaway-list: "List giveaways and their IDs"
+giveaway-ending: "&aEntries closed. Winner selection was requested; the result appears when checks finish."
+giveaway-cancelled-admin: "&aGiveaway cancelled. Its Discord card will update when available."
+giveaway-none: "&7No giveaways have been created."
+giveaway-list-entry: "&f{id} &7| {state} | &f{prize}"
+giveaway-state-draft: "Publication unconfirmed"
+giveaway-state-active: "Open"
+giveaway-state-drawn: "Winners selected"
+giveaway-state-cancelled: "Cancelled"
+
+# Editable display text; reload applies.
+copy-code-hint: "Click to copy your linking code."
+
+# Editable display text; reload applies.
+confirm-click-hint: "Click to confirm. You can also type this short command."
+
+# Editable display text; reload applies.
+invite-click-hint: "Click to open Discord."
+
+# Console guidance when an automatic permanent invite cannot be created.
+invite-auto-unavailable: "No Discord invitation is configured. Grant Create Invite in a suitable channel, or set discord.invite-url in config.yml."
+
+# Compact admin topics. All commands remain available; numbered help is the full reference.
+help-topic-setup: "Setup, language and general settings"
+help-topic-bot: "Bot connection"
+help-topic-panel: "Account panel"
+help-topic-console: "Private console and access"
+help-topic-roles: "Linked-account and group roles"
+help-topic-chat: "Minecraft–Discord chat"
+help-topic-announce: "Announcements and scheduled messages"
+help-topic-giveaway: "Giveaways"
+help-admin-topics: "&7For the full command reference, use /dydiscord admin help 1."
+
+# Bot language command; shares the existing language leaf permission.
+help-bot-language: "Set the Discord language; auto follows the game setting"

@@ -1,7 +1,7 @@
 # Chat bridge and shutdown notice
 
 Configure `chat` in `bot.yml`. All directions and event switches default to false.
-Set `channel-id` to a guild text channel distinct from both panel and private
+Set `channel-id` to a guild text channel distinct from both panel and
 console, enable only the directions/events you want, then run
 `/dydiscord admin reload`. Enabling Discord → Minecraft needs Message Content and
 `/dydiscord admin bot restart`; the existing prefix/console intent requirement is
@@ -16,8 +16,10 @@ This reads metadata only; it never synchronizes roles, groups or permissions.
 
 Minecraft receives `[Discord] HighestSuitableRole DisplayName » Message`, using
 the guild nickname/effective name. @everyone and managed integration roles are
-excluded. Missing roles add no extra space; dark/default role colors fall back to
-gray. Minecraft uses text components without bold and does not display Markdown
+excluded. Missing roles add no extra space. Discord primary RGB is preserved,
+including dark colors; gradient/holographic roles use their first color. An unset
+role color falls back to gray. Minecraft uses actual hex-colored text components
+instead of displaying literal `&#RRGGBB` codes, without bold or Markdown
 format markers. Leaf permissions `dydiscord.chat.send` and `.receive` are children
 of the existing player group and can be explicitly denied.
 
@@ -28,6 +30,19 @@ Join/quit/death templates and per-event hex colors are editable. Bot language is
 used; player text and the existing death reason are never automatically translated.
 Events have no branding footer. Existing links, names and custom translations are
 preserved by additive configuration migration and backups.
+
+## Commands and personal visibility
+
+Players use `/dydiscord chat <on|off>` (Turkish: `sohbet aç|kapat`) to show or hide Discord messages for themselves. This persistent preference affects incoming Discord chat only. It does not stop their public Minecraft chat from being forwarded or change join/leave/death notifications. Old outbound/notification preferences are ignored; sound notifications are removed.
+
+Administrators can use `/dyda` or `/dydiscord admin` with the same leaf checks:
+
+- `chat discord-minecraft <on|off>`: Discord → Minecraft.
+- `chat minecraft-discord <on|off>`: Minecraft → Discord.
+- `chat both <on|off>`: both directions.
+- `chat channel <id>`: choose the separate chat channel.
+
+Direction toggles persist in `bot.yml`; they do not change personal visibility. Repeating the current setting reports that it is already set. Apply any requested bot restart when effective intents change. The old pause/resume and announcement command families are removed. Event formats, role rules and advanced options remain in configuration files.
 
 ## Privacy and compatibility
 
@@ -62,8 +77,7 @@ are ignored. Content is displayed as plain text; nothing is downloaded/executed.
 ## Bounds and shutdown
 
 The queues hold at most 128 outbound and 64 inbound messages, each for five
-seconds. Admission allows one message per user per second and 120 per minute
-globally per direction. Discord sends are spaced at least half a second apart.
+seconds. Short per-user bursts are accepted within bounded per-user and global rate controls. Discord sends are spaced at least half a second apart.
 A failed send is not retried; queues are discarded, with a 15-second backoff.
 Disconnect, bot restart, settings reload and plugin shutdown invalidate queues.
 Minecraft chat and join/quit/death events retain their original settings, policy,
@@ -74,7 +88,7 @@ worker; Minecraft API and player delivery stay on the main thread.
 
 When Paper reports actual server stopping, DyDiscord attempts a short
 `The server is shutting down.` / `Sunucu kapanıyor.` amber embed to the configured
-private console before closing the bot, even if ordinary log relay is disabled.
+console channel before closing the bot, even if ordinary log relay is disabled.
 It contains only the short description, with no title, timestamp or brand footer;
 the console channel also needs Embed Links permission.
 This is the requested exception to the console-output-only rule; no command
@@ -84,3 +98,5 @@ plugin disable does not generate this notice. Server families without a reliable
 `isStopping()` API skip it; forced termination, crashes, denied permissions and
 network failure cannot guarantee delivery. The text never claims the process has
 already stopped. Existing bot/executor shutdown bounds still apply.
+
+Current source changes and verification boundaries: [1.0.1 simplification](simplify-1.0.1-verification.md). Historical live checks do not validate this new artifact.

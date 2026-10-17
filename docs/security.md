@@ -1,4 +1,4 @@
-# Security and privacy — 1.0.0
+# Security and privacy — 1.0.1
 
 The security boundary is a trusted Minecraft server, one Discord application and
 one configured guild. Code generation and account linking allow both online-mode
@@ -13,7 +13,7 @@ are not verified. Changing authentication mode/UUID assignment does not migrate 
 
 Keep `bot.yml` readable only by the server owner/service account. Optional
 `DYDISCORD_BOT_TOKEN` takes priority. Status reports only file/environment and
-requested/applied state. There is no token command. Do not share a token with
+requested/applied state. The player-only `/dyda bot token` command opens a 60-second intercepted entry flow and takes no token argument. Permission and session are checked again before saving. Local file/environment editing is preferred: client history and earlier third-party loggers cannot be guaranteed. Do not share a token with
 another bot process. Rotate an exposed token in the Developer Portal and restart
 the bot. Never include tokens, databases or audit logs in public support reports.
 
@@ -24,7 +24,7 @@ empty. Bot/JDA/relay logger paths are excluded to prevent feedback loops.
 
 ## Linking and unlinking
 
-SecureRandom codes have 8 unambiguous characters by default. Memory stores a
+SecureRandom codes have 6 unambiguous characters by default. Memory stores a
 salted SHA-256 digest, never a persisted plaintext code. Expiry is 300 seconds;
 generation cooldown is 30 seconds; one code per UUID. Code memory is bounded to
 4,096 entries. New codes revoke the old code, logout revokes pending codes, and
@@ -51,18 +51,13 @@ and a durable local audit entry. There is no generic other-account lookup.
 
 ## Console authority
 
-Console relay and execution each default off. The channel must differ from the
-linking channel and pass conservative private visibility checks. Unapproved
-roles and non-bot member allow overrides are rejected. Discord Administrators
-and the guild owner inherently bypass channel denies; do not treat channel
-privacy as protection from the guild's owners/Administrators.
+New setups enable log relay but wait for a configured accessible channel. Remote commands default off. Console and linking/chat channels remain separate. Public console channels are allowed; anyone with channel access can read output. Visibility alone does not grant execution authority. Discord Administrators and the guild owner inherently bypass channel denies.
 
 Remote authority is allowed Administrator (if enabled) OR an allowed **role ID**,
 with current guild membership and channel visibility. Role names are never used
 as identity. REST membership and current channel/role permission data are fetched
 again before dispatch. Validation failure, timeout or rate limit fails closed.
-Policies are validated before activation; removing a role that still sees the
-channel requires correcting its Discord visibility first.
+Policies are validated before activation; changing command authorization does not depend on whether a channel is public.
 
 When the bot is disconnected, local reload may stage initial credentials, channel
 IDs and console settings without requiring an already-running bot. This is not a

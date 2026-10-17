@@ -17,14 +17,14 @@ class ChatPreferencesTest {
             assertNull(prefs.peek(id));
             assertTrue(prefs.get(id).get(5,TimeUnit.SECONDS).inbound());
             prefs.set(id,"inbound",false).get(5,TimeUnit.SECONDS);
-            prefs.set(id,"outbound",false).get(5,TimeUnit.SECONDS);
+            assertThrows(IllegalArgumentException.class,()->prefs.set(id,"outbound",false));
             assertFalse(prefs.peek(id).inbound());
-            assertFalse(prefs.peek(id).outbound());
+            assertTrue(prefs.peek(id).outbound());
         }
         try(var prefs=new ChatPreferences(file)){
             assertNull(prefs.peek(id));
             var value=prefs.get(id).get(5,TimeUnit.SECONDS);
-            assertFalse(value.inbound());assertFalse(value.outbound());assertFalse(value.notifications());
+            assertFalse(value.inbound());assertTrue(value.outbound());assertFalse(value.notifications());
             prefs.leave(id);assertNull(prefs.peek(id));
         }
     }
@@ -54,26 +54,22 @@ class ChatPreferencesTest {
             assertThrows(Exception.class,()->prefs.set(id,"inbound",false).get(5,TimeUnit.SECONDS));assertNull(prefs.peek(id));
         }
     }
-    @Test void committedOptoutBecomesVisibleEvenWhileAnotherPreferenceWriteIsQueued()throws Exception{
-        UUID id=UUID.randomUUID();Path file=folder.resolve("chat.db");
+    @Test void unchangedPreferenceDoesNotWriteAndRetiredChoicesAreRejected()throws Exception{
+        UUID id=UUID.randomUUID();Path file=folder.resolve("same.db");
         try(var prefs=new ChatPreferences(file)){
             prefs.get(id).get(5,TimeUnit.SECONDS);
-            try(var lock=DriverManager.getConnection("jdbc:sqlite:"+file.toAbsolutePath());var statement=lock.createStatement()){
-                statement.execute("BEGIN EXCLUSIVE");
-                var optout=prefs.set(id,"outbound",false);
-                var observed=optout.thenApply(value->prefs.peek(id).outbound());
-                var notify=prefs.set(id,"notify",true);
-                statement.execute("COMMIT");
-                assertFalse(observed.get(5,TimeUnit.SECONDS));
-                assertTrue(notify.get(5,TimeUnit.SECONDS).notifications());
-                assertFalse(prefs.peek(id).outbound());
+            try(var db=DriverManager.getConnection("jdbc:sqlite:"+file.toAbsolutePath());var sql=db.createStatement()){
+                sql.execute("CREATE TRIGGER deny_write BEFORE INSERT ON chat_preferences BEGIN SELECT RAISE(ABORT,'unexpected write'); END");
+                assertTrue(prefs.set(id,"inbound",true).get(5,TimeUnit.SECONDS).inbound());
+                assertThrows(IllegalArgumentException.class,()->prefs.set(id,"notify",true));
+                assertThrows(IllegalArgumentException.class,()->prefs.set(id,"outbound",false));
             }
         }
     }
     @Test void closeSettlesQueuedWorkAndReleasesSqliteBeforeReturning()throws Exception{
         Path file=folder.resolve("close.db");ChatPreferences prefs=new ChatPreferences(file);UUID id=UUID.randomUUID();prefs.get(id).get(5,TimeUnit.SECONDS);
         try(var db=DriverManager.getConnection("jdbc:sqlite:"+file.toAbsolutePath());var sql=db.createStatement()){
-            sql.execute("BEGIN EXCLUSIVE");var pending=prefs.set(id,"outbound",false);prefs.close();assertTrue(pending.isDone());assertNull(prefs.peek(id));sql.execute("COMMIT");
+            sql.execute("BEGIN EXCLUSIVE");var pending=prefs.set(id,"inbound",false);prefs.close();assertTrue(pending.isDone());assertNull(prefs.peek(id));sql.execute("COMMIT");
         }finally{prefs.close();}
         java.nio.file.Files.move(file,folder.resolve("closed.db"));
     }}

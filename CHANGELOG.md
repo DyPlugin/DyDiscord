@@ -1,3 +1,44 @@
+# DyDiscord changelog
+
+## 1.0.1
+
+### Improved
+
+- Six-character copyable linking codes with hover hints and a separate clickable invitation; automatic reusable permanent invitations when none is configured.
+- Natural English/Turkish account messages, readable private link dates, optional managed-role names, and a contained unlink confirmation.
+- Bot/game language inheritance, numbered administrator help, and short actor-bound in-game confirmation codes.
+- Consecutive chat bursts retain order and duplicate protection. Console output has a dedicated bounded worker and overlapping fresh permission reads.
+
+- Automatic first panel delivery after channel setup, connection and reload; the existing panel is reused.
+- New setups wait for credentials and a configured console channel with the bot and log relay enabled; remote console command execution remains an explicit opt-in. Existing disabled settings are preserved.
+- Paginated administrator help, permission-filtered navigation and English/Turkish command paths.
+- Organized Discord help embeds shared by slash and message commands; other normal message-command replies also use embeds.
+- Exact primary Discord role RGB in Minecraft, including dark colors; gradient/holographic roles use their first color.
+
+### Simplified command surface
+
+- Added `/dyda` with the same administration leaf checks, prefix editing, guild setup and a no-argument, player-only token entry session. Local token-file editing remains preferred because client history and third-party logging cannot be guaranteed.
+- Player `chat on|off` now controls incoming Discord visibility only. Administrators choose explicit Discord → Minecraft, Minecraft → Discord or both directions and a chat channel.
+- Removed announcement/startup/scheduled notice features and advanced editing/report/setup/validation command families. Role mappings, console authorization and reward settings remain editable in YAML; useful role operations and giveaways remain.
+- Console channels may be public; output visibility follows channel access while remote commands retain explicit authorization and fresh checks. The normal short yellow shutdown embed remains.
+- Numbered help replaces topic navigation; player help omits itself, header prefix appears once and page footer stays unprefixed. YAML descriptions follow their setting, and owner comments remain.
+- Readable localized account dates and both account names remain private; configuration warnings reach authorized online administrators through `dydiscord.admin.alerts`.
+
+### Fixed
+
+- Unrelated inactive channels blocking configuration changes and channel setup being rejected before bot connection.
+- Plain console output incorrectly requiring panel-specific history/embed permissions.
+- Generic setup failures hiding channel/privacy/access repair instructions, including wrapped configuration validation errors.
+- Failed initialization continuing to claim it was initializing; YAML failures now identify the affected file without exposing its values.
+- Missing restart guidance for failed sessions and stale callbacks surviving a denied-intent fallback reconnect.
+- Empty console channel generating repeated permission checks. Intent rejection now explains the affected features and Developer Portal settings.
+
+### Upgrade
+
+Replace the JAR with the server stopped; keep the entire DyDiscord data directory. No database schema change or account relinking is required. Choose either `DyDiscord-1.0.1.jar` or `DyDiscord-1.0.1-standalone.jar`, never both. See [the latest simplification report](docs/simplify-1.0.1-verification.md) for current evidence and limits; prior release/polish reports apply to their own artifacts.
+
+---
+
 # DyDiscord 1.0.0
 
 ## Added
