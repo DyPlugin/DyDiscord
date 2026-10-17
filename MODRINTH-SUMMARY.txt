@@ -1,1 +1,1 @@
-Connect your Minecraft server and Discord community with one configurable plugin.
+Bring your Minecraft server and Discord community together through your own bot.

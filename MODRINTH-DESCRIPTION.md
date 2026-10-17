@@ -1,72 +1,102 @@
 # DyDiscord — Minecraft and Discord Made Simple
 
-**Link your accounts. Connect your chat. Manage your server.**
+**Link your accounts. Share your chat. Connect your community.**
 
-Connect your Minecraft server and Discord community through your own Discord bot. DyDiscord brings private account linking, two-way chat, Minecraft-to-Discord roles, optional rewards and giveaways together, with English and Turkish support.
+DyDiscord is a Minecraft–Discord integration plugin for survival, SMP and community servers. Connect player accounts, bring conversations together and follow your server through your own Discord bot.
 
-**Minecraft:** 1.20.x–26.x  
-**Platforms:** Paper, Purpur, Bukkit and Spigot  
-**Current release:** 1.0.1 · By Claww / DyPlugin
+DyDiscord combines private account linking, two-way chat, Minecraft-to-Discord roles, configurable rewards and giveaways in one plugin. **Version 1.0.1** adds clearer account messages, simpler administration and smoother setup while preserving existing account links, custom settings and translations.
 
-## Your accounts, linked privately
+---
 
-Generate a six-character code with `/dydiscord link` and enter it through the Discord panel or `/link`. Codes are temporary and single-use, with a click-to-copy hint in Minecraft and a separate clickable Discord invitation.
+## New in 1.0.1
 
-The panel keeps **Link Account → Unlink → My Account** in one card. Account details show both usernames, a readable link date and any assigned managed roles. Replies stay private, and unlinking requires confirmation. Prefer commands? Disable the panel while keeping private slash account commands available.
+**Make linking straightforward.** Players receive a six-character linking code with a click-to-copy hint and a separate clickable Discord invitation. Private account details show both account names, a readable linking date and assigned managed roles when available.
 
-## One conversation, two communities
+**Set up once.** Choosing a panel channel sends the first panel when the bot is ready; refreshes reuse the recorded message. If no invitation is configured, the bot can create and save a reusable invite when it has permission.
 
-Use a separate Discord chat channel and enable either direction independently. Public Minecraft chat can include a LuckPerms rank, with Vault Chat as a display fallback. Discord messages use the member's server display name and highest eligible role, including its primary color.
+**Keep administration clear.** `/dyda` is the short form of `/dydiscord admin`. Numbered help pages show permitted actions, chat controls name both directions explicitly, and advanced role, reward and console policies stay in the YAML files.
 
-Players can use `/dydiscord chat on|off` to show or hide incoming Discord messages for themselves. Join, leave and death embeds are optional. Forwarded messages cannot create Discord mention notifications. Cancelled/private/hidden chats are protected; unknown chat systems require an explicitly supported integration.
+**Bring the conversation together.** Short chat bursts are handled with bounded queues and rate controls. Discord role colors carry into Minecraft, English/Turkish messages are more consistent, and setup warnings explain missing permissions or intents.
 
-## Minecraft groups, Discord roles
+## Choose your server build
 
-Give linked players configured Discord roles even without LuckPerms. With LuckPerms, map real direct, inherited and temporary group membership to Discord role IDs. Temporary ranks are checked while players are offline, and old managed roles are cleaned up when links or rules change.
+| Package | JAR | First startup |
+| --- | --- | --- |
+| Small | `DyDiscord-1.0.1.jar` | Internet access to resolve required libraries |
+| Standalone | `DyDiscord-1.0.1-standalone.jar` | Libraries included; available on GitHub |
 
-Synchronization is **Minecraft → Discord only**. Discord roles do not grant Minecraft groups, permissions or OP. Only configured roles are managed; privileged, integration-managed and console-access roles are blocked. The bot needs Manage Roles and sufficient role hierarchy, not Administrator.
+Install **one** JAR per server. Both packages provide the same features for **Bukkit, Spigot, Paper and Purpur**, with **Minecraft 1.20.x–26.x** as the current compatibility range. Stop the server and back up the full DyDiscord folder before replacing the JAR. Existing accounts do not need to be linked again.
 
-## Rewards and giveaways
+Java 17 bytecode; use the runtime required by your server. Folia and proxy platforms are outside the current support claim. Optional integrations must support your selected server too. [Compatibility notes](https://github.com/DyPlugin/DyDiscord/blob/main/docs/compatibility-test.md) · [Upgrade guide](https://github.com/DyPlugin/DyDiscord/blob/main/docs/upgrade-and-rollback.md) · [Downloads](https://github.com/DyPlugin/DyDiscord/releases/tag/1.0.1)
 
-Optionally reward linked Discord boosters or a first successful link through your installed plugin's console commands. Your own provider can handle temporary ranks, game currency or site credit; no economy or website-credit service is bundled.
+## Why DyDiscord?
 
-Run persistent Discord button giveaways with optional account/role conditions. DyDiscord draws the winners and keeps the result; the server owner delivers the prize.
+**Your bot, your community.** Use your own Discord application and keep account linking, chat and console output in separate channels. The bot runs inside Minecraft; no separate bot process or external database is required.
 
-## Your server console in Discord
+**Private account management.** Players link through a private Discord form and view their account details privately. Unlinking requires confirmation. The account panel and private slash commands share the same account system.
 
-Relay actual server output to a separate console channel and optionally let explicitly authorized Discord roles run Minecraft console commands. Log forwarding and command execution have separate switches. Public console channels are allowed; anyone who can view the channel can read its output, while command execution still requires authorization.
+**Choose what you use.** Enable either chat direction, event messages, role synchronization, rewards or console access as needed. You can turn off the panel and keep command-based account access.
 
-The console shows real server output without extra technical acceptance/rejection replies. Normal shutdown attempts a short yellow notification before disconnecting. Bot restarts and reloads do not create that shutdown notice.
+**English and Turkish together.** Both command languages and Turkish ASCII spellings are accepted. Help and TAB follow the effective language and permissions. Explicit game/player language choices are respected; otherwise game messages follow the bot language.
 
-## Clear commands, English and Turkish
+## Link accounts, your way
 
-Use `/discord` for the invitation and `/dydiscord help` for player commands. `/dyda` is the short administration root, using the same permissions as `/dydiscord admin`.
+Players run `/dydiscord link`, then enter their temporary, single-use code through Discord `/link` or the account panel. The panel keeps **Link Account → Unlink → My Account** in one card, using your server icon or a custom image.
+
+Each Minecraft account links to one Discord account. Linking never grants Minecraft permissions or OP. Account records remain in local SQLite storage across restarts and supported upgrades.
+
+## Share the conversation
+
+Forward public Minecraft chat to Discord, Discord chat to Minecraft, or both. Message formats and optional **join, leave and death embeds** are configurable; player messages are not translated.
+
+Minecraft ranks can come from LuckPerms, with Vault Chat as a display fallback. Discord messages use the member's server display name and highest eligible role, including its primary color. Players can use `/dydiscord chat on|off` to show or hide incoming Discord chat for themselves.
+
+Forwarded messages do not create Discord mention notifications. Bot/webhook messages, edits and attachments are not relayed. Unknown Minecraft chat listeners pause outbound forwarding to protect private or moderated conversations; those systems need a supported integration.
+
+## Keep Discord roles in step
+
+Give linked members configured Discord roles without requiring LuckPerms. With LuckPerms, map real direct, inherited and temporary Minecraft group memberships to Discord role IDs. Temporary ranks are checked while players are offline, and unlinking or changed rules retain the information needed to clean up old managed roles.
+
+Synchronization runs **Minecraft → Discord only**. Only configured roles are managed; unrelated roles stay untouched. The bot needs **Manage Roles** and sufficient role hierarchy. Privileged, integration-managed and console-access roles are blocked from automatic distribution.
+
+## Reward participation
+
+Optional **first-link and boost rewards** run your installed providers' console commands. Use your existing rank, economy or website system to provide temporary ranks, currency, items or site credit. DyDiscord does not bundle those providers, and command dispatch does not prove an external reward was delivered.
+
+Create persistent **button giveaways** with optional linked-account or role requirements. DyDiscord records entries and draws winners; the owner delivers the prizes. Discord server information, player lists, configured addresses and useful links help members find what they need.
+
+## Follow your server from Discord
+
+Relay actual server output to a separate console channel. Optionally authorize trusted Discord roles to run Minecraft console commands. **Log forwarding and command execution have separate switches.** Public console channels are allowed, so anyone with channel access can read the output.
+
+The relay shows real server output without extra technical acceptance/rejection replies. Normal shutdown attempts a short yellow notification before disconnecting; bot restarts and reloads do not send it. Delivery cannot be guaranteed during crashes or network failures.
+
+## Familiar commands
 
 | Command | Purpose |
 | --- | --- |
+| `/discord` | Show the Discord invitation |
 | `/dydiscord link` | Get your private linking code |
 | `/dydiscord status` | View your linked account |
 | `/dydiscord unlink` | Start unlink confirmation |
-| `/dydiscord chat on|off` | Show or hide incoming Discord chat |
-| `/dyda help [page]` | Open permitted administration commands |
-| `/dyda doctor` | Check setup and permissions |
+| `/dydiscord chat on` or `off` | Show or hide incoming Discord chat |
+| `/dyda help [page]` | Browse permitted administrator commands |
+| `/dyda doctor` | Check setup, intents and permissions |
 | `/dyda reload` | Apply valid settings and translations |
 
-Turkish commands and ASCII spellings are also accepted. Help and TAB show the effective language and permitted actions. Explicit game/player language choices are respected; otherwise Minecraft follows the bot language. Advanced role, console authorization and reward options stay in the commented YAML files.
+Turkish examples include `/dydiscord eşle`, `/dydiscord kaldır`, `/dydiscord sohbet aç`, `/dyda yardım` and `/dyda kontrol`. The long `/dydiscord admin` path remains available.
 
 ## Get started
 
-1. Install **DyDiscord-1.0.1.jar** and start the server. The small JAR uses Spigot/Paper's library resolver; first installation requires internet access. For an offline installation, use **DyDiscord-1.0.1-standalone.jar** from GitHub instead. Install only one.
-2. Create and invite your own Discord bot. Configure `token` and `guild-id` in `plugins/DyDiscord/bot.yml`, then run `/dyda reload`. An explicitly disabled bot stays disabled until enabled.
-3. Choose the panel channel with `/dyda panel channel <id>`. The first panel is sent automatically once the bot is connected. Configure separate chat and console channels as needed.
-4. Use `/dyda doctor` to check permissions and intents. Message commands, console input and Discord-to-Minecraft chat need Message Content Intent. Member-event features need Server Members Intent.
+1. Install one of the packages and start your server to generate the files.
+2. Create your own Discord bot, invite it and configure `token` and `guild-id` in `plugins/DyDiscord/bot.yml`.
+3. Reload valid settings, choose the channels you need and run `/dyda doctor`.
+4. Enable the required Discord intents for the features you use. Message commands, console input and incoming Discord chat need Message Content Intent; member-event features need Server Members Intent.
 
-Authorized players can also use the no-argument `/dyda bot token` entry flow. Local file/environment configuration is preferred because client history and third-party loggers cannot be guaranteed.
+Settings and messages include short English comments. Back up the complete data folder before upgrades; restoring local data does not undo Discord role changes or reward commands already executed.
 
-**Upgrading:** Stop the server, back up the complete DyDiscord folder and replace the JAR. Keep your account databases and settings; no account relinking is required. Version 1.0.1 removes the old announcement system and simplifies administration commands. Existing custom settings and translations are preserved where supported.
+## Source and support
 
-The plugin targets Java 17 bytecode; use the Java version required by your Minecraft server. Folia and proxy platforms are outside the current support claim. Compatibility and live verification limits are documented on GitHub.
+[Documentation](https://github.com/DyPlugin/DyDiscord#readme) · [Türkçe rehber](https://github.com/DyPlugin/DyDiscord/blob/main/docs/README.tr.md) · [Report an issue](https://github.com/DyPlugin/DyDiscord/issues) · [Discord support](https://discord.gg/dyhub) · [License](https://github.com/DyPlugin/DyDiscord/blob/main/LICENSE)
 
-[Full documentation](https://github.com/DyPlugin/DyDiscord#readme) · [Türkçe rehber](https://github.com/DyPlugin/DyDiscord/blob/main/docs/README.tr.md) · [Report an issue](https://github.com/DyPlugin/DyDiscord/issues) · [Discord support](https://discord.gg/dyhub) · [Downloads](https://github.com/DyPlugin/DyDiscord/releases)
-
-**Claww / DyPlugin** · [License](https://github.com/DyPlugin/DyDiscord/blob/main/LICENSE)
+**By Claww / DyPlugin.**
