@@ -281,9 +281,6 @@ help-prefix: "Change the message prefix"
 help-bot-guild: "Set the Discord server for the bot"
 # Message shown for help bot guild.
 
-help-bot-token: "Set the bot token through private input"
-# Message shown for help bot token.
-
 help-chat-to-minecraft: "Turn Discord → Minecraft chat on or off"
 # Message shown for help chat to minecraft.
 
@@ -320,26 +317,57 @@ chat-enabled: "&a{direction} chat enabled."
 chat-disabled: "&7{direction} chat disabled."
 # Message shown for chat disabled.
 
-token-entry-prompt: "&eWithin 60 seconds, enter / followed by the bot token. This input is intercepted privately. Use /dyda cancel to cancel."
-# Message shown for token entry prompt.
-
-token-entry-expired: "&eToken entry expired. Start again with /dyda bot token."
-# Message shown for token entry expired.
-
-token-entry-invalid: "&cInvalid token format. Use the token from Developer Portal > Bot."
-# Message shown for token entry invalid.
-
-token-entry-environment: "&eThe token comes from DYDISCORD_BOT_TOKEN. Update or remove that environment variable first."
-# Message shown for token entry environment.
-
-token-entry-saved: "&aBot token saved. Restarting the connection."
-# Message shown for token entry saved.
-
-token-entry-failed: "&cCould not save the token. Check file permissions and the server log. Previous settings were kept."
-# Message shown for token entry failed.
-
-token-entry-busy: "&eToken entry is busy. Please try again shortly."
-# Message shown for token entry busy.
-
 setup-connection-failed: "&cThe Discord bot could not connect. Check token and guild-id in bot.yml, Developer Portal > Bot, and internet access. Then run /dyda bot restart."
 # Explain how to repair a failed Discord connection.
+setup-chat-conflict: "&eMinecraft → Discord chat is paused because another plugin handles chat. Run /dyda doctor to see which plugin needs a supported public-chat integration."
+# Notify administrators once when another chat handler blocks public forwarding.
+setup-chat-adapter: "&eMinecraft → Discord chat could not read this server's chat event. Run /dyda doctor and check DyDiscord/server compatibility before restarting."
+# Explain an unavailable server chat adapter without exposing exception details.
+chat-compatibility-blocked: "Minecraft → Discord is paused. Chat plugins: {plugins}. A supported public-chat integration is required; changing channels will not fix this."
+# List bounded plugin names in status and doctor; preserve {plugins}.
+chat-compatibility-adapter: "Minecraft → Discord is unavailable: the server chat adapter failed. Check the supported server versions and restart after correcting compatibility."
+# Report a failed chat adapter instead of showing the configured direction as active.
+error-config-file: "Could not load {file}{position}. Check indentation, quotes and file permissions; existing data was kept."
+# Localized console explanation; values and secrets are not printed.
+error-config-position: " (line {line}, column {column})"
+# Localized console explanation; values and secrets are not printed.
+error-config-setting: "The setting {setting} is invalid. Check its comment in config.yml or bot.yml and correct the value."
+# Localized console explanation; values and secrets are not printed.
+error-command-collision: "An existing Discord command is not registered as managed by DyDiscord. Keep other commands intact; use a dedicated bot or resolve the conflicting command before restarting."
+# Localized console explanation; values and secrets are not printed.
+error-timeout: "The operation did not finish in time. Check the server load and Discord connection, then try again shortly."
+# Localized console explanation; values and secrets are not printed.
+error-unexpected: "The operation could not be completed. Check the setup warnings; private details were withheld."
+# Localized console explanation; values and secrets are not printed.
+error-console-event: "Event {event}: {reason}"
+# Localized console explanation; values and secrets are not printed.
+error-startup: "DyDiscord could not start. Correct the reported file or data problem and restart. Existing data was kept."
+# Localized console explanation; values and secrets are not printed.
+error-translations-fallback: "{count} missing messages use bundled defaults. Check the message files to customize them."
+# Localized console explanation; values and secrets are not printed.
+error-boost-data: "Boost rewards are unavailable. Check storage and Discord setup; existing reward data was kept."
+# Localized console explanation; values and secrets are not printed.
+error-link-reward-data: "Linking rewards are unavailable. Check storage; existing reward records were kept."
+# Localized console explanation; values and secrets are not printed.
+error-giveaway-data: "Giveaways are unavailable. Check Discord permissions and storage; existing records were kept."
+# Localized console explanation; values and secrets are not printed.
+error-chat-preferences: "Chat preferences could not be read. Delivery is paused for affected players; check the data file permissions."
+# Localized console explanation; values and secrets are not printed.
+error-chat-delivery: "Chat could not be delivered. Old queued messages were discarded; check the Discord connection and channel permissions."
+# Localized console explanation; values and secrets are not printed.
+error-log-backend: "Console relay cannot read this logging backend. Check server compatibility and the local startup log."
+# Localized console explanation; values and secrets are not printed.
+error-chat-ranks: "Chat ranks could not be read. Messages continue without a rank; check LuckPerms/Vault setup."
+# Localized console explanation; values and secrets are not printed.
+error-role-provider: "LuckPerms groups could not be read. Membership is unknown; roles will not be removed on that basis."
+# Localized console explanation; values and secrets are not printed.
+error-boost-pending: "Some boost rewards are pending. Check storage/Discord; commands with an uncertain result are never repeated automatically."
+# Localized console explanation; values and secrets are not printed.
+error-link-reward-pending: "Some linking rewards are pending. Check storage; commands with an uncertain result are never repeated automatically."
+# Localized console explanation; values and secrets are not printed.
+error-discord-shutdown: "Discord did not disconnect in time; the connection was cancelled."
+# Localized console explanation; values and secrets are not printed.
+error-panel-pending: "Panel delivery is pending. Check panel.channel-id in bot.yml and View Channel, Send Messages, Embed Links and Read Message History permissions. Then run /dyda panel refresh."
+# Localized console explanation; values and secrets are not printed.
+error-discord-disconnected: "Discord disconnected. Reconnecting shortly; check internet access if this continues."
+# Localized console explanation; values and secrets are not printed.

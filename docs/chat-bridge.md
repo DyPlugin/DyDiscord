@@ -1,3 +1,7 @@
+## Current 1.0.2 work
+
+See [1.0.2 verification](release-1.0.2-verification.md) for this artifact. Earlier counts and live results below remain historical.
+
 # Chat bridge and shutdown notice
 
 Configure `chat` in `bot.yml`. All directions and event switches default to false.
@@ -76,8 +80,26 @@ are ignored. Content is displayed as plain text; nothing is downloaded/executed.
 
 ## Bounds and shutdown
 
+`/dyda doctor` (`/dyda kontrol` in Turkish) reports paused Minecraft → Discord
+delivery and up to eight distinct chat-plugin names even before a player speaks.
+The first blocked chat event warns administrators through the existing throttled
+English/Turkish warning path. This does not bypass the public-chat privacy check.
+Missing/incompatible Paper chat APIs require a compatibility correction and
+restart; a transient exception thrown by an event method drops that event without
+permanently disabling subsequent events.
+
+Discord names, roles and referenced-message authors keep literal punctuation such
+as underscores. Message bodies use JDA's Markdown sanitizer; identity text is added
+separately as literal Minecraft components. Color/control cleanup and no-bold
+output still apply. Verification: [DiscordSRV comparison](discordsrv-comparison-2026-10-18.md).
+
 The queues hold at most 128 outbound and 64 inbound messages, each for five
 seconds. Short per-user bursts are accepted within bounded per-user and global rate controls. Discord sends are spaced at least half a second apart.
+The outbound sender now schedules one coalesced wakeup when work arrives; an idle
+queue has no periodic polling delay. Subsequent wakes respect minimum spacing and
+channel slowmode, and wake earlier to discard expired messages. Network/API
+latency remains part of real delivery time; this does not guarantee a delivery
+deadline or superiority over another plugin.
 A failed send is not retried; queues are discarded, with a 15-second backoff.
 Disconnect, bot restart, settings reload and plugin shutdown invalidate queues.
 Minecraft chat and join/quit/death events retain their original settings, policy,

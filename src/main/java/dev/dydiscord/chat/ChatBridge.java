@@ -17,22 +17,31 @@ public final class ChatBridge implements AutoCloseable {
     public record Outgoing(String text,Integer color,long policy,long session,Instant expires) {}
     record Context(Settings settings,long policy,long session,Instant expires,long epoch) {}
     private record Queued(Outgoing message,Settings settings,UUID sender,long epoch) {}
-    private record Incoming(String role,int color,String name,String message,String source,long policy,long session,Instant expires,Settings settings,long epoch) {}
+    private record Incoming(String role,int color,String name,String message,String replyAuthor,long policy,long session,Instant expires,Settings settings,long epoch) {}
     private final DyDiscord plugin;private final Ranks ranks;private final Clock clock;private final IngressLimit incomingRate,outgoingRate;
     private final ArrayBlockingQueue<Queued> outbound=new ArrayBlockingQueue<>(128);private final ArrayBlockingQueue<Incoming> inbound=new ArrayBlockingQueue<>(64);
-    private final Map<String,Instant> received=new LinkedHashMap<>();private final AtomicLong policy=new AtomicLong();private final AtomicBoolean drainScheduled=new AtomicBoolean();
+    private final Map<String,Instant> received=new LinkedHashMap<>();private final AtomicLong policy=new AtomicLong();private final AtomicBoolean drainScheduled=new AtomicBoolean(),sendScheduled=new AtomicBoolean();
     private final ScheduledExecutorService worker=Executors.newSingleThreadScheduledExecutor(PluginThreads.factory("DyDiscord-chat"));
     private final ChatPreferences preferences;
     private volatile boolean inboundPaused,outboundPaused;private volatile Instant nextSend=Instant.EPOCH;
     private final AtomicLong inboundEpoch=new AtomicLong(),outboundEpoch=new AtomicLong();
     private final AtomicReference<Instant> preferenceWarning=new AtomicReference<>(Instant.EPOCH);
-    private volatile boolean closed;private volatile Instant pause=Instant.EPOCH;private Instant lastWarning=Instant.EPOCH;
+    private volatile boolean closed,started;private volatile Instant pause=Instant.EPOCH;private Instant lastWarning=Instant.EPOCH;
     public ChatBridge(DyDiscord plugin){this.plugin=plugin;ranks=new Ranks(plugin);clock=plugin.clock();incomingRate=new IngressLimit(clock,5,2);outgoingRate=new IngressLimit(clock,5,2);preferences=new ChatPreferences(plugin.getDataFolder().toPath().resolve("chat-preferences.db"));}
-    public void start(){for(Player player:plugin.getServer().getOnlinePlayers())load(player.getUniqueId());worker.scheduleWithFixedDelay(this::flush,500,500,TimeUnit.MILLISECONDS);}
+    public void start(){started=true;for(Player player:plugin.getServer().getOnlinePlayers())load(player.getUniqueId());wake();}
+    /** At most one wakeup; idle queues do not poll and bursts retain the send budget. */
+    private void wake(){
+        if(!started||closed||outbound.isEmpty()||!sendScheduled.compareAndSet(false,true))return;
+        Instant now=clock.instant(),due=nextSend.isAfter(pause)?nextSend:pause;
+        for(Queued queued:outbound)if(queued.message().expires().isBefore(due))due=queued.message().expires();
+        long delay=due.isAfter(now)?Math.max(1,Duration.between(now,due).toMillis()):0;
+        try{worker.schedule(()->{try{flush();}finally{sendScheduled.set(false);wake();}},delay,TimeUnit.MILLISECONDS);}
+        catch(RejectedExecutionException stopped){sendScheduled.set(false);if(!closed)throw stopped;}
+    }
     public CompletableFuture<ChatPreferences.Preference> preference(UUID id){return preferences.get(id);}
     public CompletableFuture<ChatPreferences.Preference> preference(UUID id,String key,boolean enabled){return preferences.set(id,key,enabled);}
     public ChatPreferences.Preference preferencePreview(UUID id){return preferences.peek(id);}
-    public void load(UUID id){preferences.get(id).exceptionally(failure->{Instant previous=preferenceWarning.get(),now=clock.instant();if(!now.isBefore(previous.plusSeconds(60))&&preferenceWarning.compareAndSet(previous,now))plugin.getLogger().warning("Chat preferences unavailable; player chat bridging withheld.");return null;});}
+    public void load(UUID id){preferences.get(id).exceptionally(failure->{Instant previous=preferenceWarning.get(),now=clock.instant();if(!now.isBefore(previous.plusSeconds(60))&&preferenceWarning.compareAndSet(previous,now))plugin.getLogger().warning(dev.dydiscord.language.ConsoleDiagnostics.text(plugin,"error-chat-preferences",java.util.Map.of()));return null;});}
     public void leave(UUID id){preferences.leave(id);outbound.removeIf(queued->id.equals(queued.sender()));}
     public boolean paused(String direction){return switch(direction){case "inbound"->inboundPaused;case "outbound"->outboundPaused;case "both"->inboundPaused&&outboundPaused;default->false;};}
     public boolean pause(String direction,boolean value){if(!Set.of("inbound","outbound","both").contains(direction))return false;if(!direction.equals("outbound")){inboundPaused=value;inboundEpoch.incrementAndGet();inbound.clear();}if(!direction.equals("inbound")){outboundPaused=value;outboundEpoch.incrementAndGet();outbound.clear();}return true;}
@@ -65,7 +74,7 @@ public final class ChatBridge implements AutoCloseable {
     private boolean offer(String text,Integer color,Context context,UUID sender){
         long admittedPolicy=context.policy();Settings admittedSettings=context.settings();
         if(closed||outboundPaused||!plugin.ready()||!plugin.bot().usable()||admittedSettings.chat().channel().isEmpty()||clock.instant().isBefore(pause)){outbound.clear();return false;}
-        if(!current(context)||text.isBlank()||text.length()>1900)return false;return outbound.offer(new Queued(new Outgoing(text,color,admittedPolicy,context.session(),context.expires()),admittedSettings,sender,context.epoch()));
+        if(!current(context)||text.isBlank()||text.length()>1900)return false;boolean admitted=outbound.offer(new Queued(new Outgoing(text,color,admittedPolicy,context.session(),context.expires()),admittedSettings,sender,context.epoch()));if(admitted)wake();return admitted;
     }
     public synchronized void flush(){
         outbound.removeIf(queued->!current(queued));
@@ -74,10 +83,10 @@ public final class ChatBridge implements AutoCloseable {
         if(!current(queued)){if(!plugin.bot().usable())invalidate();return;}
         try{
             plugin.bot().sendChat(queued.message(),()->current(queued));
-            nextSend=clock.instant().plusSeconds(Math.max(0,plugin.bot().chatSlowmodeSeconds()));
+            nextSend=clock.instant().plusMillis(Math.max(500,TimeUnit.SECONDS.toMillis(plugin.bot().chatSlowmodeSeconds())));
         }catch(Exception failure){
             invalidate();pause=clock.instant().plusSeconds(15);
-            if(!clock.instant().isBefore(lastWarning.plusSeconds(60))){lastWarning=clock.instant();plugin.getLogger().warning("Chat delivery unavailable; queued messages discarded (values withheld).");}
+            if(!clock.instant().isBefore(lastWarning.plusSeconds(60))){lastWarning=clock.instant();plugin.getLogger().warning(dev.dydiscord.language.ConsoleDiagnostics.text(plugin,"error-chat-delivery",java.util.Map.of()));}
         }
     }
     public static Role highestRole(List<Role> ordered){return ordered.stream().filter(role->!role.isPublicRole()&&!role.isManaged()).max(Comparator.comparingInt(Role::getPosition)).orElse(null);}
@@ -88,8 +97,8 @@ public final class ChatBridge implements AutoCloseable {
         if(closed||inboundPaused||!settings.chat().toMinecraft()||!event.isFromGuild()||!event.getGuild().getId().equals(plugin.bot().applied().guild())||!event.getChannel().getId().equals(settings.chat().channel())||event.getMember()==null||!human(event.getAuthor().isBot(),event.isWebhookMessage(),!created.isBefore(clock.instant().minusSeconds(5))&&!created.isAfter(clock.instant().plusSeconds(5)),raw,settings.botPrefix())||!plugin.bot().content()||!plugin.bot().alive(session))return;
         synchronized(received){received.values().removeIf(time->!clock.instant().isBefore(time));if(received.containsKey(event.getMessageId())||received.size()>=4096)return;received.put(event.getMessageId(),clock.instant().plusSeconds(60));}
         if(!incomingRate.admit(event.getAuthor().getId()))return;Role role=highestRole(event.getMember().getRoles());String content=ChatText.plain(event.getMessage().getContentDisplay(),800);if(content.isEmpty())return;
-        Message referenced=event.getMessage().getReferencedMessage();String display=referenced==null?content:ChatText.reply(referenced.getAuthor().getName(),content);
-        Incoming message=new Incoming(role==null?"":ChatText.plain(role.getName(),64),primaryRoleColor(role),ChatText.plain(event.getMember().getEffectiveName(),64),display,content,admittedPolicy,session,clock.instant().plusSeconds(5),settings,epoch);
+        Message referenced=event.getMessage().getReferencedMessage();String replyAuthor=referenced==null?"":ChatText.plain(referenced.getAuthor().getName(),64);
+        Incoming message=new Incoming(role==null?"":ChatText.plain(role.getName(),64),primaryRoleColor(role),ChatText.plain(event.getMember().getEffectiveName(),64),content,replyAuthor,admittedPolicy,session,clock.instant().plusSeconds(5),settings,epoch);
         if(closed||inboundPaused||epoch!=inboundEpoch.get()||admittedPolicy!=policy.get()||!settings.equals(plugin.settings())||!plugin.bot().alive(session))return;
         if(inbound.offer(message)&&drainScheduled.compareAndSet(false,true))plugin.onMain(this::drain);
     }
@@ -98,7 +107,7 @@ public final class ChatBridge implements AutoCloseable {
             for(int i=0;i<64;i++){
                 Incoming message=inbound.poll();if(message==null)break;
                 if(closed||inboundPaused||message.epoch()!=inboundEpoch.get()||!plugin.ready()||!plugin.settings().chat().toMinecraft()||message.policy()!=policy.get()||!message.settings().equals(plugin.settings())||!plugin.bot().alive(message.session())||!plugin.bot().usable()||!clock.instant().isBefore(message.expires()))continue;
-                var text=ChatText.minecraft(template("chat-to-minecraft"),message.role(),message.color(),message.name(),message.message());
+                var text=ChatText.minecraft(template("chat-to-minecraft"),message.role(),message.color(),message.name(),message.message(),message.replyAuthor());
                 for(Player player:plugin.getServer().getOnlinePlayers()){
                     ChatPreferences.Preference pref=preferences.peek(player.getUniqueId());
                     if(pref==null){load(player.getUniqueId());continue;}

@@ -20,6 +20,48 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BotInteractionTest {
+    @Test void expiredRegistrationBudgetNeverSubmitsDiscordRequest()throws Exception{
+        var action=mock(net.dv8tion.jda.api.requests.RestAction.class,RETURNS_SELF);
+        var method=Bot.class.getDeclaredMethod("awaitRegistration",net.dv8tion.jda.api.requests.RestAction.class,long.class,long.class);method.setAccessible(true);
+        var failure=assertThrows(java.lang.reflect.InvocationTargetException.class,()->method.invoke(bot,action,0L,System.nanoTime()-1));
+        assertInstanceOf(java.util.concurrent.TimeoutException.class,failure.getCause());verifyNoInteractions(action);
+    }
+    @Test void timedOutRegistrationCancelsItsPendingRequest()throws Exception{
+        var action=mock(net.dv8tion.jda.api.requests.RestAction.class,RETURNS_SELF);
+        var pending=new java.util.concurrent.CompletableFuture<Object>(){@Override public Object get(long timeout,java.util.concurrent.TimeUnit unit)throws java.util.concurrent.TimeoutException{throw new java.util.concurrent.TimeoutException("synthetic deadline");}};
+        when(action.submit()).thenReturn(pending);
+        var method=Bot.class.getDeclaredMethod("awaitRegistration",net.dv8tion.jda.api.requests.RestAction.class,long.class,long.class);method.setAccessible(true);
+        var failure=assertThrows(java.lang.reflect.InvocationTargetException.class,()->method.invoke(bot,action,0L,System.nanoTime()+java.util.concurrent.TimeUnit.SECONDS.toNanos(90)));
+        assertInstanceOf(java.util.concurrent.TimeoutException.class,failure.getCause());assertTrue(pending.isCancelled());
+    }
+    @Test void oldSessionCannotRecordLateCommandRegistration()throws Exception{
+        Guild guild=mock(Guild.class);doReturn(guild).when(bot).guild();when(guild.getId()).thenReturn(settings.guild());
+        var retrieval=mock(net.dv8tion.jda.api.requests.RestAction.class,RETURNS_SELF);doReturn(retrieval).when(guild).retrieveCommands();when(retrieval.submit()).thenReturn(java.util.concurrent.CompletableFuture.completedFuture(List.of()));when(host.store().commands(settings.guild())).thenReturn(Set.of());
+        var action=mock(net.dv8tion.jda.api.requests.restaction.CommandCreateAction.class,RETURNS_SELF);when(guild.upsertCommand(any(net.dv8tion.jda.api.interactions.commands.build.CommandData.class))).thenReturn(action);
+        var saved=mock(net.dv8tion.jda.api.interactions.commands.Command.class);
+        when(action.submit()).thenReturn(new java.util.concurrent.CompletableFuture<net.dv8tion.jda.api.interactions.commands.Command>(){
+            @Override public net.dv8tion.jda.api.interactions.commands.Command get(long timeout,java.util.concurrent.TimeUnit unit){doReturn(false).when(bot).alive(0L);return saved;}
+        });
+        var method=Bot.class.getDeclaredMethod("register",long.class);method.setAccessible(true);
+        var failure=assertThrows(java.lang.reflect.InvocationTargetException.class,()->method.invoke(bot,0L));assertInstanceOf(IllegalStateException.class,failure.getCause());
+        verify(host.store(),never()).command(anyString(),anyString());var language=Bot.class.getDeclaredField("activeLanguage");language.setAccessible(true);assertEquals("",language.get(bot));
+    }
+    @Test void firstSetupSurvivesACommandRequestQueuedForTwentySeconds()throws Exception{
+        Guild guild=mock(Guild.class);doReturn(guild).when(bot).guild();when(guild.getId()).thenReturn(settings.guild());
+        var retrieval=mock(net.dv8tion.jda.api.requests.RestAction.class,RETURNS_SELF);doReturn(retrieval).when(guild).retrieveCommands();
+        when(retrieval.submit()).thenReturn(java.util.concurrent.CompletableFuture.completedFuture(List.of()));when(host.store().commands(settings.guild())).thenReturn(Set.of());
+        var action=mock(net.dv8tion.jda.api.requests.restaction.CommandCreateAction.class,RETURNS_SELF);when(guild.upsertCommand(any(net.dv8tion.jda.api.interactions.commands.build.CommandData.class))).thenReturn(action);
+        var saved=mock(net.dv8tion.jda.api.interactions.commands.Command.class);when(saved.getId()).thenReturn("823456789012345678");
+        var queued=new java.util.concurrent.CompletableFuture<net.dv8tion.jda.api.interactions.commands.Command>(){
+            @Override public net.dv8tion.jda.api.interactions.commands.Command get(long timeout,java.util.concurrent.TimeUnit unit)throws java.util.concurrent.TimeoutException{
+                if(unit.toSeconds(timeout)<20)throw new java.util.concurrent.TimeoutException("Discord bucket wait exceeds short request deadline");return saved;
+            }
+        };
+        when(action.submit()).thenReturn(queued);
+        var method=Bot.class.getDeclaredMethod("register",long.class);method.setAccessible(true);method.invoke(bot,0L);
+        verify(guild,times(9)).upsertCommand(any(net.dv8tion.jda.api.interactions.commands.build.CommandData.class));
+        verify(host.store(),times(9)).command(settings.guild(),saved.getId());assertEquals(settings.botLanguage(),bot.activeLanguage());
+    }
     @Test void disabledPanelRejectsButtonsButSlashStillOpensPrivateModal()throws Exception{
         var off=Settings.read(Map.of(),Map.of("guild-id",settings.guild(),"panel",Map.of("enabled",false,"channel-id",settings.panelChannel())),null);when(host.settings()).thenReturn(off);
         var button=button("link","423456789012345678");var reply=mock(ReplyCallbackAction.class);when(button.reply(anyString())).thenReturn(reply);when(reply.setEphemeral(true)).thenReturn(reply);when(reply.setAllowedMentions(any())).thenReturn(reply);
@@ -30,11 +72,11 @@ class BotInteractionTest {
     @org.junit.jupiter.params.ParameterizedTest @org.junit.jupiter.params.provider.ValueSource(booleans={false,true})
     void reconnectDoesNotUpsertAlreadyCorrectOwnedSlashCommands(boolean changedDescription)throws Exception{
         Guild guild=mock(Guild.class);doReturn(guild).when(bot).guild();when(guild.getId()).thenReturn(settings.guild());
-        var retrieval=mock(net.dv8tion.jda.api.requests.RestAction.class);doReturn(retrieval).when(guild).retrieveCommands();List<net.dv8tion.jda.api.interactions.commands.Command> existing=new ArrayList<>();Set<String> owned=new HashSet<>();
+        var retrieval=mock(net.dv8tion.jda.api.requests.RestAction.class,RETURNS_SELF);doReturn(retrieval).when(guild).retrieveCommands();List<net.dv8tion.jda.api.interactions.commands.Command> existing=new ArrayList<>();Set<String> owned=new HashSet<>();
         for(String function:List.of("help","link","account","unlink","status","server","players","ip","links")){var command=mock(net.dv8tion.jda.api.interactions.commands.Command.class);String id="72345678901234567"+existing.size();String description=host.messages().get(true,settings.botLanguage(),"slash-"+function);owned.add(id);when(command.getId()).thenReturn(id);when(command.getName()).thenReturn(dev.dydiscord.command.Words.display(function,settings.botLanguage()));when(command.getDescription()).thenReturn(description);when(command.getType()).thenReturn(net.dv8tion.jda.api.interactions.commands.Command.Type.SLASH);existing.add(command);}
-        doReturn(existing).when(bot).await(retrieval);when(host.store().commands(settings.guild())).thenReturn(owned);
+        when(retrieval.submit()).thenReturn(java.util.concurrent.CompletableFuture.completedFuture(existing));when(host.store().commands(settings.guild())).thenReturn(owned);
         if(changedDescription)when(existing.get(0).getDescription()).thenReturn("Old description");
-        var action=mock(net.dv8tion.jda.api.requests.restaction.CommandCreateAction.class);when(guild.upsertCommand(any(net.dv8tion.jda.api.interactions.commands.build.CommandData.class))).thenReturn(action);when(action.setCheck(any())).thenReturn(action);doReturn(existing.get(0),existing.get(1),existing.get(2),existing.get(3),existing.get(4),existing.get(5)).when(bot).await(action);
+        var action=mock(net.dv8tion.jda.api.requests.restaction.CommandCreateAction.class,RETURNS_SELF);when(guild.upsertCommand(any(net.dv8tion.jda.api.interactions.commands.build.CommandData.class))).thenReturn(action);when(action.submit()).thenReturn(java.util.concurrent.CompletableFuture.completedFuture(existing.get(0)));
         var method=Bot.class.getDeclaredMethod("register",long.class);method.setAccessible(true);method.invoke(bot,0L);
         verify(guild,times(changedDescription?1:0)).upsertCommand(any(net.dv8tion.jda.api.interactions.commands.build.CommandData.class));
     }

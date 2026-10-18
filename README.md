@@ -4,30 +4,30 @@
 
 DyDiscord is a Minecraft–Discord integration plugin for survival, SMP and community servers. Connect player accounts, bring conversations together and follow your server through your own Discord bot.
 
-DyDiscord combines private account linking, two-way chat, Minecraft-to-Discord roles, configurable rewards and giveaways in one plugin. **Version 1.0.1** adds clearer account messages, simpler administration and smoother setup while preserving existing account links, custom settings and translations.
+DyDiscord combines private account linking, two-way chat, Minecraft-to-Discord roles, configurable rewards and giveaways in one plugin. **Version 1.0.2** adds clearer account messages, simpler administration and smoother setup while preserving existing account links, custom settings and translations.
 
 ---
 
-## New in 1.0.1
+## New in 1.0.2
 
-**Make linking straightforward.** Players receive a six-character linking code with a click-to-copy hint and a separate clickable Discord invitation. Private account details show both account names, a readable linking date and assigned managed roles when available.
+**Use clearer shortcuts.** `/dyd` opens the player command path; `/dyda` keeps administration separate and uses the same leaf permissions as the full command.
 
-**Set up once.** Choosing a panel channel sends the first panel when the bot is ready; refreshes reuse the recorded message. If no invitation is configured, the bot can create and save a reusable invite when it has permission.
+**Configure with fewer surprises.** New installations enable both chat directions and join, quit and death notices once a separate chat channel is configured. Console relay stays off until enabled; its command subsetting still requires explicit Discord authorization. Existing settings stay yours. Tokens are configured only in the local file or environment.
 
-**Keep administration clear.** `/dyda` is the short form of `/dydiscord admin`. Numbered help pages show permitted actions, chat controls name both directions explicitly, and advanced role, reward and console policies stay in the YAML files.
+**Run readable giveaways.** Container cards keep participation and private replies together. Leaving asks for confirmation with Leave and Cancel buttons; existing active cards are updated in place.
 
-**Bring the conversation together.** Short chat bursts are handled with bounded queues and rate controls. Discord role colors carry into Minecraft, English/Turkish messages are more consistent, and setup warnings explain missing permissions or intents.
+**Understand setup errors.** English and Turkish console diagnostics identify the affected file or setting and suggest a repair without printing private YAML values. Chat sending wakes on demand while keeping queue limits, expiry and Discord pacing.
 
 ## Choose your server build
 
 | Package | JAR | First startup |
 | --- | --- | --- |
-| Small | `DyDiscord-1.0.1.jar` | Internet access to resolve required libraries |
-| Standalone | `DyDiscord-1.0.1-standalone.jar` | Libraries included; available on GitHub |
+| Small | `DyDiscord-1.0.2.jar` | Internet access to resolve required libraries |
+| Standalone | `DyDiscord-1.0.2-standalone.jar` | Libraries included; available on GitHub |
 
 Install **one** JAR per server. Both packages provide the same features for **Bukkit, Spigot, Paper and Purpur**, with **Minecraft 1.20.x–26.x** as the current compatibility range. Stop the server and back up the full DyDiscord folder before replacing the JAR. Existing accounts do not need to be linked again.
 
-Java 17 bytecode; use the runtime required by your server. Folia and proxy platforms are outside the current support claim. Optional integrations must support your selected server too. [Compatibility notes](https://github.com/DyPlugin/DyDiscord/blob/main/docs/compatibility-test.md) · [Upgrade guide](https://github.com/DyPlugin/DyDiscord/blob/main/docs/upgrade-and-rollback.md) · [Downloads](https://github.com/DyPlugin/DyDiscord/releases/tag/1.0.1)
+Java 17 bytecode; use the runtime required by your server. Folia and proxy platforms are outside the current support claim. Optional integrations must support your selected server too. [Compatibility notes](https://github.com/DyPlugin/DyDiscord/blob/main/docs/compatibility-test.md) · [Upgrade guide](https://github.com/DyPlugin/DyDiscord/blob/main/docs/upgrade-and-rollback.md) · [Downloads](https://github.com/DyPlugin/DyDiscord/releases)
 
 ## Why DyDiscord?
 

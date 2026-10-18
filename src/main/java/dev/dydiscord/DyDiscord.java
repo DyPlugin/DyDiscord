@@ -29,42 +29,44 @@ public final class DyDiscord extends JavaPlugin implements Listener {
     private final Map<UUID,String> preferences=new ConcurrentHashMap<>();
     private final Map<UUID,Long> sessions=new ConcurrentHashMap<>();
     private Configuration configuration;private Store store;private Linking linking;private Audit audit;private Bot bot;private ConsoleBridge console;private dev.dydiscord.update.UpdateChecker updates;private dev.dydiscord.chat.ChatBridge chat;private dev.dydiscord.chat.ChatEvents chatEvents;
+    private volatile String initializationLanguage="en";
+    public String diagnosticLanguage(){return initializationLanguage;}
     private volatile boolean ready,closing,initializationFailed;private long sessionCounter;
     private dev.dydiscord.roles.RoleEngine roles;private dev.dydiscord.roles.RoleCommands roleCommands;
     private dev.dydiscord.boost.BoostBridge boosts;private dev.dydiscord.boost.BoostStore boostStore;
     private dev.dydiscord.reward.LinkRewardStore rewardStore;private dev.dydiscord.reward.LinkRewardService linkRewards;
     private dev.dydiscord.community.CommunityCommands communityCommands;
     private dev.dydiscord.giveaway.GiveawayService giveaways;
-    private TokenSetup tokenSetup;private AdminWarnings adminWarnings;
+    private AdminWarnings adminWarnings;
     private final Set<String> warnedTranslations=ConcurrentHashMap.newKeySet();
-    private void translationWarnings(){long count=messages().missing().stream().filter(warnedTranslations::add).count();if(count>0)getLogger().warning(count+" missing message keys use bundled English defaults (values withheld).");}
+    private void translationWarnings(){long count=messages().missing().stream().filter(warnedTranslations::add).count();if(count>0)getLogger().warning(ConsoleDiagnostics.text(this,"error-translations-fallback",Map.of("count",Long.toString(count))));}
     @Override public void onEnable(){
         configuration=new Configuration(getDataFolder().toPath());Router root=new Router(this,false);
         Objects.requireNonNull(getCommand("dydiscord")).setExecutor(root);getCommand("dydiscord").setTabCompleter(root);
         Router adminShortcut=new Router(this,false,true);Objects.requireNonNull(getCommand("dyda")).setExecutor(adminShortcut);getCommand("dyda").setTabCompleter(adminShortcut);
-        tokenSetup=new TokenSetup(this);adminWarnings=new AdminWarnings(this);getServer().getPluginManager().registerEvents(tokenSetup,this);
+        adminWarnings=new AdminWarnings(this);getServer().getPluginManager().registerEvents(root,this);
         Router shortcut=new Router(this,true);Objects.requireNonNull(getCommand("dylink")).setExecutor(shortcut);getCommand("dylink").setTabCompleter(shortcut);
         PluginCommand discord=getServer().getPluginCommand("discord");if(discord!=null&&discord.getPlugin()!=this)getLogger().warning("/discord is owned by another plugin. Use /dydiscord or /dydiscord:dydiscord.");
         getServer().getPluginManager().registerEvents(this,this);
         for(Player p:getServer().getOnlinePlayers())sessions.put(p.getUniqueId(),++sessionCounter);
         submit(()->{
-            configuration.load();translationWarnings();store=new Store(getDataFolder().toPath().resolve("data/dydiscord.db"));preferences.putAll(store.preferences());
+            initializationLanguage=ConsoleDiagnostics.detectLanguage(getDataFolder().toPath());configuration.load();translationWarnings();store=new Store(getDataFolder().toPath().resolve("data/dydiscord.db"));preferences.putAll(store.preferences());
             audit=new Audit(getDataFolder().toPath().resolve("logs"),clock);linking=new Linking(store,clock,new SecureRandom());bot=new Bot(this);console=new ConsoleBridge(this);chat=new dev.dydiscord.chat.ChatBridge(this);chatEvents=new dev.dydiscord.chat.ChatEvents(this);
             var groups=mainValue(()->new dev.dydiscord.roles.LuckPermsGroups(this));
             roles=new dev.dydiscord.roles.RoleEngine(store,this::settings,groups,new dev.dydiscord.roles.JdaRoleTransport(this),clock,e->error(e));roleCommands=new dev.dydiscord.roles.RoleCommands(this,roles);
             roles.validateSettings(settings());
-            try{boostStore=new dev.dydiscord.boost.BoostStore(getDataFolder().toPath().resolve("data/boosts.db"));boosts=new dev.dydiscord.boost.BoostBridge(new dev.dydiscord.boost.BukkitBoostHost(this),boostStore,clock);store.linkListener(boosts::signal);}catch(Exception failure){error(failure);getLogger().warning("Boost rewards unavailable; existing reward data was preserved. Other features remain available.");}
+            try{boostStore=new dev.dydiscord.boost.BoostStore(getDataFolder().toPath().resolve("data/boosts.db"));boosts=new dev.dydiscord.boost.BoostBridge(new dev.dydiscord.boost.BukkitBoostHost(this),boostStore,clock);store.linkListener(boosts::signal);}catch(Exception failure){error(failure);getLogger().warning(ConsoleDiagnostics.text(this,"error-boost-data",Map.of()));}
             try{rewardStore=new dev.dydiscord.reward.LinkRewardStore(getDataFolder().toPath().resolve("data/rewards.db"));rewardStore.seedExisting(store);
-            linkRewards=new dev.dydiscord.reward.LinkRewardService(new dev.dydiscord.reward.BukkitLinkRewardHost(this),rewardStore,clock);}catch(Exception failure){error(failure);getLogger().warning("First-link rewards unavailable; existing reward data was preserved.");}
+            linkRewards=new dev.dydiscord.reward.LinkRewardService(new dev.dydiscord.reward.BukkitLinkRewardHost(this),rewardStore,clock);}catch(Exception failure){error(failure);getLogger().warning(ConsoleDiagnostics.text(this,"error-link-reward-data",Map.of()));}
             communityCommands=new dev.dydiscord.community.CommunityCommands(this);
-            try{giveaways=new dev.dydiscord.giveaway.GiveawayService(this);}catch(Exception failure){error(failure);getLogger().warning("Giveaways unavailable; existing data was preserved.");}
+            try{giveaways=new dev.dydiscord.giveaway.GiveawayService(this);}catch(Exception failure){error(failure);getLogger().warning(ConsoleDiagnostics.text(this,"error-giveaway-data",Map.of()));}
             mainValue(()->{ready=true;getLogger().info("DyDiscord "+getDescription().getVersion()+" enabled!");console.attach();chatEvents.register();chat.start();return null;});
             roles.start();if(boosts!=null)boosts.start();updates=new dev.dydiscord.update.UpdateChecker(this);updates.refresh();bot.start();return null;
-        }).exceptionally(e->{initializationFailed=true;warn("startup-failed");error(e);getLogger().severe("Initialization failed. DyDiscord commands are unavailable. Existing data was preserved; fix the reported configuration or data problem and restart the server.");return null;});
+        }).exceptionally(e->{initializationFailed=true;warn("startup-failed");error(e);getLogger().severe(ConsoleDiagnostics.text(this,"error-startup",Map.of()));return null;});
         getServer().getScheduler().runTaskTimer(this,()->{if(ready&&!closing)submit(()->{linking.cleanup();return null;});},200,200);
     }
     @Override public void onDisable(){
-        if(tokenSetup!=null)tokenSetup.close();if(adminWarnings!=null)adminWarnings.close();if(giveaways!=null)giveaways.close();if(linkRewards!=null)linkRewards.close();
+        if(adminWarnings!=null)adminWarnings.close();if(giveaways!=null)giveaways.close();if(linkRewards!=null)linkRewards.close();
         if(boosts!=null)boosts.close();
         closing=true;ready=false;if(roleCommands!=null)roleCommands.close();if(roles!=null)roles.close();if(chat!=null)chat.close();if(bot!=null&&configuration.active()!=null)bot.serverShutdownNotice(dev.dydiscord.chat.ShutdownNotice.stopping(getServer()));if(linking!=null)linking.invalidate();if(console!=null)console.close();
         if(updates!=null)updates.close();if(bot!=null)bot.stop();io.shutdown();try{if(!io.awaitTermination(5,TimeUnit.SECONDS))io.shutdownNow();}catch(InterruptedException e){Thread.currentThread().interrupt();io.shutdownNow();}
@@ -73,7 +75,7 @@ public final class DyDiscord extends JavaPlugin implements Listener {
     @EventHandler public void join(PlayerJoinEvent event){Player p=event.getPlayer();sessions.put(p.getUniqueId(),++sessionCounter);UUID uuid=p.getUniqueId();String name=p.getName();if(updates!=null)updates.notify(p);if(roles!=null)roles.enqueue(uuid);if(ready)submit(()->{store.updateName(uuid,name);return null;}).exceptionally(e->{error(e);return null;});}
     @EventHandler public void providerEnabled(PluginEnableEvent event){if(roles!=null&&event.getPlugin().getName().equalsIgnoreCase("LuckPerms"))roles.provider(new dev.dydiscord.roles.LuckPermsGroups(this));}
     @EventHandler public void providerDisabled(PluginDisableEvent event){if(roles!=null&&event.getPlugin().getName().equalsIgnoreCase("LuckPerms"))roles.provider(new dev.dydiscord.roles.GroupProvider(){public boolean available(){return false;}public Result groups(UUID uuid,Map<String,String> context){return Result.unknown("provider-unavailable");}});}
-    @EventHandler public void leave(PlayerQuitEvent event){UUID uuid=event.getPlayer().getUniqueId();sessions.remove(uuid);if(tokenSetup!=null)tokenSetup.leave(uuid);if(updates!=null)updates.leave(uuid);if(linking!=null)submit(()->{linking.leave(uuid);return null;});}
+    @EventHandler public void leave(PlayerQuitEvent event){UUID uuid=event.getPlayer().getUniqueId();sessions.remove(uuid);if(updates!=null)updates.leave(uuid);if(linking!=null)submit(()->{linking.leave(uuid);return null;});}
     public void cancel(CommandSender sender){String actor=actor(sender);submit(()->{linking.cancel(actor);message(sender,"cancelled",Map.of());return null;}).exceptionally(e->{failed(sender,e);return null;});}
     public boolean ready(){return ready&&!closing;}public Settings settings(){return configuration.active().settings();}public Messages messages(){return configuration.active().messages();}
     public Configuration configuration(){return configuration;}
@@ -116,18 +118,13 @@ public final class DyDiscord extends JavaPlugin implements Listener {
     public void helpHeader(CommandSender sender){sender.sendMessage("§7§m----------§r "+settings().prefix().replaceAll("&([0-9a-fk-orA-FK-OR])","§$1")+" §e"+messages().get(false,language(sender),"help")+" §7§m----------");}
     public void warn(String key){if(adminWarnings!=null)adminWarnings.warn(key);}
     public String error(Throwable failure){
-        Throwable e=failure;while((e instanceof CompletionException||e instanceof ExecutionException)&&e.getCause()!=null)e=e.getCause();String detail="";
-        for(Throwable cause=e;cause!=null;cause=cause.getCause()){
-            if(cause instanceof SetupProblem problem&&configuration!=null&&configuration.active()!=null){warn(problem.key());return "setup";}
-            if(cause instanceof Configuration.FileFailure){detail="; "+cause.getMessage();break;}
-            String m=cause.getMessage();if(m!=null&&m.matches("Invalid (setting|message|file): [a-zA-Z0-9_./:-]+")){detail="; "+m;break;}
-        }
-        String id=UUID.randomUUID().toString().substring(0,8);getLogger().warning("Event "+id+": "+e.getClass().getSimpleName()+detail+" (sensitive values withheld).");return id;
+        Throwable e=failure;for(int depth=0;depth<16&&(e instanceof CompletionException||e instanceof ExecutionException)&&e.getCause()!=null;depth++)e=e.getCause();
+        SetupProblem problem=setupProblem(e);if(problem!=null&&configuration!=null&&configuration.active()!=null){warn(problem.key());return "setup";}
+        String id=UUID.randomUUID().toString().substring(0,8);getLogger().warning(ConsoleDiagnostics.text(this,"error-console-event",Map.of("event",id,"reason",ConsoleDiagnostics.reason(this,e))));return id;
     }
     private static SetupProblem setupProblem(Throwable failure){for(int depth=0;failure!=null&&depth<16;depth++,failure=failure.getCause())if(failure instanceof SetupProblem problem)return problem;return null;}
     private void failed(CommandSender sender,Throwable failure){if(closing)return;Throwable e=failure;while(e.getCause()!=null&&(e instanceof CompletionException||e instanceof ExecutionException))e=e.getCause();SetupProblem problem=setupProblem(e);if(e instanceof Linking.Rejected r)message(sender,r.key,r.values);else if(problem!=null){error(e);message(sender,problem.key(),Map.of());}else if(e instanceof IllegalArgumentException)message(sender,"usage",Map.of());else message(sender,"failed",Map.of("event",error(e)));}
     public void execute(CommandSender sender,Definition d,String[] args){
-        if(d.key().equals("bot-token")){tokenSetup.open(sender);return;}
         if(communityCommands!=null&&communityCommands.handles(d.key())){communityCommands.execute(sender,d,args);return;}
         if(d.key().startsWith("roles-")){roleCommands.execute(sender,d,args);return;}
         UUID uuid=sender instanceof Player p?p.getUniqueId():null;String name=sender.getName();String actor=actor(sender);String effectiveLanguage=language(sender);long session=uuid==null?-1:sessions.getOrDefault(uuid,-1L);
@@ -139,7 +136,7 @@ public final class DyDiscord extends JavaPlugin implements Listener {
                 case "status"->{Optional<Store.Link> found=store.byUuid(uuid);if(found.isEmpty())message(sender,"not-linked",Map.of());else account(sender,found.get());}
                 case "unlink","admin-unlink"->{Store.Link target;if(d.key().equals("admin-unlink")){if(args[1].length()>256||Arrays.stream(args).anyMatch(s->s.chars().anyMatch(Character::isISOControl)))throw new IllegalArgumentException();target=store.byUuid(UUID.fromString(args[0])).orElseThrow(()->new Linking.Rejected("not-linked"));}else target=store.byUuid(uuid).orElseThrow(()->new Linking.Rejected("not-linked"));String reason=d.key().equals("admin-unlink")?String.join(" ",Arrays.copyOfRange(args,1,args.length)):"";if(reason.length()>256)throw new IllegalArgumentException();String token=linking.confirm(actor,target,d.permission(),reason,settings().confirmationTimeout());message(sender,"confirm",Map.of("token",token,"seconds",Integer.toString(settings().confirmationTimeout())));}
                 case "language"->{if(!Set.of("en","tr","auto").contains(args[0]))throw new IllegalArgumentException();store.preference(uuid,args[0]);preferences.put(uuid,args[0]);message(sender,"language-saved",Map.of("language",messages().get(false,effectiveLanguage,"language-name-"+args[0])));if(!settings().language().equals("auto"))message(sender,"language-forced",Map.of("language",messages().get(false,effectiveLanguage,"language-name-"+settings().language())));}
-                case "reload"->{try{Configuration.Snapshot preview=configuration.preview();bot.validateChanges(settings(),preview.settings());Settings before=settings();configuration.apply(preview);if(roles!=null)roles.refresh();if(boosts!=null)boosts.refresh();if(chat!=null)chat.invalidate();if(updates!=null)updates.refresh();if(tokenSetup!=null)tokenSetup.clear();if(giveaways!=null)giveaways.refresh();translationWarnings();linking.invalidate();console.invalidate();if(before.botEnabled()!=settings().botEnabled()){if(settings().botEnabled())bot.restart();else bot.stop();}else bot.connectIfConfigured();bot.reconcilePanelMode();if(bot.restartRequired())message(sender,"restart-required",Map.of());if(!bot.usable())message(sender,"discord-validation-pending",Map.of());message(sender,"reload-success",Map.of());getLogger().info("Configuration reloaded successfully!");}catch(Exception e){message(sender,"reload-invalid",Map.of());error(e);}}
+                case "reload"->{try{Configuration.Snapshot preview=configuration.preview();bot.validateChanges(settings(),preview.settings());Settings before=settings();configuration.apply(preview);if(roles!=null)roles.refresh();if(boosts!=null)boosts.refresh();if(chat!=null)chat.invalidate();if(updates!=null)updates.refresh();if(giveaways!=null)giveaways.refresh();translationWarnings();linking.invalidate();console.invalidate();if(before.botEnabled()!=settings().botEnabled()){if(settings().botEnabled())bot.restart();else bot.stop();}else bot.connectIfConfigured();bot.reconcilePanelMode();if(bot.restartRequired())message(sender,"restart-required",Map.of());if(!bot.usable())message(sender,"discord-validation-pending",Map.of());message(sender,"reload-success",Map.of());getLogger().info("Configuration reloaded successfully!");}catch(Exception e){message(sender,"reload-invalid",Map.of());error(e);}}
                 case "admin-status","doctor"->{for(String line:bot.diagnostics(d.key().equals("doctor"),effectiveLanguage))message(sender,"status-line",Map.of("status",line));}
                 case "bot-restart"->{linking.invalidate();console.invalidate();bot.restart();message(sender,"saved",Map.of());}
                 case "panel-send","panel-refresh"->{bot.refreshPanel();message(sender,"saved",Map.of());}

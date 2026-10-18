@@ -24,7 +24,7 @@ public record Settings(String prefix, String language, String serverName, String
         if (!panel.isEmpty() && panel.equals(console)) throw invalid("console.channel-id");
         Object raw=get(b,"console.commands.allowed-role-ids",List.of());
         if (!(raw instanceof List<?> list) || list.size()>100) throw invalid("console.commands.allowed-role-ids");
-        Set<String> roles=new HashSet<>(); for(Object v:list) { if(!(v instanceof String s)||!snowflake(s))throw invalid("console.commands.allowed-role-ids"); roles.add(s); }
+        Set<String> roles=new HashSet<>(); for(Object v:list) { if(v instanceof String blank&&blank.isEmpty())continue; if(!(v instanceof String s)||!snowflake(s))throw invalid("console.commands.allowed-role-ids"); roles.add(s); }
         String token=string(b,"token",""); String source="file";
         if(environment!=null&&!environment.isBlank()){token=environment;source="environment";}
         if(token.length()>512 || token.chars().anyMatch(Character::isISOControl))throw invalid("token");
@@ -34,7 +34,7 @@ public record Settings(String prefix, String language, String serverName, String
             number(c,"linking.attempt-window-seconds",300,30,900),number(c,"linking.confirmation-timeout-seconds",30,10,120),
             bool(b,"enabled",false),token,source,id(b,"guild-id"),botLanguage(b,lang),
             choice(b,"bot.prefix","dy!",Set.of("dy!")),bool(b,"bot.prefix-commands-enabled",true),"",
-            panel,bool(b,"console.enabled",false),console,bool(b,"console.commands.enabled",false),bool(b,"console.commands.allow-administrator",true),Set.copyOf(roles),image(b),bool(c,"updates.enabled",true),ChatSettings.read(b,panel,console),RoleSettings.read(b,id(b,"guild-id"),roles),BoostSettings.read(b),bool(b,"panel.enabled",true),CommunitySettings.read(c,b),LinkRewardSettings.read(c,b),ToolsSettings.read(c,b),GiveawaySettings.read(b),AccountSettings.read(b));
+            panel,bool(b,"console.enabled",false),console,bool(b,"console.commands.enabled",true),bool(b,"console.commands.allow-administrator",true),Set.copyOf(roles),image(b),bool(c,"updates.enabled",true),ChatSettings.read(b,panel,console),RoleSettings.read(b,id(b,"guild-id"),roles),BoostSettings.read(b),bool(b,"panel.enabled",true),CommunitySettings.read(c,b),LinkRewardSettings.read(c,b),ToolsSettings.read(c,b),GiveawaySettings.read(b),AccountSettings.read(b));
     }
     private static String botLanguage(Map<String,Object> values,String game){String selected=choice(values,"bot.language","auto",Set.of("auto","en","tr"));return selected.equals("auto")?(game.equals("tr")?"tr":"en"):selected;}
     private static String image(Map<String,Object> values){String value=bounded(values,"panel.image-url","",2048);if(value.isEmpty())return value;try{URI uri=URI.create(value);if(!"https".equals(uri.getScheme())||uri.getHost()==null||uri.getRawUserInfo()!=null||uri.getPort()!=-1||value.chars().anyMatch(Character::isISOControl))throw invalid("panel.image-url");return value;}catch(IllegalArgumentException e){throw invalid("panel.image-url");}}

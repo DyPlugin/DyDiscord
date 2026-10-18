@@ -23,6 +23,67 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class ChatBridgeTest {
+    @Test void longSlowmodeStillExpiresFullQueueBeforeAdmittingFreshWork()throws Exception{
+        var workerField=ChatBridge.class.getDeclaredField("worker");workerField.setAccessible(true);((ScheduledExecutorService)workerField.get(bridge)).shutdownNow();
+        var executor=mock(ScheduledExecutorService.class);workerField.set(bridge,executor);List<Runnable> tasks=new ArrayList<>();List<Long> delays=new ArrayList<>();
+        doAnswer(i->{tasks.add(i.getArgument(0));delays.add(i.getArgument(1));return mock(ScheduledFuture.class);}).when(executor).schedule(any(Runnable.class),anyLong(),eq(TimeUnit.MILLISECONDS));
+        when(bot.chatSlowmodeSeconds()).thenReturn(3600);bridge.start();bridge.offer("first",null);tasks.get(0).run();
+        for(int i=0;i<128;i++)assertTrue(bridge.offer("queued",null));assertFalse(bridge.offer("overflow",null));
+        assertEquals(2,tasks.size());assertTrue(delays.get(1)<=5000,"Expired messages must be cleared before the one-hour send budget");
+        time.advance(6);tasks.get(1).run();assertEquals(0,bridge.queued());assertTrue(bridge.offer("fresh",null));verify(bot,times(1)).sendChat(any(),any());
+    }
+    @Test void idleOutgoingChatWakesOneWorkerAndPreservesPacing()throws Exception{
+        var workerField=ChatBridge.class.getDeclaredField("worker");workerField.setAccessible(true);((ScheduledExecutorService)workerField.get(bridge)).shutdownNow();
+        var executor=mock(ScheduledExecutorService.class);workerField.set(bridge,executor);List<Runnable> tasks=new ArrayList<>();List<Long> delays=new ArrayList<>();
+        doAnswer(i->{tasks.add(i.getArgument(0));delays.add(i.getArgument(1));return mock(ScheduledFuture.class);}).when(executor).schedule(any(Runnable.class),anyLong(),eq(TimeUnit.MILLISECONDS));
+        bridge.start();assertTrue(tasks.isEmpty());bridge.offer("first",null);bridge.offer("second",null);bridge.offer("third",null);
+        assertEquals(1,tasks.size());assertEquals(0L,delays.get(0));tasks.get(0).run();verify(bot,times(1)).sendChat(any(),any());
+        assertEquals(2,tasks.size());assertTrue(delays.get(1)>=500);time.advance(1);tasks.get(1).run();time.advance(1);tasks.get(2).run();
+        assertEquals(0,bridge.queued());assertEquals(3,tasks.size());verify(bot,times(3)).sendChat(any(),any());
+        verify(executor,never()).scheduleWithFixedDelay(any(),anyLong(),anyLong(),any());
+    }
+    @Test void delayedOutgoingWakeCannotSendInvalidatedWork()throws Exception{
+        var workerField=ChatBridge.class.getDeclaredField("worker");workerField.setAccessible(true);((ScheduledExecutorService)workerField.get(bridge)).shutdownNow();
+        var executor=mock(ScheduledExecutorService.class);workerField.set(bridge,executor);List<Runnable> tasks=new ArrayList<>();
+        doAnswer(i->{tasks.add(i.getArgument(0));return mock(ScheduledFuture.class);}).when(executor).schedule(any(Runnable.class),anyLong(),eq(TimeUnit.MILLISECONDS));
+        bridge.start();bridge.offer("stale",null);assertEquals(1,tasks.size());bridge.invalidate();tasks.get(0).run();
+        assertEquals(1,tasks.size());assertEquals(0,bridge.queued());verify(bot,never()).sendChat(any(),any());
+    }
+    @Test void referencedIdentitySurvivesTheWholeIncomingPipeline(){
+        var spigot=mock(Player.Spigot.class);when(player.spigot()).thenReturn(spigot);
+        var event=incoming("identity-reply",CHANNEL,"**Hello**");Message referenced=mock(Message.class);User author=mock(User.class);
+        when(author.getName()).thenReturn("_claww_");when(referenced.getAuthor()).thenReturn(author);when(event.getMessage().getReferencedMessage()).thenReturn(referenced);
+        bridge.receive(event,7);var text=org.mockito.ArgumentCaptor.forClass(net.md_5.bungee.api.chat.BaseComponent.class);verify(spigot).sendMessage(text.capture());
+        assertTrue(text.getValue().toPlainText().endsWith("↪ _claww_ — Hello"));
+    }
+    public static class FailingChatEvent extends org.bukkit.event.Event {
+        int calls;
+        public Player getPlayer(){calls++;throw new IllegalStateException("temporary player access failure");}
+        @Override public org.bukkit.event.HandlerList getHandlers(){return new org.bukkit.event.HandlerList();}
+    }
+    @Test void wrappedTransientPaperFailureDoesNotPermanentlyDisableAdapter()throws Exception{
+        ChatEvents events=new ChatEvents(plugin);var callback=ChatEvents.class.getDeclaredMethod("paper",org.bukkit.event.Event.class);callback.setAccessible(true);
+        FailingChatEvent first=new FailingChatEvent(),second=new FailingChatEvent();callback.invoke(events,first);callback.invoke(events,second);
+        assertEquals(1,first.calls);assertEquals(1,second.calls);assertEquals("",events.problem("en"));assertEquals(0,bridge.queued());verify(plugin,times(1)).warn("setup-chat-adapter");
+    }
+    @Test void missingPaperMethodPermanentlyStopsIncompatibleAdapter()throws Exception{
+        ChatEvents events=new ChatEvents(plugin);var callback=ChatEvents.class.getDeclaredMethod("paper",org.bukkit.event.Event.class);callback.setAccessible(true);
+        callback.invoke(events,new org.bukkit.event.Event(){@Override public org.bukkit.event.HandlerList getHandlers(){return new org.bukkit.event.HandlerList();}});
+        FailingChatEvent later=new FailingChatEvent();callback.invoke(events,later);
+        assertEquals(0,later.calls);assertFalse(events.problem("en").isEmpty());assertEquals(0,bridge.queued());
+    }
+    @Test void blockedChatNotifiesAdministratorsOnceWithoutForwarding() {
+        org.bukkit.plugin.Plugin other=mock(org.bukkit.plugin.Plugin.class);
+        when(other.getName()).thenReturn("ExampleChat");
+        var listener=new org.bukkit.plugin.RegisteredListener(new org.bukkit.event.Listener(){},(l,e)->{},org.bukkit.event.EventPriority.NORMAL,other,false);
+        AsyncPlayerChatEvent.getHandlerList().register(listener);
+        try {
+            ChatEvents events=new ChatEvents(plugin);
+            for(int i=0;i<2;i++)events.legacy(new AsyncPlayerChatEvent(false,player,"private",new HashSet<>(Set.of(player))));
+            assertEquals(0,bridge.queued());
+            verify(plugin,times(1)).warn("setup-chat-conflict");
+        } finally {AsyncPlayerChatEvent.getHandlerList().unregister(listener);}
+    }
     static final String CHANNEL="423456789012345678",GUILD="123456789012345678";
     @TempDir Path folder;Configuration config;DyDiscord plugin;Bot bot;ChatBridge bridge;TestSupport.Time time;Player player;Server server;
     @BeforeEach void setup()throws Exception{
@@ -112,8 +173,8 @@ class ChatBridgeTest {
     }
     @Test void bundledIncomingFormatHasGrayTextAndDarkGraySeparator(){
         var text=ChatText.minecraft(plugin.messages().get(true,"tr","chat-to-minecraft"),"VIP",0xabcdef,"Alice","Hello");
-        assertEquals("[Discord] VIP Alice >> Hello",text.toPlainText());
-        assertTrue(text.getExtra().stream().anyMatch(part->part.toPlainText().contains(">>")&&part.getColor().equals(net.md_5.bungee.api.ChatColor.DARK_GRAY)));
+        assertEquals("[Discord] VIP Alice » Hello",text.toPlainText());
+        assertTrue(text.getExtra().stream().anyMatch(part->part.toPlainText().contains("»")&&part.getColor().equals(net.md_5.bungee.api.ChatColor.DARK_GRAY)));
         assertTrue(text.getExtra().stream().anyMatch(part->part.toPlainText().equals("Hello")&&part.getColor().equals(net.md_5.bungee.api.ChatColor.GRAY)));
     }
     @Test void delayedIncomingWorkExpiresBeforeTouchingPlayers(){List<Runnable> tasks=new ArrayList<>();doAnswer(i->{tasks.add(i.getArgument(0));return null;}).when(plugin).onMain(any());var spigot=mock(Player.Spigot.class);when(player.spigot()).thenReturn(spigot);bridge.receive(incoming("one",CHANNEL,"Hello"),7);time.advance(6);tasks.forEach(Runnable::run);verifyNoInteractions(spigot);}
@@ -122,7 +183,7 @@ class ChatBridgeTest {
     @Test void privateTeamDeathsAndHiddenKillersAreNotDisclosed(){assertTrue(bridge.publicDeath(player,"Alice fell"));org.bukkit.scoreboard.Scoreboard board=mock(org.bukkit.scoreboard.Scoreboard.class);org.bukkit.scoreboard.Team team=mock(org.bukkit.scoreboard.Team.class);when(player.getScoreboard()).thenReturn(board);when(board.getEntryTeam("Alice")).thenReturn(team);when(team.getOption(org.bukkit.scoreboard.Team.Option.DEATH_MESSAGE_VISIBILITY)).thenReturn(org.bukkit.scoreboard.Team.OptionStatus.NEVER);assertFalse(bridge.publicDeath(player,"Alice fell"));when(team.getOption(org.bukkit.scoreboard.Team.Option.DEATH_MESSAGE_VISIBILITY)).thenReturn(org.bukkit.scoreboard.Team.OptionStatus.FOR_OWN_TEAM);assertFalse(bridge.publicDeath(player,"Alice fell"));when(team.getOption(org.bukkit.scoreboard.Team.Option.DEATH_MESSAGE_VISIBILITY)).thenReturn(org.bukkit.scoreboard.Team.OptionStatus.ALWAYS);Player hidden=mock(Player.class);when(hidden.getUniqueId()).thenReturn(UUID.randomUUID());when(hidden.getName()).thenReturn("HiddenAdmin");when(hidden.getMetadata(anyString())).thenReturn(List.of());MetadataValue flag=mock(MetadataValue.class);when(flag.asBoolean()).thenReturn(true);when(hidden.getMetadata("vanished")).thenReturn(List.of(flag));when(player.getKiller()).thenReturn(hidden);assertFalse(bridge.publicDeath(player,"Alice was slain"));when(player.getKiller()).thenReturn(null);doReturn(List.of(player,hidden)).when(server).getOnlinePlayers();assertFalse(bridge.publicDeath(player,"Alice was slain by HiddenAdmin"));}
     @Test void eachPublicEventIsQueuedOnceAndSuppressedOrHiddenEventsAreIgnored()throws Exception{
         config.change("bot.yml","chat.events.join.enabled",true);config.change("bot.yml","chat.events.quit.enabled",true);config.change("bot.yml","chat.events.death.enabled",true);ChatEvents events=new ChatEvents(plugin);PlayerJoinEvent join=new PlayerJoinEvent(player,"joined");events.join(join);events.join(join);assertEquals(1,bridge.queued());events.join(new PlayerJoinEvent(player,null));assertEquals(1,bridge.queued());PlayerQuitEvent quit=new PlayerQuitEvent(player,"quit");events.quit(quit);events.quit(quit);assertEquals(2,bridge.queued());
-        World world=mock(World.class);when(player.getWorld()).thenReturn(world);when(world.getGameRuleValue(GameRule.SHOW_DEATH_MESSAGES)).thenReturn(true);PlayerDeathEvent death=mock(PlayerDeathEvent.class);when(death.getEntity()).thenReturn(player);when(death.getDeathMessage()).thenReturn("Alice fell from a high place");events.death(death);events.death(death);assertEquals(3,bridge.queued());bridge.flush();bridge.flush();bridge.flush();var payload=org.mockito.ArgumentCaptor.forClass(ChatBridge.Outgoing.class);verify(bot,times(3)).sendChat(payload.capture(),any());assertEquals("Alice fell from a high place",payload.getAllValues().get(2).text());assertNotNull(payload.getAllValues().get(2).color());
+        World world=mock(World.class);when(player.getWorld()).thenReturn(world);when(world.getGameRuleValue(GameRule.SHOW_DEATH_MESSAGES)).thenReturn(true);PlayerDeathEvent death=mock(PlayerDeathEvent.class);when(death.getEntity()).thenReturn(player);when(death.getDeathMessage()).thenReturn("Alice fell from a high place");events.death(death);events.death(death);assertEquals(3,bridge.queued());bridge.flush();time.advance(1);bridge.flush();time.advance(1);bridge.flush();var payload=org.mockito.ArgumentCaptor.forClass(ChatBridge.Outgoing.class);verify(bot,times(3)).sendChat(payload.capture(),any());assertEquals("Alice fell from a high place",payload.getAllValues().get(2).text());assertNotNull(payload.getAllValues().get(2).color());
         when(world.getGameRuleValue(GameRule.SHOW_DEATH_MESSAGES)).thenReturn(false);events.death(mock(PlayerDeathEvent.class,invocation->{if(invocation.getMethod().getName().equals("getEntity"))return player;return org.mockito.Answers.RETURNS_DEFAULTS.answer(invocation);}));assertEquals(0,bridge.queued());MetadataValue vanished=mock(MetadataValue.class);when(vanished.asBoolean()).thenReturn(true);when(player.getMetadata("vanished")).thenReturn(List.of(vanished));events.join(new PlayerJoinEvent(player,"joined"));events.quit(new PlayerQuitEvent(player,"quit"));assertEquals(0,bridge.queued());
     }
     public static class ServerState {private final boolean stop;public ServerState(boolean stop){this.stop=stop;}public boolean isStopping(){return stop;}}

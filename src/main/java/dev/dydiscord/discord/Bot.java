@@ -75,7 +75,7 @@ public final class Bot {
             if(plugin.roles()!=null)plugin.roles().refresh();if(plugin.boosts()!=null)plugin.boosts().refresh();if(plugin.chat()!=null)plugin.chat().invalidate();if(plugin.linking()!=null)plugin.linking().invalidate();if(plugin.console()!=null)plugin.console().invalidate();
             stopped=generation.incrementAndGet();state=State.STOPPING;forms.clear();prefixLimit.clear();interactionLimit.clear();modalLimit.clear();activeLanguage="";old=jda;jda=null;
         }
-        if(old!=null){old.removeEventListener(old.getRegisteredListeners().toArray());old.shutdownNow();try{if(!old.awaitShutdown(4,TimeUnit.SECONDS))plugin.getLogger().warning("Discord shutdown timed out; connection was cancelled.");}catch(InterruptedException e){Thread.currentThread().interrupt();}}
+        if(old!=null){old.removeEventListener(old.getRegisteredListeners().toArray());old.shutdownNow();try{if(!old.awaitShutdown(4,TimeUnit.SECONDS))plugin.getLogger().warning(dev.dydiscord.language.ConsoleDiagnostics.text(plugin,"error-discord-shutdown",java.util.Map.of()));}catch(InterruptedException e){Thread.currentThread().interrupt();}}
         synchronized(this){if(generation()==stopped)state=State.DISABLED;}
       }
     }
@@ -136,7 +136,9 @@ public final class Bot {
         lines.add("Panel: "+(!s.panelEnabled()?(tr?"kapalı":"disabled"):panel.current()==null?(tr?"henüz gönderilmedi":"missing"):panel.current().message().equals("pending")?(tr?"yenilenmesi gerekiyor":"repair required"):(tr?"kayıtlı":"recorded"))+(tr?" | Konsol kayıtları: ":" | Console relay: ")+toggle(s.consoleEnabled(),tr)+(tr?" | Discord'dan komut çalıştırma: ":" | Commands: ")+toggle(s.commandsEnabled(),tr)+" | Message Content: "+toggle(content,tr));
         if(!plugin.console().attached())lines.add(tr?"Sunucu kayıtları Discord'a aktarılamıyor; kayıt altyapısına erişilemiyor.":"Log relay: logging backend unavailable.");
         if(applied!=null&&applied.needsRestart(s))lines.add(tr?"Bot yeniden başlatılmalı.":"Bot restart required.");
-        lines.add((tr?"Sohbet: ":"Chat: ")+toggle(s.chat().toDiscord(),tr)+" MC → DC | "+toggle(s.chat().toMinecraft(),tr)+" DC → MC"+(plugin.chatEvents()==null?"":" | "+plugin.chatEvents().adapter()));
+        String chatProblem=s.chat().toDiscord()&&plugin.chatEvents()!=null?plugin.chatEvents().problem(language):"";
+        lines.add((tr?"Sohbet: ":"Chat: ")+(chatProblem.isEmpty()?toggle(s.chat().toDiscord(),tr):(tr?"duraklatıldı":"paused"))+" MC → DC | "+toggle(s.chat().toMinecraft(),tr)+" DC → MC"+(plugin.chatEvents()==null?"":" | "+plugin.chatEvents().adapter()));
+        if(!chatProblem.isEmpty())lines.add(chatProblem);
         if(doctor){if(s.token().isEmpty())lines.add((tr?"Doldurulması gerekiyor: ":"Missing: ")+"bot.yml token");if(s.guild().isEmpty())lines.add((tr?"Doldurulması gerekiyor: ":"Missing: ")+"bot.yml guild-id");if(s.panelEnabled()&&s.panelChannel().isEmpty())lines.add((tr?"Doldurulması gerekiyor: ":"Missing: ")+"bot.yml panel.channel-id");if(!content&&(s.prefixEnabled()||s.commandsEnabled()||s.chat().toMinecraft()))lines.add(tr?"Developer Portal'da Message Content iznini açın. Bu izin olmadan yalnızca / komutları ve hesap paneli kullanılabilir.":"Enable Message Content intent or use slash/panel only.");
             if(usable()){for(String id:List.of(s.panelEnabled()?s.panelChannel():"",s.consoleChannel(),s.chat().channel()))if(!id.isEmpty())try{validateChannel(id,id.equals(s.consoleChannel()));lines.add((tr?"Kanal ":"Channel ")+id+(tr?": doğrulandı":": validated"));}catch(Exception e){lines.add((tr?"Kanal ":"Channel ")+id+(tr?": erişilemiyor, izin eksik veya görünürlük güvenli değil":": unavailable, missing permissions or unsafe visibility"));}}
         }
@@ -202,7 +204,7 @@ public final class Bot {
     public void reconcilePanelMode(){
         if(!usable()||applied==null||!applied.guild().equals(plugin.settings().guild()))return;
         try{if(panel.current()!=null&&!panel.current().guild().equals(applied.guild()))throw new IllegalStateException("Panel guild mismatch");if(!plugin.settings().panelEnabled()){if(panel.current()!=null)panel.disable(transport(generation()));}else if(!plugin.settings().panelChannel().isEmpty())refreshPanel();}
-        catch(Exception failure){plugin.error(failure);plugin.getLogger().warning("Panel delivery is pending. Check bot.yml panel.channel-id and the bot's View Channel, Send Messages, Embed Links and Read Message History permissions; use /dydiscord admin panel refresh after fixing setup.");}
+        catch(Exception failure){plugin.error(failure);plugin.getLogger().warning(dev.dydiscord.language.ConsoleDiagnostics.text(plugin,"error-panel-pending",java.util.Map.of()));}
     }
     public String commandPrompt(String action){if(!Set.of("link","account","unlink").contains(action))throw new IllegalArgumentException();return text("commands-prompt",Map.of("command","/"+Words.display(action,activeLanguage())));}
     private String accountHelp(){return text(plugin.settings().panelEnabled()?"help":"commands-help",Map.of());}
@@ -217,17 +219,27 @@ public final class Bot {
         public String create(String channel)throws Exception{return await(ch(channel).sendMessage(PanelView.create(panelCard())).setAllowedMentions(List.of()).setCheck(()->alive(g))).getId();}
     };}
     private void register(long g)throws Exception{
-        Guild guild=guild();if(guild==null)throw new IllegalStateException("Configured guild is unavailable");Set<String> owned=plugin.store().commands(guild.getId());List<Command> existing=await(guild.retrieveCommands());Set<String> newIds=new HashSet<>();String lang=applied.botLanguage();
+        long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(90);
+        Guild guild=guild();if(guild==null)throw new IllegalStateException("Configured guild is unavailable");Set<String> owned=plugin.store().commands(guild.getId());List<Command> existing=awaitRegistration(guild.retrieveCommands(),g,deadline);Set<String> newIds=new HashSet<>();String lang=applied.botLanguage();
         for(String function:List.of("help","link","account","unlink","status","server","players","ip","links")){
             if(!alive(g))throw new IllegalStateException("Expired bot session");
             String name=Words.display(function,lang);if(existing.stream().anyMatch(c->c.getName().equals(name)&&!owned.contains(c.getId())))throw new IllegalStateException("Unmanaged slash name collision");
             String description=plugin.messages().get(true,lang,"slash-"+function);
             Command previous=existing.stream().filter(c->c.getName().equals(name)).findFirst().orElse(null);
             if(previous!=null&&previous.getType()==Command.Type.SLASH&&description.equals(previous.getDescription())&&previous.getOptions().isEmpty()){newIds.add(previous.getId());continue;}
-            Command command=await(guild.upsertCommand(Commands.slash(name,description)).setCheck(()->alive(g)));plugin.store().command(guild.getId(),command.getId());newIds.add(command.getId());
+            Command command=awaitRegistration(guild.upsertCommand(Commands.slash(name,description)),g,deadline);if(!alive(g))throw new IllegalStateException("Expired bot session");plugin.store().command(guild.getId(),command.getId());newIds.add(command.getId());
         }
-        for(Command command:existing)if(owned.contains(command.getId())&&!newIds.contains(command.getId())){await(guild.deleteCommandById(command.getId()).setCheck(()->alive(g)));plugin.store().forgetCommand(command.getId());}
+        for(Command command:existing)if(owned.contains(command.getId())&&!newIds.contains(command.getId())){awaitRegistration(guild.deleteCommandById(command.getId()),g,deadline);if(!alive(g))throw new IllegalStateException("Expired bot session");plugin.store().forgetCommand(command.getId());}
         synchronized(this){if(!alive(g))throw new IllegalStateException("Expired bot session");activeLanguage=lang;}
+    }
+    /** Startup registration shares one bounded budget, including JDA's rate-limit wait. */
+    private <T> T awaitRegistration(RestAction<T> action,long session,long deadline)throws Exception{
+        long remaining=deadline-System.nanoTime();if(remaining<=0)throw new TimeoutException("Command registration deadline exceeded");
+        if(!alive(session))throw new IllegalStateException("Expired bot session");
+        var pending=action.setCheck(()->alive(session)&&System.nanoTime()<deadline).timeout(remaining,TimeUnit.NANOSECONDS).submit();
+        try{return pending.get(remaining+TimeUnit.SECONDS.toNanos(2),TimeUnit.NANOSECONDS);}
+        catch(ExecutionException failure){if(failure.getCause() instanceof Exception cause)throw cause;throw failure;}
+        catch(TimeoutException|InterruptedException failure){pending.cancel(true);if(failure instanceof InterruptedException)Thread.currentThread().interrupt();throw failure;}
     }
     private boolean context(Interaction interaction,long g){return alive(g)&&usable()&&interaction.isFromGuild()&&interaction.getGuild()!=null&&interaction.getGuild().getId().equals(applied.guild())&&interaction.getMember()!=null&&!interaction.getUser().isBot();}
     private static Throwable failureCause(Throwable failure){while((failure instanceof CompletionException||failure instanceof ExecutionException)&&failure.getCause()!=null)failure=failure.getCause();return failure;}
@@ -260,7 +272,7 @@ public final class Bot {
         @Override public void onGuildMemberUpdateBoostTime(GuildMemberUpdateBoostTimeEvent event){if(alive(g)&&usable()&&event.getGuild().getId().equals(applied.guild())&&plugin.boosts()!=null)plugin.boosts().signal(event.getUser().getId());}
         @Override public void onRoleUpdatePermissions(RoleUpdatePermissionsEvent event){if(alive(g)&&usable()&&event.getGuild().getId().equals(applied.guild())&&plugin.roles()!=null)plugin.roles().requestSweep();}
         private void degraded(Exception failure){synchronized(Bot.this){if(!alive(g))return;state=State.DEGRADED;plugin.warn("setup-connection-failed");plugin.error(failure);}}
-        @Override public void onSessionDisconnect(SessionDisconnectEvent event){synchronized(Bot.this){if(!alive(g))return;state=State.DEGRADED;if(plugin.roles()!=null)plugin.roles().refresh();if(plugin.boosts()!=null)plugin.boosts().refresh();plugin.linking().invalidate();plugin.console().invalidate();if(plugin.chat()!=null)plugin.chat().invalidate();Instant now=plugin.clock().instant();if(now.isAfter(lastWarning.plusSeconds(60))){lastWarning=now;plugin.getLogger().warning("Discord connection lost. Retrying shortly.");}}}
+        @Override public void onSessionDisconnect(SessionDisconnectEvent event){synchronized(Bot.this){if(!alive(g))return;state=State.DEGRADED;if(plugin.roles()!=null)plugin.roles().refresh();if(plugin.boosts()!=null)plugin.boosts().refresh();plugin.linking().invalidate();plugin.console().invalidate();if(plugin.chat()!=null)plugin.chat().invalidate();Instant now=plugin.clock().instant();if(now.isAfter(lastWarning.plusSeconds(60))){lastWarning=now;plugin.getLogger().warning(dev.dydiscord.language.ConsoleDiagnostics.text(plugin,"error-discord-disconnected",java.util.Map.of()));}}}
         private void recovered(){synchronized(Bot.this){if(!alive(g))return;state=intentsReady()&&!activeLanguage.isEmpty()?State.CONNECTED:State.DEGRADED;}if(plugin.roles()!=null)plugin.roles().refresh();if(plugin.boosts()!=null)plugin.boosts().refresh();if(plugin.giveaways()!=null)plugin.giveaways().refresh();if(usable())plugin.submit(()->{if(!alive(g))return null;reconcilePanelMode();return null;});}
         @Override public void onSessionResume(SessionResumeEvent event){recovered();}
         @Override public void onSessionRecreate(SessionRecreateEvent event){recovered();}
@@ -278,7 +290,7 @@ public final class Bot {
         }
         @Override public void onButtonInteraction(ButtonInteractionEvent event){
             if(!event.getComponentId().startsWith("dd:"))return;if(!context(event,g)){event.reply(text("no-permission",Map.of())).setEphemeral(true).queue(v->{},plugin::error);return;}
-            if(event.getComponentId().startsWith("dd:giveaway:")){if(plugin.giveaways()==null){event.reply(text("giveaway-unavailable",Map.of())).setEphemeral(true).setAllowedMentions(List.of()).queue(v->{},plugin::error);return;}if(!interactionLimit.admit(event.getUser().getId()+":giveaway")){event.reply(text("rate-limit",Map.of())).setEphemeral(true).setAllowedMentions(List.of()).queue(v->{},plugin::error);return;}plugin.giveaways().button(event,g);return;}
+            if(event.getComponentId().startsWith("dd:giveaway:")){if(plugin.giveaways()==null){event.replyComponents(dev.dydiscord.giveaway.GiveawayView.reply((key,values)->text(key,values),"giveaway-unavailable")).useComponentsV2().setEphemeral(true).setAllowedMentions(List.of()).queue(v->{},plugin::error);return;}if(!interactionLimit.admit(event.getUser().getId()+":giveaway")){event.replyComponents(dev.dydiscord.giveaway.GiveawayView.reply((key,values)->text(key,values),"rate-limit")).useComponentsV2().setEphemeral(true).setAllowedMentions(List.of()).queue(v->{},plugin::error);return;}plugin.giveaways().button(event,g);return;}
             String id=event.getComponentId(),actor=event.getUser().getId();Store.Panel p=panel.current();
             String actionKey=id.startsWith("dd:panel:")?id.substring(9):id.startsWith("dd:confirm:")?"confirm":id.startsWith("dd:cancel:")?"cancel":"unknown";
             if(!interactionLimit.admit(actor+":"+actionKey)){event.reply(text("rate-limit",Map.of())).setEphemeral(true).setAllowedMentions(List.of()).timeout(2,TimeUnit.SECONDS).queue(v->{},plugin::error);return;}

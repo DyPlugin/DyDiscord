@@ -9,6 +9,8 @@ public interface GiveawayHost {
     record Context(boolean connected,long session,String guild,GiveawaySettings settings){}
     record Member(boolean present,boolean bot,String name,Set<String> roles){public Member{roles=Set.copyOf(roles);}}
     Context context();
+    /** Identity of the loaded presentation templates; does not include secret configuration. */
+    default Object presentationVersion(){return null;}
     Member member(String guild,String discord)throws Exception;
     boolean linked(String discord)throws Exception;
     String publish(GiveawayStore.Giveaway giveaway,java.util.function.BooleanSupplier current)throws Exception;

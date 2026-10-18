@@ -17,7 +17,7 @@ public final class Ranks {
             Plugin vault=plugin.getServer().getPluginManager().getPlugin("Vault");if(vault!=null&&vault.isEnabled()){
                 Class<?> api=Class.forName("net.milkbowl.vault.chat.Chat",true,vault.getClass().getClassLoader());Object provider=service(api);if(provider!=null){String prefix=clean(api.getMethod("getPlayerPrefix",Player.class).invoke(provider,player));if(!prefix.isEmpty())return prefix;String group=clean(api.getMethod("getPrimaryGroup",Player.class).invoke(provider,player));if(!group.equalsIgnoreCase("default"))return group;}
             }
-        }catch(ReflectiveOperationException|LinkageError|RuntimeException failure){if(!warned){warned=true;plugin.getLogger().warning("Chat rank provider unavailable; messages continue without a rank (values withheld).");}}
+        }catch(ReflectiveOperationException|LinkageError|RuntimeException failure){if(!warned){warned=true;plugin.getLogger().warning(dev.dydiscord.language.ConsoleDiagnostics.text(plugin,"error-chat-ranks",java.util.Map.of()));}}
         return "";
     }
     @SuppressWarnings({"rawtypes","unchecked"}) private Object service(Class<?> type){return plugin.getServer().getServicesManager().load((Class)type);}

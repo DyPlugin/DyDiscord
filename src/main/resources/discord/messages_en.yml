@@ -112,7 +112,7 @@ server-info-version: "Minecraft version"
 
 chat-to-discord: "{rank}{name} **»** {message}"
 # Normal Minecraft chat. {rank} includes bold text and a trailing space when present.
-chat-to-minecraft: "&9[Discord] &7{role}&f{name} &8>> &7{message}"
+chat-to-minecraft: "&9[Discord] &7{role}&f{name} &8» &7{message}"
 # Minecraft colors apply only to this template; {role} adds a space only when present.
 chat-join: "{name} joined the server."
 # Public join event. Keep {name} unchanged.
@@ -157,7 +157,7 @@ giveaway-title: "Giveaway"
 # Giveaway card text and private participation responses; never mention users.
 giveaway-enter: "Enter"
 # Text shown for giveaway enter.
-giveaway-open: "Prize: {prize}\nWinners: {winners}\nEnds: {ends}\nSelect Enter to participate. One entry per account."
+giveaway-open: "Prize: {prize}\nWinners: {winners}\nEnds: {ends}\n\nSelect Enter to participate. One entry per account."
 # Text shown for giveaway open.
 giveaway-drawn: "Prize: {prize}\nWinners: {winners}"
 # Text shown for giveaway drawn.
@@ -177,6 +177,20 @@ giveaway-ineligible: "You do not meet the entry requirements."
 # Text shown for giveaway ineligible.
 giveaway-unavailable: "This giveaway is temporarily unavailable. Please try again later."
 # Text shown for giveaway unavailable.
+giveaway-leave: "Leave"
+# Text shown for giveaway leave.
+giveaway-leave-cancel: "Cancel"
+# Text shown for giveaway leave cancel.
+giveaway-leave-confirm: "Leave this giveaway?\n\nYour entry stays until you confirm. This request expires in 60 seconds."
+# Text shown for giveaway leave confirm.
+giveaway-left: "You have left this giveaway."
+# Text shown for giveaway left.
+giveaway-leave-cancelled: "You are still entered in this giveaway."
+# Text shown for giveaway leave cancelled.
+giveaway-leave-expired: "This confirmation has expired or was already used. Select Leave again."
+# Text shown for giveaway leave expired.
+giveaway-not-entered: "You have not entered this giveaway."
+# Text shown for giveaway not entered.
 
 account-date: "Linked on: {date}"
 # Editable display text; reload applies.

@@ -17,7 +17,7 @@ class SimplifiedChatCommandsTest {
  @TempDir Path folder;
  DyDiscord host;Configuration config;CommandSender sender;CommunityCommands commands;
  @BeforeEach void setup()throws Exception{
-  config=spy(TestSupport.config(folder));host=mock(DyDiscord.class);sender=mock(CommandSender.class);
+  Configuration initial=TestSupport.config(folder);initial.change("bot.yml",Map.of("chat.discord-to-minecraft",false,"chat.minecraft-to-discord",false),null);config=spy(initial);host=mock(DyDiscord.class);sender=mock(CommandSender.class);
   when(host.configuration()).thenReturn(config);when(host.settings()).thenAnswer(c->config.active().settings());when(host.bot()).thenReturn(mock(Bot.class));when(host.chat()).thenReturn(mock(ChatBridge.class));when(host.language(any())).thenReturn("tr");when(host.messages()).thenAnswer(c->config.active().messages());when(sender.hasPermission(anyString())).thenReturn(true);
   doAnswer(c->((Callable<?>)c.getArgument(0)).call()).when(host).mainValue(any());
   doAnswer(c->{try{return CompletableFuture.completedFuture(((Callable<?>)c.getArgument(0)).call());}catch(Exception e){return CompletableFuture.failedFuture(e);}}).when(host).submit(any());commands=new CommunityCommands(host);

@@ -1,9 +1,8 @@
-# DyDiscord 1.0.1
+# DyDiscord 1.0.2
 
-1.0.1 kurulumu kolaylaştırır: yeni dosyalarda bot bağlantısı ve konsol kayıt
-aktarımı açıktır; bağlantı için token/sunucu, aktarım için erişilebilir ayrı kanal
-ayarlanmalıdır. Uzaktan konsol komutları ayrıca açılır. Eski açık/kapalı
-tercihleriniz korunur. Token için yerel dosya düzenleme önerilir; aşağıdaki oyuncuya özel süreli giriş de kullanılabilir.
+Yeni kurulumlarda sohbetin iki yönü ve giriş/çıkış/ölüm bildirimleri açıktır; ayrı sohbet kanalı ayarlanmadan mesaj gönderilmez. Konsol aktarımı kapalı başlar; altındaki komut ayarı açıktır ancak rol, Administrator ve güncel kanal erişimi kontrolleri geçerlidir. Mevcut tercihler korunur. Token yalnızca bot.yml veya ortam değişkeninden girilir.
+
+`/dyd` oyuncu komutlarının, `/dyda` yönetimin kısayoludur. Yönetim önerileri yetkiye göre gizlenir. Çekiliş kartları Container düzenindedir; ayrılmak için süreli buton onayı gerekir. Konsol hataları etkin Türkçe/İngilizce dilinde açıklanır. [Bu sürümün doğrulaması](release-1.0.2-verification.md).
 
 `/dydiscord admin panel kanal <id>` ilk paneli bot bağlandığında otomatik gönderir.
 Yenileme ve yeniden bağlantı aynı paneli kullanır. Yönetici yardımı sekizer
@@ -12,7 +11,7 @@ yanıtları düzenli embed kullanır. Rütbeler Discord'daki gerçek birincil RG
 rengiyle gösterilir; gradyan rollerin ilk rengi alınır. Başlangıç/kanal/izin ve
 intent hataları artık ilgili ayara yönlendirir. [Doğrulama kaydı](release-1.0.1-verification.md).
 
-Küçük `DyDiscord-1.0.1.jar`, kütüphaneleri ilk kurulumda Spigot/Paper'ın
+Küçük `DyDiscord-1.0.2.jar`, kütüphaneleri ilk kurulumda Spigot/Paper'ın
 yerleşik yükleyicisiyle indirir; sunucunun kütüphane önbelleğinde saklanırlar.
 İlk kurulum internet gerektirir ve daha uzun sürebilir. Bağımlılıklar alınamazsa
 eklenti yüklenemez. Çevrimdışı kurulum için `-standalone.jar` tam paketini kullanın.
@@ -34,7 +33,7 @@ gösterir. [Panel/komut modu rehberi](panel-mode.md).
 Discord botu çalıştırır. Özel hesap eşleme ve isteğe bağlı konsol kanalı sunar.
 Ayrı Node.js botu veya harici veritabanı gerekmez. İngilizce ve Türkçe dahildir.
 
-Bu sürüm 1.0.1 adını kullanır; otomatik kontroller uygulanır. Gerçek Minecraft/Discord,
+Bu sürüm 1.0.2 adını kullanır; otomatik kontroller uygulanır. Gerçek Minecraft/Discord,
 istemci ve mobil testleri tamamlanmadığı için yayına hazır kabul edilmez.
 Uyumluluk adayları ve test sonuçları [test belgesindedir](compatibility-test.md).
 Proje, DyClaim'e benzer GPL v3 ve ek koşullar içeren lisans metnini kullanır.
@@ -90,15 +89,15 @@ JDK 25.0.4.1 ile Java 17 bytecode ve Spigot API 1.20.4 tabanı derlendi.
 Bu bilgi gerçek sunucu uyumluluğu kanıtı değildir. Folia, proxy,
 Floodgate/Bedrock ve sunucu açıkken JAR değiştirme desteği ilan edilmez.
 
-1. `build/libs/DyDiscord-1.0.1.jar` dosyasını `plugins` dizinine koyup
+1. `build/libs/DyDiscord-1.0.2.jar` dosyasını `plugins` dizinine koyup
    sunucuyu başlatın. `plain` JAR kurulmaz. Ayarlar, mesajlar ve SQLite oluşturulur.
-   Yeni kurulumda bot ve log aktarımı ayarları açıktır; token/sunucu ve güvenli
-   ayrı kanal tanımlanana kadar işlem yapılmaz. Uzaktan komutlar varsayılan kapalıdır.
+   Yeni kurulumda bot bağlantısı açık, konsol aktarımı kapalıdır; token/sunucu ve
+   ayrı kanal tanımlanana kadar işlem yapılmaz. Komut alt ayarı açıktır; yetkili rol/Administrator ve güncel erişim denetimleri korunur.
 2. [Discord Developer Portal](https://discord.com/developers/applications)
    üzerinden kendi botunuzu oluşturun. `bot` ve `applications.commands` kapsamları
    ile davet edin. Bot hesabına Administrator vermeyin.
 3. Yerel `plugins/DyDiscord/bot.yml` içinde token ve tırnaklı `guild-id` yazın.
-   `DYDISCORD_BOT_TOKEN` ortam değişkeni dosyanın önüne geçer. Alternatif olarak yetkili çevrimiçi oyuncu `/dyda bot guild <id>` ve değer almayan `/dyda bot token` kullanabilir. Token girişi 60 saniye geçerlidir: sonraki `/` ile başlayan girdiye yalnızca tokeni yazın; `/dyda iptal` ile vazgeçin. Eklenti girdiyi iptal edip yönlendirmeden önce temizler; istemci geçmişi ve başka eklentilerin kayıtları garanti edilemez, bu yüzden yerel dosya önerilir. Ortam tokeni etkinse bu giriş kabul edilmez. Çıkış, yenileme, yeniden başlatma veya izin kaybı oturumu geçersiz kılar. Başarılı kayıt botu yeniden başlatır. Tokeni destek raporlarına koymayın; aynı token başka süreçte kullanılmaz.
+   `DYDISCORD_BOT_TOKEN` ortam değişkeni dosyanın önüne geçer. Token komutla girilmez; destek raporlarına koymayın. Aynı tokeni başka bot süreciyle paylaşmayın.
 4. `/dydiscord admin davet https://discord.gg/Kodunuz` ile daveti ayarlayın.
    `config.yml` içinde `server-name` değerini düzenleyin. Dosya değişikliklerinden
    sonra `/dydiscord admin yenile` kullanın. Botu daha önce kapattıysanız
@@ -201,7 +200,6 @@ Yerel konsol ve RCON yönetebilir; oyuncunun kendi hesabı oyuncu gerektirir.
 | `help [page]` / `yardım [sayfa]` | erişilebilir en az bir yönetici yaprağı |
 | `önek <metin>` | `prefix` |
 | `bot sunucu <id>` | `bot.guild` |
-| `bot token` (değer almayan, sadece oyuncu) | `bot.token` |
 | `sohbet discord-minecraft <aç\|kapat>` (Discord → Minecraft) | `chat` |
 | `sohbet minecraft-discord <aç\|kapat>` (Minecraft → Discord) | `chat` |
 | `sohbet tümü <aç\|kapat>` | `chat` |

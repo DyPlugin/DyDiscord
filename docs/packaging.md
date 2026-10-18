@@ -1,3 +1,14 @@
+# Distribution packaging — 1.0.2
+
+| Artifact | Bytes | Purpose |
+| --- | ---: | --- |
+| `DyDiscord-1.0.2.jar` | 2193177 | Default; server-managed library download/cache |
+| `DyDiscord-1.0.2-standalone.jar` | 24112176 | Bundled alternative for offline dependency installation |
+
+Install one package. Both have the same features and Java 17 target. The 699-test clean build and a second clean packaging build reproduced both hashes. Standalone retains all 20 SQLite native files, service metadata and dependency notices. See [artifact hashes and limits](release-1.0.2-verification.md).
+
+## Earlier packaging history
+
 # Distribution packaging — 1.0.1
 
 | File | Bytes | Use |

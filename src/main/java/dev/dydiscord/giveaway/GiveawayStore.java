@@ -66,6 +66,12 @@ public final class GiveawayStore implements AutoCloseable {
         try(PreparedStatement s=db.prepareStatement("SELECT count(*) FROM entries WHERE giveaway=?")){s.setString(1,id);try(ResultSet r=s.executeQuery()){if(r.next()&&r.getInt(1)>=10000)return Entry.FULL;}}
         try(PreparedStatement s=db.prepareStatement("INSERT INTO entries VALUES(?,?)")){s.setString(1,id);s.setString(2,actor);s.executeUpdate();}return Entry.JOINED;
     });}
+    public synchronized boolean entered(String id,String actor)throws SQLException{try(PreparedStatement s=db.prepareStatement("SELECT 1 FROM entries WHERE giveaway=? AND discord=?")){s.setString(1,id);s.setString(2,actor);try(ResultSet r=s.executeQuery()){return r.next();}}}
+    public synchronized boolean leave(String id,String actor,long now)throws SQLException{
+        try(PreparedStatement s=db.prepareStatement("DELETE FROM entries WHERE giveaway=? AND discord=? AND EXISTS (SELECT 1 FROM giveaways WHERE id=? AND state='ACTIVE' AND ends_at>?)")){
+            s.setString(1,id);s.setString(2,actor);s.setString(3,id);s.setLong(4,now);return s.executeUpdate()==1;
+        }
+    }
     public synchronized List<String> entrants(String id)throws SQLException{List<String> result=new ArrayList<>();try(PreparedStatement s=db.prepareStatement("SELECT discord FROM entries WHERE giveaway=? ORDER BY discord LIMIT 10000")){s.setString(1,id);try(ResultSet r=s.executeQuery()){while(r.next())result.add(r.getString(1));}}return List.copyOf(result);}
     public synchronized boolean commitDraw(String id,List<Winner> winners)throws SQLException{return transaction(()->{
         Giveaway g=find(id).orElseThrow();if(!g.state().equals("ACTIVE"))return false;if(winners.size()>g.winnerCount())throw new SQLException("Too many giveaway winners");

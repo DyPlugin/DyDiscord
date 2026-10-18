@@ -25,7 +25,7 @@ class BoostSettingsTest {
         assertThrows(UnsupportedOperationException.class,()->settings.removeCommands().clear());
     }
     @Test void rejectsUnsafeUntargetedAndUnknownPlaceholderCommands() {
-        for(String command:List.of("", " ","money add {player} 10\nstop", "money\tadd {player} 10",
+        for(String command:List.of(" ","money add {player} 10\nstop", "money\tadd {player} 10",
             "money add {player} 10\u0000", "money add {player} 10\u2028", "money add {discord} 10","money add {player} {amount}",
             "money add {player 10", "money add player} 10","money give Alice 10","{player} give 10", "//money give {player} 10")) {
             var error=assertThrows(IllegalArgumentException.class,()->read(Map.of("commands",List.of(command))),command);
@@ -63,8 +63,8 @@ class BoostSettingsTest {
         try(var stream=getClass().getResourceAsStream("/bot.yml")) {
             var bot=Configuration.parse(new String(stream.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8));
             assertEquals(false,Settings.get(bot,"boost-rewards.enabled",null));
-            assertEquals(List.of(),Settings.get(bot,"boost-rewards.commands",null));
-            assertEquals(List.of(),Settings.get(bot,"boost-rewards.remove-commands",null));
+            assertEquals(List.of(),BoostSettings.read(bot).commands());
+            assertEquals(List.of(),BoostSettings.read(bot).removeCommands());
         }
     }
 }

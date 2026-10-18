@@ -25,25 +25,25 @@ panel:
   # Blank uses the Discord server icon. Optional HTTPS image URL; panel refresh applies it.
 console:
 # Server-console output channel; viewing it does not grant permission to run commands.
-  enabled: true
+  enabled: false
   # Relay actual INFO/WARN/ERROR output to the configured channel; a blank channel disables delivery. Reload applies.
   channel-id: ""
   # Guild text channel ID, quoted as text. Public channels are allowed; command access requires separate authorization.
   commands:
   # These users receive full Minecraft console power; linking does not grant access.
-    enabled: false
+    enabled: true
     # Allow new authorized messages to run Minecraft commands; requires bot restart.
     allow-administrator: true
     # Let Discord Administrators use the console in addition to allowed roles.
-    allowed-role-ids: []
-    # Trusted Discord role IDs as quoted strings; role names are not authorization.
+    allowed-role-ids: [""]
+    # Trusted Discord role IDs as quoted strings; [""] allows no roles. Role names are not authorization.
 
 roles:
 # Optional Minecraft -> Discord roles. Linking never grants Minecraft permissions.
   enabled: false
   # Opt in explicitly; LuckPerms is required for group rules.
-  linked-role-ids: []
-  # Quoted Discord role IDs given to verified linked accounts.
+  linked-role-ids: [""]
+  # Quoted Discord role IDs given to verified linked accounts; [""] grants no roles.
   groups: []
   # Rules: group: vip, role-ids: ["123456789012345678"], priority: 10. Group names are lowercase LuckPerms names; use a separate rule per group.
   context: {}
@@ -59,27 +59,27 @@ chat:
 # Optional public chat bridge. This channel must differ from panel and console.
   channel-id: ""
   # Public guild text channel ID, quoted as text; blank disables all chat delivery.
-  minecraft-to-discord: false
+  minecraft-to-discord: true
   # Forward public Minecraft chat. Unknown chat listeners pause this direction.
-  discord-to-minecraft: false
+  discord-to-minecraft: true
   # Forward new human Discord messages; enabling requires Message Content/bot restart.
   events:
   # Small event embeds; each event can be enabled independently.
     join:
     # Public joins only; hidden players and suppressed join messages are excluded.
-      enabled: false
+      enabled: true
       # Announce joins in the chat channel.
       color: "#55AA55"
       # Embed accent as a six-digit RGB hex color.
     quit:
     # Public quits only; hidden players and suppressed quit messages are excluded.
-      enabled: false
+      enabled: true
       # Announce quits in the chat channel.
       color: "#AAAAAA"
       # Embed accent as a six-digit RGB hex color.
     death:
     # Keep the existing death reason; suppressed death messages are excluded.
-      enabled: false
+      enabled: true
       # Announce deaths in the chat channel.
       color: "#FF5555"
       # Embed accent as a six-digit RGB hex color.
@@ -88,24 +88,24 @@ boost-rewards:
 # Optional Discord boost rewards, executed as Minecraft console commands.
   enabled: false
   # Explicit opt in. Enabling requests Server Members intent and needs bot restart. If that intent is unavailable, periodic fresh member checks continue.
-  commands: []
-  # Up to 10 commands, each at most 256 characters. Optional leading / is removed.
-  remove-commands: []
-  # Provider commands run when a recorded boost ends or its link is removed; {player}/{uuid} target the linked account.
+  commands: [""]
+  # Up to 10 console commands; {player} is the linked Minecraft name. Example: ["give {player} diamond 1"]. [""] runs nothing; max 256 characters each.
+  remove-commands: [""]
+  # Commands when a recorded boost ends or its link is removed; {player}/{uuid} target the linked account. [""] runs nothing.
   recheck-seconds: 300
   # Fresh linked-member reconciliation period, in seconds (30-3600).
   cooldown-hours: 168
   # Minimum hours between rewards for the same Discord account (168-8760).
 community:
 # Public Discord commands; empty list permits any regular text channel. Reload applies.
-  information-channel-ids: []
+  information-channel-ids: [""]
   # Channels allowed for public information commands; empty permits every regular text channel.
 link-rewards:
 # First link only, once for BOTH accounts; existing/disabled links are never rewarded later.
   enabled: false
   # Enable one-time rewards for new account links.
-  commands: []
-  # Up to ten trusted console commands; {player}/{uuid}, max 256 characters each.
+  commands: [""]
+  # Up to ten trusted console commands; {player}/{uuid} target the linked account. Example: ["give {player} diamond 1"]. [""] runs nothing; max 256 characters each.
 link-welcome:
 # Optional private welcome after permanent linking; no claim about reward success.
   minecraft: false
@@ -120,8 +120,8 @@ giveaways:
   # Use a regular guild text channel, separate from panel and console.
   require-linked: false
   # Both entry and draw verify this condition; membership failures postpone drawing.
-  allowed-role-ids: []
-  # Optional OR rule: a member must hold at least one listed role ID. Max twenty.
+  allowed-role-ids: [""]
+  # Optional OR rule: a member must hold at least one listed role ID. [""] imposes no role requirement; max twenty.
 
 account:
 # Private account details; reload applies these display options.

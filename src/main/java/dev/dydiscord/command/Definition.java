@@ -11,7 +11,6 @@ public record Definition(String path,String permission,boolean player,int argume
         d("admin invite","dydiscord.admin.invite",false,1,"invite"),d("admin language","dydiscord.admin.language",false,1,"global-language"),d("admin reload","dydiscord.admin.reload",false,0,"reload"),d("admin status","dydiscord.admin.status",false,0,"admin-status"),d("admin doctor","dydiscord.admin.doctor",false,0,"doctor"),
         new Definition("admin prefix","dydiscord.admin.prefix",false,1,true,"prefix"),
         d("admin bot guild","dydiscord.admin.bot.guild",false,1,"bot-guild"),
-        d("admin bot token","dydiscord.admin.bot.token",true,0,"bot-token"),
         d("admin bot language","dydiscord.admin.language",false,1,"bot-language"),
         d("admin bot enable","dydiscord.admin.bot",false,0,"bot-enable"),d("admin bot disable","dydiscord.admin.bot",false,0,"bot-disable"),d("admin bot restart","dydiscord.admin.bot",false,0,"bot-restart"),
         d("admin panel channel","dydiscord.admin.panel.channel",false,1,"panel-channel"),d("admin panel send","dydiscord.admin.panel.send",false,0,"panel-send"),d("admin panel refresh","dydiscord.admin.panel.refresh",false,0,"panel-refresh"),

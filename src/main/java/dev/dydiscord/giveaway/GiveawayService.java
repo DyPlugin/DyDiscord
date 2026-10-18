@@ -2,6 +2,7 @@ package dev.dydiscord.giveaway;
 
 import dev.dydiscord.DyDiscord;
 import dev.dydiscord.config.GiveawaySettings;
+import dev.dydiscord.discord.PanelView;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import java.security.SecureRandom;
 import java.time.Clock;
@@ -12,9 +13,54 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /** One bounded background worker owns the lottery. No DB or network work runs on Bukkit's thread. */
 public final class GiveawayService implements AutoCloseable {
     public enum EntryResult { JOINED, ALREADY, CLOSED, FULL, INELIGIBLE, UNAVAILABLE }
+    public enum LeaveResult { CONFIRM, LEFT, CANCELLED, EXPIRED, NOT_ENTERED, CLOSED, INELIGIBLE, UNAVAILABLE }
+    public record LeaveRequest(LeaveResult result,String token){}
+    private record LeaveConfirmation(String giveaway,String actor,GiveawayHost.Context context,String message,long expires){}
+    private final Map<String,LeaveConfirmation> confirmations=new LinkedHashMap<>();
+    public CompletableFuture<LeaveRequest> requestLeave(String id,String guild,String channel,String message,String actor,long session){
+        GiveawayHost.Context admitted=host.context();
+        return submit(()->{
+            if(!current(admitted)||admitted.session()!=session)return new LeaveRequest(LeaveResult.UNAVAILABLE,"");
+            var found=store.find(id);if(found.isEmpty())return new LeaveRequest(LeaveResult.UNAVAILABLE,"");var g=found.get();
+            if(!owns(admitted,g)||!g.guild().equals(guild)||!g.channel().equals(channel)||!g.message().equals(message))return new LeaveRequest(LeaveResult.UNAVAILABLE,"");
+            if(!g.state().equals("ACTIVE")||g.endsAt()<=clock.millis())return new LeaveRequest(LeaveResult.CLOSED,"");
+            if(!store.entered(id,actor))return new LeaveRequest(LeaveResult.NOT_ENTERED,"");
+            GiveawayHost.Member member;try{member=host.member(guild,actor);}catch(Exception e){warn();return new LeaveRequest(LeaveResult.UNAVAILABLE,"");}
+            if(!current(admitted))return new LeaveRequest(LeaveResult.UNAVAILABLE,"");
+            if(!member.present()||member.bot())return new LeaveRequest(LeaveResult.INELIGIBLE,"");
+            long now=clock.millis();confirmations.values().removeIf(value->value.expires()<=now||!value.context().equals(admitted));
+            // Only the latest request for this actor/giveaway remains usable; memory stays bounded.
+            confirmations.values().removeIf(value->value.actor().equals(actor)&&value.giveaway().equals(id));
+            if(confirmations.size()>=1024)return new LeaveRequest(LeaveResult.UNAVAILABLE,"");
+            String token=UUID.randomUUID().toString().replace("-","");confirmations.put(token,new LeaveConfirmation(id,actor,admitted,message,now+60000));
+            return new LeaveRequest(LeaveResult.CONFIRM,token);
+        });
+    }
+    public CompletableFuture<LeaveResult> finishLeave(String token,String guild,String channel,String actor,long session,boolean confirm){return submit(()->{
+        LeaveConfirmation pending=confirmations.get(token);if(pending==null)return LeaveResult.EXPIRED;
+        var c=pending.context();
+        if(!pending.actor().equals(actor)||!c.guild().equals(guild)||!c.settings().channel().equals(channel))return LeaveResult.UNAVAILABLE;
+        confirmations.remove(token);
+        if(pending.expires()<=clock.millis())return LeaveResult.EXPIRED;
+        if(session!=c.session()||!current(c))return LeaveResult.UNAVAILABLE;
+        if(!confirm)return LeaveResult.CANCELLED;
+        var found=store.find(pending.giveaway());if(found.isEmpty())return LeaveResult.UNAVAILABLE;var g=found.get();
+        if(!owns(c,g)||!g.message().equals(pending.message()))return LeaveResult.UNAVAILABLE;
+        if(!g.state().equals("ACTIVE")||g.endsAt()<=clock.millis())return LeaveResult.CLOSED;
+        if(!store.entered(g.id(),actor))return LeaveResult.NOT_ENTERED;
+        GiveawayHost.Member member;try{member=host.member(g.guild(),actor);}catch(Exception e){warn();return LeaveResult.UNAVAILABLE;}
+        if(!current(c))return LeaveResult.UNAVAILABLE;
+        if(!member.present()||member.bot())return LeaveResult.INELIGIBLE;
+        // Store repeats the active/deadline/entry checks atomically after the REST round trip.
+        if(clock.millis()>=pending.expires())return LeaveResult.EXPIRED;
+        if(!store.leave(g.id(),actor,clock.millis()))return store.entered(g.id(),actor)?LeaveResult.CLOSED:LeaveResult.NOT_ENTERED;
+        draws.remove(g.id());return LeaveResult.LEFT;
+    });}
     private final GiveawayStore store;private final GiveawayHost host;private final Clock clock;private final SecureRandom random;
     private final ThreadPoolExecutor worker;private final ScheduledExecutorService timer;private final AtomicBoolean tickQueued=new AtomicBoolean();
     private final Map<String,Draw> draws=new HashMap<>();private final Map<String,Retry> retries=new LinkedHashMap<>();private volatile boolean closed;
+    private record Presentation(GiveawayHost.Context context,GiveawayStore.Giveaway giveaway,Object version){}
+    private final Map<String,Presentation> presentations=new HashMap<>();
     private String scanCursor="";private GiveawayHost.Context scanContext;
     private final CompletableFuture<Void> closedStore=new CompletableFuture<>();private final Set<CompletableFuture<?>> pending=ConcurrentHashMap.newKeySet();private volatile Thread workerThread; private long lastWarning=Long.MIN_VALUE;
     private static final class Draw {final GiveawayHost.Context context;final List<String> shuffled;final List<GiveawayStore.Winner> winners=new ArrayList<>();int index;Draw(GiveawayHost.Context c,List<String> shuffled){context=c;this.shuffled=shuffled;}}
@@ -56,13 +102,42 @@ public final class GiveawayService implements AutoCloseable {
     public void button(ButtonInteractionEvent event,long session){
         GiveawayHost.Context context=host.context();if(!current(context)||context.session()!=session)return;
         String custom=event.getComponentId();if(!custom.startsWith("dd:giveaway:"))return;
-        String id=custom.substring("dd:giveaway:".length());
-        if(!id.matches("[0-9a-f]{32}")||!event.isFromGuild()){event.reply(text("giveaway-unavailable",Map.of())).setEphemeral(true).setAllowedMentions(List.of()).setCheck(()->current(context)).queue(null,e->warn());return;}
-        event.deferReply(true).setCheck(()->current(context)).queue(hook->enter(id,event.getGuild().getId(),event.getChannel().getId(),event.getMessageId(),event.getUser().getId(),session)
-            .whenComplete((result,failure)->{if(!current(context))return;if(failure!=null)warn();String key=failure==null?"giveaway-"+result.name().toLowerCase(Locale.ROOT):"giveaway-unavailable";hook.editOriginal(text(key,Map.of())).setAllowedMentions(List.of()).setCheck(()->current(context)).queue(null,e->warn());}),e->warn());
+        String suffix=custom.substring("dd:giveaway:".length());String[] parts=suffix.split(":",-1);
+        String action=parts.length==1?"enter":parts[0],id=parts[parts.length-1];
+        if(parts.length>2||!Set.of("enter","leave","confirm","cancel").contains(action)||!id.matches("[0-9a-f]{32}")||!event.isFromGuild()){
+            event.reply(PanelView.create(GiveawayView.reply(this::text,"giveaway-unavailable"))).setEphemeral(true).setAllowedMentions(List.of()).setCheck(()->current(context)).queue(null,e->warn());return;
+        }
+        // Confirmation callbacks update their private prompt, removing the now-consumed buttons.
+        boolean confirmation=action.equals("confirm")||action.equals("cancel");
+        var acknowledge=confirmation?event.deferEdit():event.deferReply(true);
+        acknowledge.setCheck(()->current(context)).queue(hook->{
+            String guild=event.getGuild().getId(),channel=event.getChannel().getId(),actor=event.getUser().getId();
+            CompletableFuture<net.dv8tion.jda.api.components.container.Container> response;
+            if(confirmation)response=finishLeave(id,guild,channel,actor,session,action.equals("confirm")).thenApply(result->GiveawayView.reply(this::text,leaveKey(result)));
+            else if(action.equals("leave"))response=requestLeave(id,guild,channel,event.getMessageId(),actor,session).thenApply(request->request.result()==LeaveResult.CONFIRM?GiveawayView.confirmation(this::text,request.token()):GiveawayView.reply(this::text,leaveKey(request.result())));
+            else response=enter(id,guild,channel,event.getMessageId(),actor,session).thenApply(result->GiveawayView.reply(this::text,"giveaway-"+result.name().toLowerCase(Locale.ROOT)));
+            response.whenComplete((card,failure)->{if(!current(context))return;if(failure!=null)warn();hook.editOriginal(PanelView.update(failure==null?card:GiveawayView.reply(this::text,"giveaway-unavailable"))).setAllowedMentions(List.of()).setCheck(()->current(context)).queue(null,e->warn());});
+        },e->warn());
     }
+    private static String leaveKey(LeaveResult result){return switch(result){case LEFT->"giveaway-left";case CANCELLED->"giveaway-leave-cancelled";case EXPIRED->"giveaway-leave-expired";case NOT_ENTERED->"giveaway-not-entered";case CLOSED->"giveaway-closed";case INELIGIBLE->"giveaway-ineligible";default->"giveaway-unavailable";};}
     private String text(String key,Map<String,String> values){if(host instanceof JdaGiveawayHost jda)return jda.text(key,values);return key;}
-    public void refresh(){submit(()->{retries.clear();scanCursor="";scanContext=null;tick();return null;}).exceptionally(e->{if(!closed)warn();return null;});}
+    public void refresh(){submit(()->{retries.clear();scanCursor="";scanContext=null;tick();repairActive();return null;}).exceptionally(e->{if(!closed)warn();return null;});}
+    private void repairActive()throws Exception{
+        var c=host.context();if(!current(c))return;
+        // The ledger admits at most twenty active/draft giveaways. Reuse their messages,
+        // and skip successful, unchanged cards for this configuration and bot session.
+        var active=store.list().stream().filter(g->g.state().equals("ACTIVE")&&g.endsAt()>clock.millis()&&owns(c,g)).limit(20).toList();
+        Set<String> ids=new HashSet<>();for(var g:active)ids.add(g.id());presentations.keySet().retainAll(ids);
+        for(var g:active){
+            if(!current(c))return;var shown=new Presentation(c,g,host.presentationVersion());if(shown.equals(presentations.get(g.id())))continue;
+            try{host.update(g,List.of(),()->presentationCurrent(shown));if(presentationCurrent(shown))presentations.put(g.id(),shown);}catch(Exception e){warn();}
+        }
+    }
+    private boolean presentationCurrent(Presentation shown){
+        var c=shown.context();var g=shown.giveaway();
+        if(!current(c)||!Objects.equals(shown.version(),host.presentationVersion())||g.endsAt()<=clock.millis())return false;
+        try{return store.find(g.id()).filter(g::equals).isPresent();}catch(java.sql.SQLException e){warn();return false;}
+    }
     /** Also usable by offline acceptance tests; executes on the same bounded worker. */
     public CompletableFuture<Void> poll(){return submit(()->{tick();return null;});}
     private void queueTick(){if(closed||!tickQueued.compareAndSet(false,true))return;submit(()->{try{tick();}finally{tickQueued.set(false);}return null;}).exceptionally(e->{tickQueued.set(false);if(!closed)warn();return null;});}

@@ -8,7 +8,7 @@ description: Minecraft and Discord integration, account linking, chat and commun
 commands:
   dydiscord:
     description: DyDiscord account and administration commands
-    aliases: [discord]
+    aliases: [discord, dyd]
     usage: /dydiscord help
   dyda:
     description: DyDiscord administration commands
@@ -36,7 +36,6 @@ permissions:
       dydiscord.player: true
       dydiscord.admin.prefix: true
       dydiscord.admin.bot.guild: true
-      dydiscord.admin.bot.token: true
       dydiscord.admin.alerts: true
       dydiscord.admin.chat: true
       dydiscord.admin.chat.channel: true
@@ -141,8 +140,6 @@ permissions:
   dydiscord.admin.prefix:
     default: false
   dydiscord.admin.bot.guild:
-    default: false
-  dydiscord.admin.bot.token:
     default: false
   dydiscord.admin.alerts:
     default: false

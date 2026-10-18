@@ -26,5 +26,5 @@ public final class BukkitLinkRewardHost implements LinkRewardService.Host {
             catch(Exception error){result.completeExceptionally(error);}
         });return result.orTimeout(2,TimeUnit.SECONDS);
     }
-    public void warning(String safeMessage){plugin.getLogger().warning(safeMessage);}
+    public void warning(String safeMessage){plugin.getLogger().warning(dev.dydiscord.language.ConsoleDiagnostics.text(plugin,"error-link-reward-pending",java.util.Map.of()));}
 }

@@ -1,0 +1,54 @@
+{
+  "DyDiscord": {
+    "L": {
+      "attempted": 40,
+      "observed": 40,
+      "median_ms": 329.93805,
+      "p95_ms": 439.3869,
+      "min_ms": 258.5326,
+      "max_ms": 829.0247
+    },
+    "B": {
+      "attempted": 18,
+      "observed": 18,
+      "median_ms": 972.7832,
+      "p95_ms": 2078.2928,
+      "min_ms": 263.6253,
+      "max_ms": 2078.2928
+    },
+    "C": {
+      "attempted": 20,
+      "observed": 20,
+      "median_ms": 794.9762499999999,
+      "p95_ms": 1546.7631,
+      "min_ms": 246.2073,
+      "max_ms": 2846.0802
+    }
+  },
+  "DiscordSRV": {
+    "L": {
+      "attempted": 40,
+      "observed": 40,
+      "median_ms": 313.16245,
+      "p95_ms": 472.8166,
+      "min_ms": 238.8643,
+      "max_ms": 675.4145
+    },
+    "B": {
+      "attempted": 18,
+      "observed": 18,
+      "median_ms": 399.0014,
+      "p95_ms": 1163.1015,
+      "min_ms": 254.1019,
+      "max_ms": 1163.1015
+    },
+    "C": {
+      "attempted": 20,
+      "observed": 0,
+      "median_ms": null,
+      "p95_ms": null,
+      "min_ms": null,
+      "max_ms": null
+    }
+  }
+}

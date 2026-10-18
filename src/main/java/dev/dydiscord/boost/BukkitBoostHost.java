@@ -34,5 +34,5 @@ public final class BukkitBoostHost implements BoostBridge.Host {
             try{result.complete(plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(),command));}catch(Exception failure){result.completeExceptionally(failure);}});
         return result.orTimeout(2,TimeUnit.SECONDS);
     }
-    public void warning(String message){plugin.getLogger().warning(message);}
+    public void warning(String message){plugin.getLogger().warning(dev.dydiscord.language.ConsoleDiagnostics.text(plugin,"error-boost-pending",java.util.Map.of()));}
 }

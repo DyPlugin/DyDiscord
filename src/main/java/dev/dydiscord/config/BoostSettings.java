@@ -21,7 +21,7 @@ public record BoostSettings(boolean enabled,List<String> commands,List<String> r
         Object raw=Settings.get(values,path,List.of());
         if(!(raw instanceof List<?> entries)||entries.size()>10)throw Settings.invalid(path);
         List<String> commands=new ArrayList<>();
-        for(Object entry:entries){
+        for(Object entry:entries){ if(entry instanceof String blank&&blank.isEmpty())continue;
             if(!(entry instanceof String text)||text.isBlank()||text.length()>256||text.codePoints().anyMatch(BoostSettings::unsafeCharacter))throw Settings.invalid(path);
             String command=text.strip();if(command.startsWith("/"))command=command.substring(1);
             int separator=command.indexOf(' ');

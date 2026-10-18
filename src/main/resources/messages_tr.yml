@@ -280,9 +280,6 @@ help-prefix: "Mesaj önekini değiştirir"
 help-bot-guild: "Botun Discord sunucusunu belirler"
 # Message shown for help bot guild.
 
-help-bot-token: "Bot anahtarını özel girişle kaydeder"
-# Message shown for help bot token.
-
 help-chat-to-minecraft: "Discord → Minecraft sohbetini açar veya kapatır"
 # Message shown for help chat to minecraft.
 
@@ -319,26 +316,57 @@ chat-enabled: "&a{direction} sohbet aktarımı açıldı."
 chat-disabled: "&7{direction} sohbet aktarımı kapatıldı."
 # Message shown for chat disabled.
 
-token-entry-prompt: "&e60 saniye içinde / ile başlayarak bot anahtarını girin. Bu giriş yayınlanmaz. Vazgeçmek için /dyda iptal yazın."
-# Message shown for token entry prompt.
-
-token-entry-expired: "&eAnahtar girişi için süre doldu. /dyda bot token ile yeniden başlayın."
-# Message shown for token entry expired.
-
-token-entry-invalid: "&cAnahtarın biçimi uygun değil. Developer Portal > Bot bölümündeki anahtarı kullanın."
-# Message shown for token entry invalid.
-
-token-entry-environment: "&eAnahtar DYDISCORD_BOT_TOKEN ortam değişkeninden alınıyor. Önce bu değişkeni güncelleyin veya kaldırın."
-# Message shown for token entry environment.
-
-token-entry-saved: "&aBot anahtarı kaydedildi. Bağlantı yeniden başlatılıyor."
-# Message shown for token entry saved.
-
-token-entry-failed: "&cAnahtar kaydedilemedi. Dosya izinlerini ve sunucu kaydını kontrol edin. Önceki ayarlar korundu."
-# Message shown for token entry failed.
-
-token-entry-busy: "&eŞu anda yeni anahtar girişi açılamıyor. Biraz sonra tekrar deneyin."
-# Message shown for token entry busy.
-
 setup-connection-failed: "&cDiscord botu bağlanamadı. bot.yml içindeki token ve guild-id değerlerini, Developer Portal > Bot ayarlarını ve internet bağlantısını kontrol edin. Düzelttikten sonra /dyda bot yenidenbaşlat yazın."
 # Explain how to repair a failed Discord connection.
+setup-chat-conflict: "&eBaşka bir eklenti sohbeti yönettiği için Minecraft → Discord aktarımı duraklatıldı. Hangi eklentinin uyumlu sohbet desteğine ihtiyaç duyduğunu görmek için /dyda kontrol yazın."
+# Notify administrators once when another chat handler blocks public forwarding.
+setup-chat-adapter: "&eMinecraft → Discord aktarımı bu sunucunun sohbet olayını okuyamadı. /dyda kontrol yazın; DyDiscord ve sunucu sürümünün uyumunu kontrol edip yeniden başlatın."
+# Explain an unavailable server chat adapter without exposing exception details.
+chat-compatibility-blocked: "Minecraft → Discord aktarımı duraklatıldı. Sohbeti yöneten eklentiler: {plugins}. Bu eklentiler için uyumlu genel sohbet desteği gerekiyor; kanal değiştirmek sorunu çözmez."
+# List bounded plugin names in status and doctor; preserve {plugins}.
+chat-compatibility-adapter: "Minecraft → Discord aktarımı kullanılamıyor: sunucunun sohbeti okunamadı. Desteklenen sunucu sürümlerini kontrol edip uyum sorununu giderdikten sonra yeniden başlatın."
+# Report a failed chat adapter instead of showing the configured direction as active.
+error-config-file: "{file}{position} yüklenemedi. Girintileri, tırnakları ve dosya izinlerini kontrol edin; mevcut veriler korundu."
+# Localized console explanation; values and secrets are not printed.
+error-config-position: " (satır {line}, sütun {column})"
+# Localized console explanation; values and secrets are not printed.
+error-config-setting: "{setting} ayarında sorun var. config.yml veya bot.yml içindeki açıklamasına bakıp değeri düzeltin."
+# Localized console explanation; values and secrets are not printed.
+error-command-collision: "Discord’da aynı adı kullanan bir komut var ve DyDiscord bu komutu yönetmiyor. Diğer komutları silmeden ayrı bot kullanın veya komut çakışmasını giderip botu yeniden başlatın."
+# Localized console explanation; values and secrets are not printed.
+error-timeout: "İşlem zamanında tamamlanamadı. Sunucu yükünü ve Discord bağlantısını kontrol edip biraz sonra yeniden deneyin."
+# Localized console explanation; values and secrets are not printed.
+error-unexpected: "İşlem tamamlanamadı. Kurulum uyarılarını kontrol edin; gizli bilgiler gösterilmedi."
+# Localized console explanation; values and secrets are not printed.
+error-console-event: "Takip kodu {event}: {reason}"
+# Localized console explanation; values and secrets are not printed.
+error-startup: "DyDiscord başlatılamadı. Yukarıda belirtilen dosya veya veri sorununu giderip sunucuyu yeniden başlatın. Mevcut veriler korundu."
+# Localized console explanation; values and secrets are not printed.
+error-translations-fallback: "Dosyada bulunmayan {count} mesaj paket metinleriyle gösteriliyor. Özelleştirmek için mesaj dosyalarını kontrol edin."
+# Localized console explanation; values and secrets are not printed.
+error-boost-data: "Boost ödülleri kullanılamıyor. Veri dosyalarını ve Discord ayarlarını kontrol edin; mevcut ödül kayıtları korundu."
+# Localized console explanation; values and secrets are not printed.
+error-link-reward-data: "Eşleme ödülleri kullanılamıyor. Veri dosyalarını kontrol edin; mevcut ödül kayıtları korundu."
+# Localized console explanation; values and secrets are not printed.
+error-giveaway-data: "Çekilişler kullanılamıyor. Discord izinlerini ve veri dosyalarını kontrol edin; mevcut kayıtlar korundu."
+# Localized console explanation; values and secrets are not printed.
+error-chat-preferences: "Sohbet tercihleri okunamadı. Etkilenen oyunculara aktarım durduruldu; veri dosyasının izinlerini kontrol edin."
+# Localized console explanation; values and secrets are not printed.
+error-chat-delivery: "Sohbet mesajları gönderilemedi. Kuyruktaki eski mesajlar temizlendi; Discord bağlantısını ve kanal izinlerini kontrol edin."
+# Localized console explanation; values and secrets are not printed.
+error-log-backend: "Konsol aktarımı bu sunucunun kayıt sistemini okuyamıyor. Sunucu uyumluluğunu ve başlangıç kaydını kontrol edin."
+# Localized console explanation; values and secrets are not printed.
+error-chat-ranks: "Sohbet rütbeleri okunamadı. Mesajlar rütbesiz aktarılıyor; LuckPerms/Vault ayarlarını kontrol edin."
+# Localized console explanation; values and secrets are not printed.
+error-role-provider: "LuckPerms grupları okunamadı. Üyelik durumu bilinmediği için bu nedenle rol kaldırılmayacak."
+# Localized console explanation; values and secrets are not printed.
+error-boost-pending: "Bazı boost ödülleri bekliyor. Veri dosyalarını ve Discord bağlantısını kontrol edin; sonucu bilinmeyen komutlar otomatik tekrar çalıştırılmaz."
+# Localized console explanation; values and secrets are not printed.
+error-link-reward-pending: "Bazı eşleme ödülleri bekliyor. Veri dosyalarını kontrol edin; sonucu bilinmeyen komutlar otomatik tekrar çalıştırılmaz."
+# Localized console explanation; values and secrets are not printed.
+error-discord-shutdown: "Discord bağlantısı zamanında kapanmadığı için bağlantı sonlandırıldı."
+# Localized console explanation; values and secrets are not printed.
+error-panel-pending: "Panel gönderimi bekliyor. bot.yml içindeki panel.channel-id ayarını ve Kanalı Görüntüle, Mesaj Gönder, Bağlantı Yerleştir, Mesaj Geçmişini Oku izinlerini kontrol edin. Ardından /dyda panel yenile yazın."
+# Localized console explanation; values and secrets are not printed.
+error-discord-disconnected: "Discord bağlantısı kesildi. Biraz sonra yeniden bağlanılacak; sürerse internet erişimini kontrol edin."
+# Localized console explanation; values and secrets are not printed.

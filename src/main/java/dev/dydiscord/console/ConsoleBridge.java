@@ -34,7 +34,7 @@ public final class ConsoleBridge implements AutoCloseable {
                     String text="["+event.getLevel()+"] "+event.getMessage().getFormattedMessage();buffer.offer(text);if(event.getThrown()!=null){java.io.StringWriter writer=new java.io.StringWriter();event.getThrown().printStackTrace(new java.io.PrintWriter(writer));buffer.offer(writer.toString());}
                 }
             };appender.start();root.addAppender(appender);
-        }catch(LinkageError|ClassCastException e){plugin.getLogger().warning("Log relay unavailable: unsupported logging backend.");}
+        }catch(LinkageError|ClassCastException e){plugin.getLogger().warning(dev.dydiscord.language.ConsoleDiagnostics.text(plugin,"error-log-backend",java.util.Map.of()));}
         timer.scheduleWithFixedDelay(this::flush,250,250,TimeUnit.MILLISECONDS);
     }
     public void invalidate(){synchronized(buffer){policy.incrementAndGet();buffer.clear();}synchronized(users){users.clear();channelTimes.clear();}}

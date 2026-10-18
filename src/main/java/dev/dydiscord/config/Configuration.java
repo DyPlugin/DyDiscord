@@ -15,7 +15,13 @@ public final class Configuration {
     public static final class FileFailure extends IOException {
         public FileFailure(String file,IOException cause){super("Cannot load or migrate "+safeFile(file)+position(cause)+"; check YAML syntax, file access and available disk space.",cause);}
         private static String safeFile(String file){return file!=null&&file.matches("(?:(?:discord/)?messages_(?:en|tr)|config|bot)\\.yml")?file:"configuration file";}
-        private static String position(Throwable cause){for(int depth=0;cause!=null&&depth<16;depth++,cause=cause.getCause())if(cause instanceof org.yaml.snakeyaml.error.MarkedYAMLException marked&&marked.getProblemMark()!=null){var mark=marked.getProblemMark();return " at line "+(mark.getLine()+1)+", column "+(mark.getColumn()+1);}return "";}
+        private static String position(Throwable cause){for(int depth=0;cause!=null&&depth<16;depth++,cause=cause.getCause()){if(cause instanceof SyntaxFailure syntax&&syntax.line()>0)return " at line "+syntax.line()+", column "+syntax.column();if(cause instanceof org.yaml.snakeyaml.error.MarkedYAMLException marked&&marked.getProblemMark()!=null){var mark=marked.getProblemMark();return " at line "+(mark.getLine()+1)+", column "+(mark.getColumn()+1);}}return "";}
+    }
+    /** Retain a safe location, never the YAML line/token contained in parser exceptions. */
+    public static final class SyntaxFailure extends IOException {
+        private final int line,column;
+        private SyntaxFailure(int line,int column){super("Malformed YAML (values withheld)");this.line=line;this.column=column;}
+        public int line(){return line;}public int column(){return column;}
     }
     public record Snapshot(Settings settings, Messages messages,Map<String,String> migrations,Map<String,String> sources) {
         public Snapshot(Settings settings,Messages messages){this(settings,messages,Map.of());}
@@ -126,6 +132,6 @@ public final class Configuration {
     public static Map<String,Object> read(Path file)throws IOException {try{return parse(Files.readString(file));}catch(IOException e){throw new IOException("Invalid file: "+file.getFileName(),e);}}
     @SuppressWarnings("unchecked") public static Map<String,Object> parse(String text)throws IOException{
         try{Object data=new Yaml(new SafeConstructor(options())).load(text);if(!(data instanceof Map<?,?>))throw new IOException("Expected YAML mapping");return (Map<String,Object>)data;}
-        catch(org.yaml.snakeyaml.error.YAMLException e){throw new IOException("Malformed YAML (values withheld)");}
+        catch(org.yaml.snakeyaml.error.YAMLException e){if(e instanceof org.yaml.snakeyaml.error.MarkedYAMLException marked&&marked.getProblemMark()!=null){var mark=marked.getProblemMark();throw new SyntaxFailure(mark.getLine()+1,mark.getColumn()+1);}throw new SyntaxFailure(0,0);}
     }
 }

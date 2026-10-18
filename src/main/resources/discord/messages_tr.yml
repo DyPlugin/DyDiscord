@@ -112,7 +112,7 @@ server-info-version: "Minecraft sürümü"
 
 chat-to-discord: "{rank}{name} **»** {message}"
 # Normal Minecraft chat. {rank} includes bold text and a trailing space when present.
-chat-to-minecraft: "&9[Discord] &7{role}&f{name} &8>> &7{message}"
+chat-to-minecraft: "&9[Discord] &7{role}&f{name} &8» &7{message}"
 # Minecraft colors apply only to this template; {role} adds a space only when present.
 chat-join: "{name} sunucuya katıldı."
 # Public join event. Keep {name} unchanged.
@@ -157,7 +157,7 @@ giveaway-title: "Çekiliş"
 # Giveaway card text and private participation responses; placeholders match English.
 giveaway-enter: "Katıl"
 # Text shown for giveaway enter.
-giveaway-open: "Ödül: {prize}\nKazanan sayısı: {winners}\nBitiş: {ends}\nKatıl butonuyla katılabilirsiniz. Her hesap bir kez katılabilir."
+giveaway-open: "Ödül: {prize}\nKazanan sayısı: {winners}\nBitiş: {ends}\n\nKatıl butonuyla katılabilirsiniz. Her hesap bir kez katılabilir."
 # Text shown for giveaway open.
 giveaway-drawn: "Ödül: {prize}\nKazananlar: {winners}"
 # Text shown for giveaway drawn.
@@ -177,6 +177,20 @@ giveaway-ineligible: "Çekilişin katılım koşullarını sağlamıyorsunuz."
 # Text shown for giveaway ineligible.
 giveaway-unavailable: "Çekiliş şu anda kullanılamıyor. Lütfen biraz sonra tekrar deneyin."
 # Text shown for giveaway unavailable.
+giveaway-leave: "Ayrıl"
+# Text shown for giveaway leave.
+giveaway-leave-cancel: "Vazgeç"
+# Text shown for giveaway leave cancel.
+giveaway-leave-confirm: "Bu çekilişten ayrılmak istiyor musunuz?\n\nOnaylayana kadar katılımınız korunur. Bu istek 60 saniye geçerlidir."
+# Text shown for giveaway leave confirm.
+giveaway-left: "Çekilişten ayrıldınız."
+# Text shown for giveaway left.
+giveaway-leave-cancelled: "Çekilişe katılımınız devam ediyor."
+# Text shown for giveaway leave cancelled.
+giveaway-leave-expired: "Bu onayın süresi dolmuş veya daha önce kullanılmış. Yeniden Ayrıl butonuna basın."
+# Text shown for giveaway leave expired.
+giveaway-not-entered: "Bu çekilişe katılmadınız."
+# Text shown for giveaway not entered.
 
 account-date: "Eşleme tarihi: {date}"
 # Editable display text; reload applies.

@@ -1,6 +1,6 @@
 # Giveaways
 
-Giveaways are optional and disabled by default. They post one entry button in a
+Giveaways are optional and disabled by default. They post a Components V2 Container with Join and Leave buttons in a
 configured Discord text channel and edit that same message with the result.
 DyDiscord selects winners; the server owner supplies the prize manually. No
 Minecraft console commands, economy grants, direct messages or role rewards are
@@ -91,3 +91,7 @@ missing messages cannot permanently hide newer results in that same channel.
 Each pass reads at most60 records and retry metadata is capped at128 records.
 Very large pending histories can delay a due draw while pages rotate; this is
 not a guarantee that every Discord result is delivered immediately at its deadline.
+
+## Leaving a giveaway
+
+Leave opens a private red Container asking for confirmation. The red Leave and green Cancel buttons are bound to the initiating member and expire after 60 seconds; cancellation keeps the entry. The giveaway, original panel, session, current membership and active configuration are checked again before removal. Existing active cards are updated at the saved message ID; unchanged cards are not repeatedly edited.

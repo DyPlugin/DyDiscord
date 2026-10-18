@@ -1,3 +1,7 @@
+# Upgrade to 1.0.2
+
+No database schema change or relinking is required. Explicit owner false values stay false. Fresh/missing chat directions and events default on, but no channel means no delivery. Console relay defaults off; its command subflag defaults on and existing authorization is required. Empty quoted list entries are ignored. Custom translations remain; only recognized bundled separator text upgrades to ». Active giveaway cards repair in place when enabled and connected. See [fresh verification](release-1.0.2-verification.md).
+
 # Backup, upgrade and rollback
 
 1.0.1 does not change database schema or require relinking. It preserves explicit
@@ -11,12 +15,12 @@ The latest 1.0.1 simplification keeps numbered help only and adds `/dyda` as the
 
 The console channel may be public. Its viewers can read relayed server output; command execution still requires configured trusted authorization, explicit enablement and current Discord access checks. Existing channel visibility is not changed automatically.
 
-Prefer file-based token changes. `/dyda bot token` is a no-argument player-only 60-second entry flow; the next slash-prefixed token entry is cancelled and scrubbed before routing. It cannot guarantee protection from client history or third-party loggers. An environment token blocks file-token entry. Session/permission checks and invalidation on logout/reload/restart remain; successful save restarts the bot. `/dyda bot guild <id>` sets the guild separately.
+Tokens are read only from bot.yml or DYDISCORD_BOT_TOKEN. The former in-game token session and permission are removed in 1.0.2; no token belongs in a command, help example or support report.
 
 New packaged YAML descriptions appear below their setting; owner comments and values remain. Current evidence is recorded in [the simplification report](simplify-1.0.1-verification.md), separately from previous artifact results.
 
-For 1.0.1 choose either the small `DyDiscord-1.0.1.jar` or the bundled
-`DyDiscord-1.0.1-standalone.jar`; install only one. Both use the existing
+For 1.0.1 choose either the small `DyDiscord-1.0.2.jar` or the bundled
+`DyDiscord-1.0.2-standalone.jar`; install only one. Both use the existing
 DyDiscord data folder and do not require account relinking. The small package
 needs Maven access for initial dependency resolution. Preserve the server's
 library cache for offline restarts, or use standalone for offline installation.
@@ -35,7 +39,7 @@ use a supported consistent backup, stop the server before copying all files.
 Apply the same rule to the separate `data/boosts.db` reward database and its WAL;
 both databases and the provider's reward records matter for a consistent restore.
 
-Install `DyDiscord-1.0.1.jar` and start normally. Preserve custom config,
+Install `DyDiscord-1.0.2.jar` and start normally. Preserve custom config,
 comments and language files. The current SQLite schema is **3**; `config-version`
 in `config.yml` and `bot.yml` is **2**. Future/unsupported versions are refused.
 Take the stopped-server backup before the first startup with the updated JAR;

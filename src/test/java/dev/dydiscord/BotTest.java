@@ -73,7 +73,7 @@ class BotTest {
     @org.junit.jupiter.params.ParameterizedTest @org.junit.jupiter.params.provider.CsvSource({"false,false,false,false,CONNECTED","true,false,false,false,DEGRADED","true,false,true,false,CONNECTED","false,true,false,false,DEGRADED","false,true,false,true,CONNECTED"})
     void resumedSessionRequiresOnlyIntentsRequestedByEnabledFeatures(boolean prefix,boolean roleEvents,boolean content,boolean members,String expected)throws Exception{
         DyDiscord host=host();Bot bot=spy(new Bot(host));doReturn(true).when(bot).alive(0);
-        Settings settings=Settings.read(Map.of(),Map.of("guild-id","123456789012345678","bot",Map.of("prefix-commands-enabled",prefix),"roles",Map.of("enabled",roleEvents,"member-events",roleEvents)),null);
+        Settings settings=Settings.read(Map.of(),Map.of("guild-id","123456789012345678","bot",Map.of("prefix-commands-enabled",prefix),"chat",Map.of("minecraft-to-discord",false,"discord-to-minecraft",false),"console",Map.of("commands",Map.of("enabled",false)),"roles",Map.of("enabled",roleEvents,"member-events",roleEvents)),null);
         for(var entry:Map.<String,Object>of("applied",settings,"activeLanguage","en","content",content,"members",members).entrySet()){var field=Bot.class.getDeclaredField(entry.getKey());field.setAccessible(true);field.set(bot,entry.getValue());}
         var type=Class.forName("dev.dydiscord.discord.Bot$Events");var ctor=type.getDeclaredConstructor(Bot.class,long.class);ctor.setAccessible(true);var listener=(net.dv8tion.jda.api.hooks.ListenerAdapter)ctor.newInstance(bot,0L);
         listener.onSessionResume(mock(net.dv8tion.jda.api.events.session.SessionResumeEvent.class));assertEquals(Bot.State.valueOf(expected),bot.state());

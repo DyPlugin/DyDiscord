@@ -18,6 +18,12 @@ final class YamlComments {
         boolean below=template.contains(MARKER);
         Map<String,List<String>> descriptions=new LinkedHashMap<>();
         Set<String> packaged=new HashSet<>(List.of(
+            "Trusted Discord role IDs as quoted strings; role names are not authorization.",
+            "Quoted Discord role IDs given to verified linked accounts.",
+            "Up to 10 commands, each at most 256 characters. Optional leading / is removed.",
+            "Provider commands run when a recorded boost ends or its link is removed; {player}/{uuid} target the linked account.",
+            "Up to ten trusted console commands; {player}/{uuid}, max 256 characters each.",
+            "Optional OR rule: a member must hold at least one listed role ID. Max twenty.",
             "Random code length (8-16); existing explicit values are preserved on upgrade.",
             "auto uses each player's preference/client language; en or tr forces one language.",
             "HTTPS discord.gg or discord.com/invite link; blank disables the invitation.",

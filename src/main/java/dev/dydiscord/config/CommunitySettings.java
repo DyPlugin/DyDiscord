@@ -19,7 +19,7 @@ public record CommunitySettings(String javaAddress,String bedrockAddress,List<Li
         int linkSize=0;for(Link link:links){int length=link.url().replace("@","%40").replace("(","%28").replace(")","%29").length();if(length>1024)throw Settings.invalid("community.links.url");linkSize+=link.name().length()*2+length;}if(linkSize>5400)throw Settings.invalid("community.links");
         List<Field> fields=new ArrayList<>();for(Map<?,?> entry:entries(config,"community.server-fields"))fields.add(new Field(text(entry,"name",80),text(entry,"value",160)));
         Object raw=Settings.get(bot,"community.information-channel-ids",List.of());if(!(raw instanceof List<?> channels)||channels.size()>100)throw Settings.invalid("community.information-channel-ids");
-        Set<String> ids=new LinkedHashSet<>();for(Object value:channels){if(!(value instanceof String id)||!Settings.snowflake(id))throw Settings.invalid("community.information-channel-ids");ids.add(id);}
+        Set<String> ids=new LinkedHashSet<>();for(Object value:channels){if(value instanceof String blank&&blank.isEmpty())continue;if(!(value instanceof String id)||!Settings.snowflake(id))throw Settings.invalid("community.information-channel-ids");ids.add(id);}
         return new CommunitySettings(address(config,"community.java-address"),address(config,"community.bedrock-address"),links,fields,ids);
     }
     private static List<Map<?,?>> entries(Map<String,Object> config,String key){Object raw=Settings.get(config,key,List.of());if(!(raw instanceof List<?> list)||list.size()>10)throw Settings.invalid(key);List<Map<?,?>> entries=new ArrayList<>();for(Object value:list){if(!(value instanceof Map<?,?> entry))throw Settings.invalid(key);entries.add(entry);}return entries;}

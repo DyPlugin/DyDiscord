@@ -42,6 +42,6 @@ public record RoleSettings(boolean enabled,Set<String> linkedRoles,List<Rule> ru
     private static boolean key(String value){return value.matches("[a-z0-9_.-]{1,64}");}
     private static Set<String> ids(Object raw,String path,boolean required){
         if(!(raw instanceof List<?> entries)||entries.size()>100||required&&entries.isEmpty())throw Settings.invalid(path);
-        Set<String> ids=new LinkedHashSet<>();for(Object entry:entries){if(!(entry instanceof String id)||!Settings.snowflake(id))throw Settings.invalid(path);ids.add(id);}return Set.copyOf(ids);
+        Set<String> ids=new LinkedHashSet<>();for(Object entry:entries){if(entry instanceof String blank&&blank.isEmpty())continue;if(!(entry instanceof String id)||!Settings.snowflake(id))throw Settings.invalid(path);ids.add(id);}return Set.copyOf(ids);
     }
 }

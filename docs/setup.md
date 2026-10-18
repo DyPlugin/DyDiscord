@@ -1,8 +1,8 @@
-# DyDiscord 1.0.1
+# DyDiscord 1.0.2
 
 The default JAR is the small distribution. Its declared libraries are resolved
 and cached by Spigot/Paper before plugin enable; initial installation needs
-internet access. Use `DyDiscord-1.0.1-standalone.jar` for an installation
+internet access. Use `DyDiscord-1.0.2-standalone.jar` for an installation
 that must work without downloading libraries. Install exactly one distribution.
 See [distribution packaging](packaging.md) for cache and version-selection limits.
 
@@ -10,18 +10,17 @@ See [distribution packaging](packaging.md) for cache and version-selection limit
 account linking and an optional console channel. English and Turkish are
 included. No separate Node.js service or external database is required.
 
-This release is named 1.0.1. Human account-linking and visual client acceptance
+This release is named 1.0.2. Human account-linking and visual client acceptance
 remain incomplete. See [test evidence](compatibility-test.md). DyDiscord has
-no dependency on DyClaim. Project terms are GPL v3 with additional attribution, non-commercial
-distribution and public-source requirements; see [LICENSE](../LICENSE).
+no dependency on DyClaim. See the project’s custom [LICENSE](../LICENSE) and [dependency notices](../LICENSE-NOTICE.md) for distribution terms.
 
 ## Build and technical target
 
 Run `gradlew.bat clean build` on Windows, or `./gradlew clean build` elsewhere.
 Gradle Wrapper 9.1.0, dependency locks and SHA-256 verification metadata are included.
-The build was checked with JDK 21.0.12.1 and produces Java 17 bytecode against
+The build was checked with JDK 21.0.22.1 and produces Java 17 bytecode against
 Spigot API 1.20.4. Use a JDK supported by Gradle 9.1; JDK 17–25 is the build target.
-Install **`build/libs/DyDiscord-1.0.1.jar`**, not the `plain` JAR.
+Install **`build/libs/DyDiscord-1.0.2.jar`**, not the `plain` JAR.
 
 The API baseline is not proof of runtime compatibility. Spigot 1.20.4 / Java 17
 is the initial candidate; newer Spigot/Paper builds need their own live evidence.
@@ -31,14 +30,12 @@ third-party hot loaders are not supported claims for this release.
 ## First setup
 
 1. Put the bundled JAR in your server's `plugins` directory and start the server.
-   DyDiscord creates config/message files and a local SQLite database. New bot
-   and log-relay switches are enabled, but connection waits for credentials and
-   output waits for a configured accessible channel. Remote commands remain **disabled**.
+   DyDiscord creates configuration, messages and local SQLite data. Bot/panel setup is enabled; credentials and a separate channel are still required. Chat directions and join/quit/death notices default on. Console relay defaults off; its command subflag defaults on, with Discord role/Administrator and current access checks preserved.
 2. In the [Discord Developer Portal](https://discord.com/developers/applications),
    create your own application and bot. Invite it with `bot` and
    `applications.commands` scopes. Do not grant the bot Administrator.
 3. Locally edit `plugins/DyDiscord/bot.yml`: fill `token` and a quoted `guild-id`.
-   Optional `DYDISCORD_BOT_TOKEN` overrides the file token. Never paste a token as a normal command argument, public message or support report. Authorized players may instead open `/dyda bot token` with no argument and follow its private interception prompt; local file editing is preferred because third-party logging/client history cannot be guaranteed. One token must be
+   Optional `DYDISCORD_BOT_TOKEN` overrides the file token. Never paste a token as a normal command argument, public message or support report. In-game token entry was removed. One token must be
    used by only one bot process.
 4. Set the invitation with `/dydiscord admin invite https://discord.gg/YourCode`.
    Set `server-name` in `config.yml`. Run `/dydiscord admin reload` after file edits,

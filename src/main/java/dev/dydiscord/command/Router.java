@@ -3,9 +3,11 @@ package dev.dydiscord.command;
 import dev.dydiscord.DyDiscord;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
+import org.bukkit.event.*;
+import org.bukkit.event.player.PlayerCommandSendEvent;
 import java.util.*;
 
-public final class Router implements CommandExecutor,TabCompleter {
+public final class Router implements CommandExecutor,TabCompleter,Listener {
     private final DyDiscord plugin;private final boolean shortcut;private final boolean adminShortcut;
     public Router(DyDiscord plugin,boolean shortcut){this(plugin,shortcut,false);}
     public Router(DyDiscord plugin,boolean shortcut,boolean adminShortcut){this.plugin=plugin;this.shortcut=shortcut;this.adminShortcut=adminShortcut;}
@@ -47,6 +49,9 @@ public final class Router implements CommandExecutor,TabCompleter {
         if(args.length==2&&Words.matches("admin",args[0])&&Definition.adminVisible(sender::hasPermission)&&Words.plain(Words.display("help",plugin.language(sender))).startsWith(Words.plain(args[1])))result.add(Words.display("help",plugin.language(sender)));
         if(args.length==1){if(sender.hasPermission("dydiscord.unlink")||sender.hasPermission("dydiscord.admin.unlink")){for(String word:List.of("confirm","cancel")){String shown=Words.display(word,plugin.language(sender));if(Words.plain(shown).startsWith(Words.plain(args[0])))result.add(shown);}}}
         return List.copyOf(new LinkedHashSet<>(result));
+    }
+    @EventHandler public void commandSuggestions(PlayerCommandSendEvent event){
+        if(!Definition.adminVisible(event.getPlayer()::hasPermission))event.getCommands().removeIf(command->command.equalsIgnoreCase("dyda")||command.equalsIgnoreCase("dydiscord:dyda"));
     }
     private static String[] prepend(String[] raw,String word){String[] out=new String[raw.length+1];out[0]=word;System.arraycopy(raw,0,out,1,raw.length);return out;}
 }

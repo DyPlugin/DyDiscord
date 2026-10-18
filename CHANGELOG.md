@@ -1,5 +1,20 @@
 # DyDiscord changelog
 
+## 1.0.2
+
+- Added `/dyd`; hide `/dyda` suggestions unless an administration leaf is accessible.
+- Removed in-game token entry and its permission. Configure tokens through bot.yml or the environment.
+- Enable fresh chat directions/events; keep console relay off and its authorized-command subsetting on. Preserve explicit owner settings and treat empty quoted list examples as no-ops.
+- Use V2 giveaway cards and private replies, with expiring actor-bound confirmation before leaving; repair active cards in place.
+- Localize safe console diagnostics, retain YAML error location without its source line, validate giveaway button labels before applying configuration, and restore the compact » chat separator.
+
+- Allow bounded Discord rate-limit waits during initial slash registration without treating the bot as permanently unready after the short ordinary-request timeout.
+- Wake the chat sender on demand instead of waiting for the next idle polling tick. Preserve minimum send spacing, channel slowmode, queue limits and five-second expiry, including long slowmode periods.
+- Preserve literal punctuation in Discord account/role names and reply authors when relaying to Minecraft; flatten message Markdown separately.
+- Explain blocked chat forwarding in administrator diagnostics and throttled EN/TR warnings without weakening private-chat protection.
+- Keep processing subsequent Paper chat events after transient reflected event-method failures; incompatible APIs remain blocked.
+- Locally verified with 699 automated tests and isolated relay measurements; no publication/production deployment. See [release evidence](docs/release-1.0.2-verification.md) and [measured comparison](docs/performance/2026-10-18/README.md). No overall speed-superiority claim.
+
 ## 1.0.1
 
 ### Improved

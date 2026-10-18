@@ -31,7 +31,7 @@ public final class LuckPermsGroups implements GroupProvider {
                 Class<?> type = Class.forName("net.luckperms.api.LuckPerms", true, apiLoader);
                 service = service(plugin, type);
             } catch (ReflectiveOperationException | LinkageError | RuntimeException failure) {
-                plugin.getLogger().warning("Role group provider unavailable; LuckPerms memberships remain unknown (values withheld).");
+                plugin.getLogger().warning(dev.dydiscord.language.ConsoleDiagnostics.text(plugin,"error-role-provider",java.util.Map.of()));
             }
         }
         this.api = service; this.loader = apiLoader; this.clock = Clock.systemUTC();

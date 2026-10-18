@@ -1,3 +1,7 @@
+## Current 1.0.2 work
+
+See [1.0.2 verification](release-1.0.2-verification.md) for this artifact. Earlier counts and live results below remain historical.
+
 # Latest 1.0.1 simplification — 2026-10-17
 
 Current source changes cover numbered permission-filtered help and `/dyda`, incoming-only personal chat visibility, explicit global chat direction controls, removed announcements and advanced editing commands, protected no-argument player token entry, account presentation and bounded administrator warnings. Console channel visibility may be public; current command authorization and access checks remain. Normal shutdown still attempts its short yellow embed.
