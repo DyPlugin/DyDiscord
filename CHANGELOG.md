@@ -14,6 +14,7 @@ This release adds a live server status card, logs from DyClaim and DyRTP, Placeh
 
 ## Changed
 
+- **New license.** DyDiscord 1.1.0 and later use the DyDiscord Source-Available License 1.0, the same terms as DyClaim: free to use and modify on any server, no paid distribution, and distributed versions must share their source. Earlier versions keep the earlier GPL v3 notice with additional terms.
 - **Modern cards everywhere.** Every bot message except relayed chat now uses Discord's container layout with a coloured accent: private replies, help, `/server`, `/players`, `/ip`, `/links`, `/status`, `dy!` replies, the console relay, the shutdown notice, the status card and the plugin logs. Chat lines stay plain so conversations read naturally.
 - After choosing a language, the confirmation names that language in the new language.
 - Discord slash commands are unchanged: `/server`, `/players`, `/ip`, `/links`, `/link`, `/account`, `/unlink`, `/help` and `/status` keep working as before.

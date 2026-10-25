@@ -1,20 +1,11 @@
 # DyDiscord license
 
-Copyright (C) 2026 Claww / DyPlugin.
+Copyright (c) 2026 Claww / DyPlugin.
 
-The owner-selected project notice is [LICENSE](LICENSE): GPL v3 with additional
-attribution, non-commercial distribution and public-source requirements,
-matching the DyClaim notice with the project name and copyright adapted.
-The combined notice is not the unmodified standard GPL license.
+DyDiscord 1.1.0 and later use the [DyDiscord Source-Available License 1.0](LICENSE), the same terms as DyClaim with the project name adapted. It is a custom source-available license, not the GNU GPL and not an OSI-approved open-source license.
 
-Retain the DyDiscord name in plugin descriptions, documentation and public
-distribution pages. Selling builds, charging for downloads/access and bundling
-with paid products are prohibited by the additional project terms. Distributed
-forks and modifications must provide their source under the same project terms.
-The software is provided without warranty.
+In short: you may run, copy and modify DyDiscord, including on commercial servers. Selling it, charging for downloads or access, and bundling it with paid products are not allowed without written permission. Distributed versions must link to their complete source under the same terms and keep the DyDiscord name and attribution. The software is provided without warranty.
 
-Dependencies retain their independent licenses; the project notice does not
-replace their permissions or obligations. Bundled notices, full GPL v3 text and
-the original Trove4j source archive are preserved. See
-[third-party notices](src/main/resources/META-INF/THIRD-PARTY-NOTICES.md).
-No DyClaim source code is included.
+Versions up to 1.0.2 were distributed under the earlier GPL v3 notice with additional terms; copies of those versions keep that license.
+
+Dependencies retain their independent licenses; this license does not replace their permissions or obligations. Bundled notices and the original Trove4j source archive are preserved. See [third-party notices](src/main/resources/META-INF/THIRD-PARTY-NOTICES.md). No DyClaim source code is included.

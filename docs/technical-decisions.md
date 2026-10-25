@@ -23,7 +23,7 @@ its source tree, test results and license were not copied or modified.
 | JSON | Jackson 2.22.3 | overrides vulnerable JDA transitive 2.22.2 |
 | Log API | Log4j 2.26.1 compile/test only | actual server supplies Log4j; no server logging classes bundled |
 | Packaging | Gradle Shadow 9.2.2; one bundled JAR | services/native drivers retained, dependencies relocated |
-| License | owner-selected GPL v3 notice with additional project terms, 2026-10-10 | Claww / DyPlugin copyright, attribution, non-commercial distribution and public-source requirements; dependency licenses remain independent |
+| License | DyDiscord Source-Available License 1.0 from 1.1.0 (2026-10-25), matching DyClaim; GPL v3 notice with additional project terms up to 1.0.2 (2026-10-10) | Claww / DyPlugin copyright, attribution, non-commercial distribution and public-source requirements; dependency licenses remain independent |
 
 Sources:
 

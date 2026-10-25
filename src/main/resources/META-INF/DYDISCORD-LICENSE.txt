@@ -1,11 +1,10 @@
 DyDiscord
-Copyright (C) 2026 Claww / DyPlugin
+Copyright (c) 2026 Claww / DyPlugin
 
-Project terms: GPL v3 with the owner's additional attribution,
-non-commercial distribution and public-source requirements.
-See META-INF/LICENSE-DYDISCORD.txt for those terms and
-META-INF/LICENSE-GPL-3.0.txt for the complete underlying GPL v3 text.
-This combined project notice is not the unmodified standard GPL license.
+DyDiscord 1.1.0 and later are distributed under the DyDiscord Source-Available
+License 1.0 (META-INF/LICENSE-DYDISCORD.txt): free use and modification,
+no paid distribution, public source for distributed versions, attribution.
+Earlier versions keep the license they were distributed with.
 
-Corresponding source: https://github.com/DyPlugin/DyDiscord
-Dependency license notices apply independently.
+Bundled libraries keep their own licenses; see META-INF/THIRD-PARTY-NOTICES.md
+and META-INF/licenses/.

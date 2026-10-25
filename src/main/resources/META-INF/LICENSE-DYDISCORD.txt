@@ -1,50 +1,87 @@
-                    GNU GENERAL PUBLIC LICENSE
-                       Version 3, 29 June 2007
+DyDiscord Source-Available License 1.0
+Effective date: 25 October 2026
 
- Copyright (C) 2026 Claww / DyPlugin
+Copyright (c) 2026 Claww / DyPlugin and DyDiscord contributors.
+All rights reserved except as expressly granted below.
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+1. Scope
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- GNU General Public License for more details.
+"Software" means the DyDiscord code, binaries and documentation distributed
+with this license, to the extent the relevant copyright holders may grant
+these permissions. "Modified Version" means a modification or derivative
+of that Software. This is a custom source-available license, not the GNU GPL
+and not an OSI-approved open-source license.
 
- You should have received a copy of the GNU General Public License
- along with this program. If not, see <https://www.gnu.org/licenses/>.
+2. Permitted use
 
- ============================================================================
- ADDITIONAL TERMS (pursuant to Section 7 of the GPL v3)
- ============================================================================
+You may download, inspect, run, copy and modify the Software, including for
+personal, educational and commercial Minecraft servers. Running a server
+that accepts donations or sells server access does not itself constitute
+selling the Software. You may redistribute the Software or Modified Versions
+without charge if you meet all conditions below.
 
- 1. ATTRIBUTION REQUIREMENT
-    All copies, forks, or derivative works of this software must
-    retain the original project name "DyDiscord" in a visible and
-    prominent location, including but not limited to:
-    - The plugin description (plugin.yml or equivalent)
-    - The project README or documentation
-    - Any public distribution page (Modrinth, Spigot, GitHub, etc.)
+3. No paid distribution
 
- 2. NON-COMMERCIAL DISTRIBUTION
-    You may NOT sell this software or any derivative work for monetary
-    compensation. This includes but is not limited to:
-    - Selling compiled builds (.jar files)
-    - Offering paid downloads
-    - Requiring payment or donation to access the software
-    - Bundling with other paid products
+Without separate written permission from the relevant copyright holders,
+you must not sell, sublicense for a fee, offer paid downloads of, or require
+payment or a donation to obtain the Software or a Modified Version. You must
+not include it in a paid software bundle or use another arrangement to charge
+for access to its source or binaries. Voluntary donations are allowed only
+when access to the Software is not conditional on donating.
 
-    Free distribution is permitted and encouraged.
+4. Source availability on distribution
 
- 3. OPEN SOURCE REQUIREMENT
-    Any fork, modification, or derivative work of this software must
-    be made publicly available under the same license terms (GPL v3
-    with these additional terms). You may not distribute closed-source
-    versions of this software.
+Whenever you distribute the Software or a Modified Version, provide a public,
+free-of-charge link to its complete corresponding source code, including
+your changes and the build files needed to produce the distributed version.
+Keep that source available for as long as you offer the distribution. Do not
+distribute a closed-source Modified Version. Private modifications that you
+do not distribute do not have to be published.
 
- ============================================================================
+5. Attribution and notices
 
- For the full text of the GNU General Public License v3, visit:
- https://www.gnu.org/licenses/gpl-3.0.en.html
+Retain this license and existing copyright and attribution notices in source
+and binary distributions. Identify DyDiscord and Claww / DyPlugin visibly in
+the plugin description, README or equivalent documentation, and any public
+distribution page. Modified Versions must identify their changes and must
+not imply that they are official releases or endorsed by the original authors.
+
+6. Same terms for redistribution
+
+Distribute covered Software and Modified Versions under this license, with
+no additional terms that remove the permissions granted here or defeat its
+conditions. No ownership of the Software, project name or branding is
+transferred. Attribution does not grant permission to impersonate the project.
+
+7. Third-party material and earlier distributions
+
+Third-party components, dependencies and contributions remain subject to
+their applicable rights and licenses. This license does not override those
+licenses or grant rights the relevant copyright holders do not possess.
+Earlier copies distributed under another license retain their applicable
+license; this notice does not retroactively revoke previously granted rights.
+If you cannot satisfy all applicable licenses, do not redistribute that
+combination without obtaining the required permissions.
+
+8. Termination
+
+Permissions under this license terminate if you fail to comply with its
+conditions. They are reinstated when the violation is fully cured, unless
+the relevant copyright holder has separately terminated them in writing.
+Termination does not remove any rights you have independently under law
+or under an applicable license for an earlier distribution.
+
+9. Disclaimer of warranty and liability
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE SOFTWARE IS PROVIDED
+"AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT.
+THE AUTHORS AND COPYRIGHT HOLDERS ARE NOT LIABLE FOR ANY CLAIM, DAMAGE OR
+OTHER LIABILITY ARISING FROM THE SOFTWARE OR ITS USE, WHETHER IN CONTRACT,
+TORT OR OTHERWISE. MANDATORY LEGAL RIGHTS REMAIN UNAFFECTED.
+
+10. Separate permissions
+
+For permissions beyond this license, contact Claww / DyPlugin through
+https://github.com/DyPlugin/DyDiscord. A separate permission is valid only
+when granted in writing by the relevant rights holder.
