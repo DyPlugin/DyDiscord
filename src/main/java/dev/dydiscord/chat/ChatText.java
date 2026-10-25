@@ -32,10 +32,10 @@ public final class ChatText {
     public static TextComponent minecraft(String template,String role,int color,String name,String message,String replyAuthor){
         Map<String,String> values=Map.of("role",identity(role),"name",identity(name),"message",reply(replyAuthor,message));TextComponent result=new TextComponent();Matcher slots=SLOT.matcher(template);int end=0;ChatColor current=ChatColor.WHITE;
         while(slots.find()){
-            String literal=template.substring(end,slots.start()).replaceAll("[\\r\\n]"," ");BaseComponent[] parts=TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',literal));for(BaseComponent part:parts){part.setBold(false);result.addExtra(part);current=part.getColor();}
+            String literal=template.substring(end,slots.start()).replaceAll("[\\r\\n]"," ");BaseComponent[] parts=TextComponent.fromLegacyText(dev.dydiscord.util.Colors.color(literal));for(BaseComponent part:parts){part.setBold(false);result.addExtra(part);current=part.getColor();}
             String value=values.getOrDefault(slots.group(1),"");if(slots.group(1).equals("role")&&!value.isEmpty())value+=" ";TextComponent part=new TextComponent(value);part.setBold(false);part.setColor(slots.group(1).equals("role")?readableColor(color):current);result.addExtra(part);end=slots.end();
         }
-        for(BaseComponent part:TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',template.substring(end)))){part.setBold(false);result.addExtra(part);}return result;
+        for(BaseComponent part:TextComponent.fromLegacyText(dev.dydiscord.util.Colors.color(template.substring(end)))){part.setBold(false);result.addExtra(part);}return result;
     }
     public static ChatColor readableColor(int rgb){return rgb==0?ChatColor.GRAY:ChatColor.of(new java.awt.Color(rgb&0xffffff));}
 }

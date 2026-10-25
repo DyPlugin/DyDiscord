@@ -79,10 +79,10 @@ class Release101RegressionTest {
         var type=Class.forName("dev.dydiscord.discord.Bot$Events");var constructor=type.getDeclaredConstructor(Bot.class,long.class);constructor.setAccessible(true);var listener=(net.dv8tion.jda.api.hooks.ListenerAdapter)constructor.newInstance(bot,0L);
         var event=mock(net.dv8tion.jda.api.events.message.MessageReceivedEvent.class,RETURNS_DEEP_STUBS);
         when(event.isFromGuild()).thenReturn(true);when(event.getGuild().getId()).thenReturn(config.active().settings().guild());when(event.getAuthor().getId()).thenReturn("423456789012345678");when(event.getChannel().getId()).thenReturn("523456789012345678");when(event.getMessage().getContentRaw()).thenReturn("dy!help");
-        var action=mock(net.dv8tion.jda.api.requests.restaction.MessageCreateAction.class,RETURNS_SELF);when(event.getChannel().sendMessageEmbeds(anyCollection())).thenReturn(action);
+        var action=mock(net.dv8tion.jda.api.requests.restaction.MessageCreateAction.class,RETURNS_SELF);when(event.getChannel().sendMessage(any(net.dv8tion.jda.api.utils.messages.MessageCreateData.class))).thenReturn(action);
         listener.onMessageReceived(event);
-        @SuppressWarnings("unchecked") var cards=ArgumentCaptor.forClass(Collection.class);verify(event.getChannel()).sendMessageEmbeds(cards.capture());
-        var card=(net.dv8tion.jda.api.entities.MessageEmbed)cards.getValue().iterator().next();assertNotNull(card.getTitle());assertTrue(card.getFields().size()>=2);assertNull(card.getFooter());
+        var cards=ArgumentCaptor.forClass(net.dv8tion.jda.api.utils.messages.MessageCreateData.class);verify(event.getChannel()).sendMessage(cards.capture());
+        String card=TestSupport.v2Text(cards.getValue());assertTrue(card.startsWith("### "),card);assertTrue(card.split("\\*\\*").length>=5,"at least two sections: "+card);assertFalse(card.contains("-# "),"no footer");
         verify(action).setAllowedMentions(List.of());verify(action).mentionRepliedUser(false);verify(event.getChannel(),never()).sendMessage(anyString());
     }
 }

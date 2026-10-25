@@ -1,3 +1,19 @@
+# DyDiscord 1.1.0
+
+**Durum kartı.** `bot.yml` içindeki `status-card` ile tek bir Discord mesajı sunucunun Çevrimiçi/Çevrimdışı durumunu, oyuncu sayısını, sürümü ve (Paper ve türevlerinde) TPS'i gösterir. Mesaj `interval-seconds` (30–3600) aralıkla yerinde düzenlenir, normal kapanışta Çevrimdışı olur. Kanal konsol kanalıyla aynı olamaz.
+
+**DyClaim ve DyRTP logları.** `plugin-logs.channel-id` ayarlanınca claim alma/kaldırma, güven değişiklikleri, devirler ve rastgele ışınlanmalar embed olarak gönderilir. `plugin-logs.dyclaim.claims`, `trust`, `transfers` ve `plugin-logs.dyrtp.teleports` ayrı ayrı kapatılabilir. Boş kanal hepsini kapatır.
+
+**PlaceholderAPI.** `%dydiscord_linked%`, `%dydiscord_discord_name%` ve `%dydiscord_bot_connected%`; değerler bellekten gelir. Kapatmak için `config.yml` içinde `integrations.placeholderapi: false`.
+
+**Almanca, İspanyolca, Rusça.** Minecraft ve Discord mesajları için yeni dosyalar oluşturulur. `lang: auto` istemci dilini izler; `/dyd dil de|es|ru` ve bot dili de bunları kabul eder. Bu dillerde komut kelimeleri İngilizcedir. Yeni dil tercihleri ayrı bir tabloda tutulur; 1.0.2'ye dönülürse bu oyuncular otomatik dili görür.
+
+**MiniMessage.** Paper ve Purpur'da Minecraft mesajları `&` kodlarının yanında `<green>`, `<gradient:...>` gibi etiketler kullanabilir. Oyuncu ve Discord adları ile sohbet etiket olarak okunmaz. Spigot'ta yalnızca `&` kodları çalışır.
+
+**Modern kartlar.** Sohbet aktarımı dışındaki tüm bot mesajları (özel yanıtlar, yardım, topluluk komutları, konsol aktarımı, kapanış bildirimi, durum kartı ve loglar) Components V2 container olarak gönderilir.
+
+**Geliştirici API'si ve bStats.** `DyDiscordAPI`, `AccountLinkEvent` ve `AccountUnlinkEvent`. Anonim bStats istatistikleri (34918) `metrics.enabled: false` ile kapatılır. [Bu sürümün doğrulaması](release-1.1.0-verification.md).
+
 # DyDiscord 1.0.2
 
 Yeni kurulumlarda sohbetin iki yönü ve giriş/çıkış/ölüm bildirimleri açıktır; ayrı sohbet kanalı ayarlanmadan mesaj gönderilmez. Konsol aktarımı kapalı başlar; altındaki komut ayarı açıktır ancak rol, Administrator ve güncel kanal erişimi kontrolleri geçerlidir. Mevcut tercihler korunur. Token yalnızca bot.yml veya ortam değişkeninden girilir.

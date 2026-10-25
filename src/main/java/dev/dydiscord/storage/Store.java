@@ -24,6 +24,10 @@ public final class Store implements AutoCloseable {
     public long linkGeneration(){return linkGeneration.get();}
     public synchronized LinkSnapshot snapshotByDiscord(String id)throws SQLException{return new LinkSnapshot(byDiscord(id),linkGeneration.get());}
     public void linkListener(java.util.function.Consumer<String> listener){linkListener=Objects.requireNonNull(listener);}
+    private volatile java.util.function.BiConsumer<Link,Boolean> accountListener=(link,linked)->{};
+    /** Called after a link is committed (true) or removed (false), on the thread that changed it. */
+    public void accountListener(java.util.function.BiConsumer<Link,Boolean> listener){accountListener=Objects.requireNonNull(listener);}
+    private void announce(Link link,boolean linked){try{accountListener.accept(link,linked);}catch(RuntimeException ignored){}}
     public long rewardGeneration(String discord){return rewardGenerations.getOrDefault(discord,-1L);}
     public synchronized LinkSnapshot rewardSnapshot(String discord)throws SQLException{
         Optional<Link> link=byDiscord(discord);
@@ -65,6 +69,8 @@ public final class Store implements AutoCloseable {
             if(!columns.contains("discord_name")){if(schema!=1)throw new SQLException("Invalid database schema");s.execute("ALTER TABLE links ADD COLUMN discord_name TEXT NOT NULL DEFAULT ''");}
             if(schema==0)s.execute("INSERT INTO schema_version VALUES(3)");else if(schema<3)s.execute("UPDATE schema_version SET version=3");
             s.execute("CREATE TABLE IF NOT EXISTS player_preferences(uuid TEXT PRIMARY KEY, language TEXT NOT NULL CHECK(language IN ('en','tr','auto')))");
+            s.execute("CREATE TABLE IF NOT EXISTS status_card(id INTEGER PRIMARY KEY CHECK(id=1), channel TEXT NOT NULL, message TEXT NOT NULL)");
+            s.execute("CREATE TABLE IF NOT EXISTS player_languages(uuid TEXT PRIMARY KEY, language TEXT NOT NULL CHECK(language IN ('de','es','ru')))");
             s.execute("CREATE TABLE IF NOT EXISTS panel_state(id INTEGER PRIMARY KEY CHECK(id=1), guild TEXT NOT NULL, channel TEXT NOT NULL, message TEXT NOT NULL)");
             s.execute("CREATE TABLE IF NOT EXISTS console_receipts(message TEXT PRIMARY KEY, accepted_at TEXT NOT NULL, result TEXT NOT NULL)");
             s.execute("CREATE TABLE IF NOT EXISTS managed_commands(id TEXT PRIMARY KEY, guild TEXT NOT NULL)");
@@ -141,7 +147,7 @@ public final class Store implements AutoCloseable {
     public synchronized Link link(UUID uuid,String discord,String name,String discordName,Instant now,java.util.function.BooleanSupplier valid)throws SQLException{
         requireWrite();discordName=checkedDiscordName(discordName);Link link=new Link(uuid,discord,name,now,UUID.randomUUID().toString(),discordName);
         db.setAutoCommit(false);
-        try(PreparedStatement s=db.prepareStatement("INSERT INTO links(uuid,discord,name,linked_at,version,discord_name) VALUES(?,?,?,?,?,?)")){s.setString(1,uuid.toString());s.setString(2,discord);s.setString(3,name);s.setString(4,now.toString());s.setString(5,link.version);s.setString(6,discordName);s.executeUpdate();observeRewardOrigin(link);try(PreparedStatement dirty=db.prepareStatement("UPDATE role_targets SET revision=revision+1,dirty=1,due=0,status='QUEUED' WHERE discord=?")){dirty.setString(1,discord);dirty.executeUpdate();}if(!valid.getAsBoolean())throw new Revoked();db.commit();linkChanged(discord);return link;}
+        try(PreparedStatement s=db.prepareStatement("INSERT INTO links(uuid,discord,name,linked_at,version,discord_name) VALUES(?,?,?,?,?,?)")){s.setString(1,uuid.toString());s.setString(2,discord);s.setString(3,name);s.setString(4,now.toString());s.setString(5,link.version);s.setString(6,discordName);s.executeUpdate();observeRewardOrigin(link);try(PreparedStatement dirty=db.prepareStatement("UPDATE role_targets SET revision=revision+1,dirty=1,due=0,status='QUEUED' WHERE discord=?")){dirty.setString(1,discord);dirty.executeUpdate();}if(!valid.getAsBoolean())throw new Revoked();db.commit();linkChanged(discord);announce(link,true);return link;}
         catch(SQLException|RuntimeException e){try{db.rollback();}catch(SQLException rollback){writable=false;e.addSuppressed(rollback);}if(e instanceof SQLException sql&&!(sql instanceof Revoked)&&sql.getErrorCode()!=19)writable=false;throw e;}
         finally{try{db.setAutoCommit(true);}catch(SQLException e){writable=false;throw e;}}
     }
@@ -150,16 +156,29 @@ public final class Store implements AutoCloseable {
         try(PreparedStatement s=db.prepareStatement("DELETE FROM links WHERE uuid=? AND version=?")){
             s.setString(1,expected.uuid.toString());s.setString(2,expected.version);boolean removed=s.executeUpdate()==1;
             if(removed)try(PreparedStatement dirty=db.prepareStatement("UPDATE role_targets SET revision=revision+1,dirty=1,due=0,status='QUEUED' WHERE discord=?")){dirty.setString(1,expected.discord());dirty.executeUpdate();}
-            db.commit();if(removed)linkChanged(expected.discord());return removed;
+            db.commit();if(removed){linkChanged(expected.discord());announce(expected,false);}return removed;
         }catch(SQLException e){try{db.rollback();}catch(SQLException rollback){e.addSuppressed(rollback);}writable=false;throw e;}
         finally{db.setAutoCommit(true);}
     }
     public synchronized Map<UUID,String> preferences()throws SQLException{
-        Map<UUID,String> map=new HashMap<>();try(Statement s=db.createStatement();ResultSet r=s.executeQuery("SELECT * FROM player_preferences")){while(r.next())map.put(UUID.fromString(r.getString(1)),r.getString(2));}return map;
+        Map<UUID,String> map=new HashMap<>();try(Statement s=db.createStatement();ResultSet r=s.executeQuery("SELECT * FROM player_preferences")){while(r.next())map.put(UUID.fromString(r.getString(1)),r.getString(2));}
+        try(Statement s=db.createStatement();ResultSet r=s.executeQuery("SELECT uuid,language FROM player_languages")){while(r.next())map.put(UUID.fromString(r.getString(1)),r.getString(2));}return map;
     }
+    /** English, Turkish and auto stay in the 1.0 table; newer languages live beside it, so an older JAR reads them as auto. */
     public synchronized void preference(UUID uuid,String language)throws SQLException{
-        requireWrite();try(PreparedStatement s=db.prepareStatement("INSERT INTO player_preferences VALUES(?,?) ON CONFLICT(uuid) DO UPDATE SET language=excluded.language")){s.setString(1,uuid.toString());s.setString(2,language);s.executeUpdate();}catch(SQLException e){writable=false;throw e;}
+        requireWrite();boolean legacy=Set.of("en","tr","auto").contains(language);
+        try{
+            db.setAutoCommit(false);
+            try(PreparedStatement s=db.prepareStatement("INSERT INTO player_preferences VALUES(?,?) ON CONFLICT(uuid) DO UPDATE SET language=excluded.language")){s.setString(1,uuid.toString());s.setString(2,legacy?language:"auto");s.executeUpdate();}
+            if(legacy)try(PreparedStatement s=db.prepareStatement("DELETE FROM player_languages WHERE uuid=?")){s.setString(1,uuid.toString());s.executeUpdate();}
+            else try(PreparedStatement s=db.prepareStatement("INSERT INTO player_languages VALUES(?,?) ON CONFLICT(uuid) DO UPDATE SET language=excluded.language")){s.setString(1,uuid.toString());s.setString(2,language);s.executeUpdate();}
+            db.commit();
+        }catch(SQLException e){try{db.rollback();}catch(SQLException rollback){e.addSuppressed(rollback);}writable=false;throw e;}
+        finally{db.setAutoCommit(true);}
     }
+    /** The live status card message, as channel and message ID. */
+    public synchronized Optional<String[]> statusCard()throws SQLException{try(Statement s=db.createStatement();ResultSet r=s.executeQuery("SELECT channel,message FROM status_card WHERE id=1")){return r.next()?Optional.of(new String[]{r.getString(1),r.getString(2)}):Optional.empty();}}
+    public synchronized void statusCard(String channel,String message)throws SQLException{requireWrite();try(PreparedStatement s=db.prepareStatement("INSERT INTO status_card VALUES(1,?,?) ON CONFLICT(id) DO UPDATE SET channel=excluded.channel,message=excluded.message")){s.setString(1,channel);s.setString(2,message);s.executeUpdate();}}
     public synchronized Optional<Panel> panel()throws SQLException{
         try(Statement s=db.createStatement();ResultSet r=s.executeQuery("SELECT guild,channel,message FROM panel_state WHERE id=1")){return r.next()?Optional.of(new Panel(r.getString(1),r.getString(2),r.getString(3))):Optional.empty();}
     }

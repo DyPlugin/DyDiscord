@@ -1,0 +1,379 @@
+# Setting descriptions follow their settings.
+no-permission: "&c¡No tienes permiso para usar este comando!"
+# Text shown when the sender lacks permission.
+startup-failed: "&cDyDiscord no pudo iniciarse. Revisa el error de inicio en el registro del servidor."
+# Text shown when plugin startup fails.
+help-page: "&7Página &f{page}/{pages}&7. Usa &6{command} <page>&7."
+# Text shown for help page.
+help-page-invalid: "&cEsa página de ayuda no existe. Usa /dydiscord admin help 1."
+# Text shown for help page invalid.
+setup-channel-missing: "Primero establece un canal: /dydiscord admin panel channel <id> o /dydiscord admin console channel <id>."
+# Text shown for setup channel missing.
+setup-bot-unavailable: "El bot no está conectado. Revisa token/guild-id en bot.yml y /dydiscord admin doctor."
+# Text shown for setup bot unavailable.
+setup-channel-invisible: "El canal no está disponible. Revisa su ID, el servidor y el permiso Ver canal del bot."
+# Text shown for setup channel invisible.
+setup-channel-permissions: "Da al bot los permisos Ver canal y Enviar mensajes. Los paneles de cuenta también necesitan Insertar enlaces y Leer el historial de mensajes."
+# Text shown for setup channel permissions.
+setup-console-private: "El canal de consola es público. Cualquiera con acceso al canal puede leer la salida del servidor; ejecutar comandos requiere una autorización aparte."
+# Text shown for setup console private.
+setup-access-denied: "Discord denegó el acceso. Revisa el token del bot, su pertenencia al servidor y los permisos del canal."
+# Text shown for setup access denied.
+setup-rate-limited: "Las comprobaciones de permisos de Discord están limitadas. Espera antes de reintentar; no se permitió ninguna acción insegura."
+# Text shown for setup rate limited.
+setup-restart-required: "Reinicia el bot después de cambiar su servidor de Discord: /dydiscord admin bot restart."
+# Text shown for setup restart required.
+setup-intents-denied: "Discord rechazó un intent privilegiado (4014). Activa Message Content Intent en Developer Portal > Bot para comandos de mensaje, entrada de consola y chat de Discord a Minecraft. Activa Server Members Intent para los eventos de miembros configurados. Reconectando solo con comandos de barra y panel; las funciones afectadas siguen sin estar disponibles hasta corregirlo y reiniciar el bot."
+# Text shown for setup intents denied.
+player-only: "&c¡Solo los jugadores pueden usar este comando!"
+# Only players can use this command!
+reload-success: "&a¡Configuración recargada correctamente!"
+# Configuration reloaded successfully!
+reload-invalid: "&cNo se pudo recargar la configuración. La configuración anterior sigue activa."
+# Configuration could not be reloaded. Previous settings remain active.
+restart-required: "&eHay que reiniciar el bot para aplicar los ajustes de conexión."
+# Bot restart required to apply connection settings.
+invite: "&7Discord: &b{invite_url}"
+# Editable Minecraft message; keep placeholders.
+invite-not-set: "&eLa invitación de Discord aún no se ha configurado."
+# The Discord invite has not been configured yet.
+link-code: "&7Tu código de vinculación: &e{code}"
+# Editable Minecraft message; keep placeholders.
+panel-link: "&7Panel de vinculación: &b{url}"
+# Linking panel: {url}
+panel-disabled: "&eEl panel de cuenta está desactivado. Usa los comandos de barra de Discord."
+# Panel-off notice. Discord slash commands remain available.
+help-panel-enable: "Activar el panel de cuenta"
+# Enable the panel without changing links or its recorded message.
+help-panel-disable: "Desactivar el panel y usar comandos"
+# Disable panel buttons; Discord account commands stay available.
+bot-unavailable: "&eDiscord no está disponible por el momento. Inténtalo de nuevo en breve."
+# Discord is temporarily unavailable. Please try again shortly.
+bot-setup-incomplete: "&eEstablece token y guild-id en bot.yml y ejecuta /dydiscord admin reload antes de activar el bot."
+# Set token and guild-id in bot.yml, then run /dydiscord admin reload before enabling the bot.
+discord-validation-pending: "&eEl bot está desconectado. Los permisos de canales y roles se comprobarán tras la conexión."
+# Discord is not connected; channel and role access will be checked before use after connection.
+linking-disabled: "&eLa vinculación de cuentas está desactivada."
+# Account linking is disabled.
+data-unavailable: "&cLos datos de la cuenta no están disponibles. Contacta con el administrador del servidor."
+# Account data is unavailable. Contact the server administrator.
+already-linked: "&e¡Esta cuenta ya está vinculada a @{discord}!"
+# An account is already linked. Unlink it first.
+not-linked: "&7Tu cuenta de Minecraft no está vinculada a ninguna cuenta de Discord."
+# Editable Minecraft message; keep placeholders.
+account: "&7Minecraft: &f{name} &7| Discord: &f{discord}"
+# Minecraft: {name} | Discord: {discord}
+discord-account: "Cuenta de Discord"
+# Discord account
+linked: "&a¡Tu cuenta de Minecraft {name} ahora está vinculada a la cuenta de Discord {discord}!"
+# Editable Minecraft message; keep placeholders.
+unlinked: "&aCuenta desvinculada correctamente."
+# Account unlinked successfully.
+confirm: "&e¿Quitar la vinculación de tu cuenta? &6/dydiscord confirm {token} &7({seconds}s)"
+# Editable Minecraft message; keep placeholders.
+confirmation-invalid: "&cEsa confirmación no es válida o ha caducado."
+# That confirmation is invalid or expired.
+cancelled: "&7Confirmación pendiente cancelada."
+# Pending confirmation cancelled.
+cooldown: "&eEspera antes de generar otro código."
+# Please wait before generating another code.
+busy: "&eEl servicio está ocupado. Inténtalo de nuevo en breve."
+# The service is busy. Please try again shortly.
+invalid-code: "&cEse código de vinculación no es válido o ha caducado."
+# That linking code is invalid or expired.
+rate-limit: "&eDemasiados intentos. Inténtalo más tarde."
+# Too many attempts. Please try again later.
+usage: "&eArgumentos de comando no válidos. Usa /dydiscord help."
+# Invalid command arguments. Use /dydiscord help.
+saved: "&aAjustes guardados correctamente."
+# Settings saved successfully.
+language-saved: "&aPreferencia de idioma guardada: &f{language}"
+# Language preference saved: {language}
+language-forced: "&eTu preferencia se ha guardado; el servidor fuerza ahora {language}."
+# Your preference is stored; the server currently forces {language}.
+failed: "&cLa operación falló. Evento {event}; consulta el registro local del servidor."
+# Operation failed. Event {event}; see the local server log.
+status-line: "&7{status}"
+# {status}
+help: "Ayuda"
+# Help
+language-name-en: "Inglés"
+# English
+language-name-tr: "Turco"
+# Turkish
+language-name-de: "Alemán"
+# German
+language-name-es: "Español"
+# Spanish
+language-name-ru: "Ruso"
+# Russian
+language-name-auto: "Automático"
+# Automatic
+state-disabled: "Desactivado"
+# Disabled
+state-starting: "Conectando"
+# Connecting
+state-connected: "Conectado"
+# Connected
+state-degraded: "Disponible en parte"
+# Partially available
+state-stopping: "Deteniéndose"
+# Stopping
+state-failed: "Conexión fallida"
+# Connection failed
+help-admin: "Comandos de administrador"
+# Administrator commands
+help-invite-show: "Mostrar la invitación de Discord"
+# Show the Discord invite
+help-player-only: "solo jugadores"
+# players only
+help-confirm: "Confirmar tu desvinculación pendiente"
+# Confirm your pending unlink
+help-cancel: "Cancelar tu confirmación pendiente"
+# Cancel your pending confirmation
+help-help: "Mostrar los comandos disponibles"
+# Show available commands
+help-link: "Vincular tu cuenta de Minecraft"
+# Link your Minecraft account
+help-status: "Mostrar tu cuenta vinculada"
+# Show your linked account
+help-unlink: "Desvincular tu cuenta con confirmación"
+# Unlink your account with confirmation
+help-language: "Guardar tu preferencia de idioma"
+# Save your language preference
+help-invite: "Establecer la invitación de Discord"
+# Set the Discord invite
+help-global-language: "Establecer el idioma del servidor"
+# Set the server language
+help-reload: "Validar y recargar los ajustes"
+# Validate and reload settings
+help-admin-status: "Mostrar el estado del bot, datos, panel y consola"
+# Show bot, data, panel and console health
+help-doctor: "Comprobar configuración y permisos"
+# Check setup and permissions
+help-bot-enable: "Activar el bot de Discord"
+# Enable the Discord bot
+help-bot-disable: "Desactivar el bot de Discord"
+# Disable the Discord bot
+help-bot-restart: "Reiniciar el bot de Discord"
+# Restart the Discord bot
+help-panel-channel: "Establecer el canal de vinculación"
+# Set the linking channel
+help-panel-send: "Crear o actualizar el panel"
+# Create or update the single panel
+help-panel-refresh: "Reparar el panel existente"
+# Repair the existing panel
+help-console-channel: "Establecer el canal de consola"
+# Set the private console channel
+help-console-enable: "Activar el reenvío de registros"
+# Enable log relay
+help-console-disable: "Desactivar el reenvío de registros"
+# Disable log relay
+help-commands-enable: "Activar comandos de consola remotos"
+# Enable remote console commands
+help-commands-disable: "Desactivar comandos de consola remotos"
+# Disable remote console commands
+help-role-add: "Autorizar un rol de administrador de confianza"
+# Authorize a trusted administrator role
+help-role-remove: "Quitar un rol autorizado"
+# Remove an authorized role
+help-role-list: "Listar los ID de roles autorizados"
+# List authorized role IDs
+help-administrator-on: "Permitir a los administradores de Discord"
+# Allow Discord Administrators
+help-administrator-off: "Exigir un rol autorizado"
+# Require an authorized role
+help-admin-unlink: "Desvincular un UUID con motivo y confirmación"
+# Unlink a target UUID with reason and confirmation
+
+update-available: "&eDyDiscord {version} está disponible: &b{url}"
+# A compatible update is available; click the message to view its Modrinth page.
+help-roles-status: "Mostrar el estado de la sincronización de roles"
+# Text shown for help roles status.
+help-roles-linked-list: "Listar roles de cuentas vinculadas"
+# Text shown for help roles linked list.
+help-roles-linked-add: "Añadir un rol de cuentas vinculadas"
+# Text shown for help roles linked add.
+help-roles-linked-remove: "Quitar un rol de cuentas vinculadas"
+# Text shown for help roles linked remove.
+help-roles-groups-list: "Listar reglas de roles por grupo de Minecraft"
+# Text shown for help roles groups list.
+help-roles-groups-add: "Añadir una regla de rol para un grupo de Minecraft"
+# Text shown for help roles groups add.
+help-roles-groups-remove: "Quitar una regla de rol de un grupo de Minecraft"
+# Text shown for help roles groups remove.
+help-roles-preview: "Ver los cambios para una cuenta vinculada"
+# Text shown for help roles preview.
+help-roles-sync-all: "Sincronizar todas las cuentas vinculadas"
+# Text shown for help roles sync all.
+help-roles-sync: "Sincronizar una cuenta vinculada"
+# Text shown for help roles sync.
+help-roles-cleanup-preview: "Ver la limpieza de roles gestionados obsoletos"
+# Text shown for help roles cleanup preview.
+help-roles-cleanup-confirm: "Confirmar la limpieza de roles gestionados obsoletos"
+# Text shown for help roles cleanup confirm.
+roles-summary: "&7Sincronización de roles: &f{status}"
+# Text shown for roles summary.
+roles-preview-result: "&7Roles a añadir: &f{add}&7; a quitar: &f{remove}&7; sin resolver: &f{unknown}"
+# Text shown for roles preview result.
+roles-cleanup-confirmation: "&eConfirma la limpieza de roles mostrada con /dydiscord admin roles cleanup confirm {token} en {seconds} segundos."
+# Text shown for roles cleanup confirmation.
+roles-disabled: "&eLa sincronización de roles está desactivada."
+# Text shown for roles disabled.
+roles-started: "&aSincronización de roles en cola."
+# Text shown for roles started.
+roles-saved: "&aAjustes de roles guardados."
+# Text shown for roles saved.
+roles-unavailable: "&eLa sincronización de roles no está disponible. Revisa el bot y el plugin de permisos."
+# Text shown for roles unavailable.
+roles-invalid-confirmation: "&cEsta confirmación de limpieza de roles no es válida o ha caducado."
+# Text shown for roles invalid confirmation.
+
+link-welcome: "&a¡Bienvenido! Tus cuentas de Minecraft y Discord ya están conectadas."
+# Text shown for link welcome.
+help-chat-inbound: "Mostrar u ocultar el chat de Discord para ti"
+# Text shown for help chat inbound.
+giveaway-created: "&aSorteo creado. ID: &f{id}"
+# Giveaway administration; an ID identifies the draw, not a player account.
+giveaway-not-found: "&eEse sorteo no está disponible o ya se cerró."
+# Text shown for giveaway not found.
+help-giveaway-start: "Iniciar un sorteo: segundos, número de ganadores, premio"
+# Text shown for help giveaway start.
+help-giveaway-end: "Cerrar las participaciones y pedir el sorteo"
+# Text shown for help giveaway end.
+help-giveaway-cancel: "Cancelar un sorteo sin elegir ganadores"
+# Text shown for help giveaway cancel.
+help-giveaway-list: "Listar los sorteos y sus ID"
+# Text shown for help giveaway list.
+giveaway-ending: "&aParticipaciones cerradas. Se pidió elegir ganadores; el resultado aparecerá al terminar las comprobaciones."
+# Text shown for giveaway ending.
+giveaway-cancelled-admin: "&aSorteo cancelado. Su tarjeta de Discord se actualizará cuando sea posible."
+# Text shown for giveaway cancelled admin.
+giveaway-none: "&7No se ha creado ningún sorteo."
+# Text shown for giveaway none.
+giveaway-list-entry: "&f{id} &7| {state} | &f{prize}"
+# Text shown for giveaway list entry.
+giveaway-state-draft: "Publicación sin confirmar"
+# Text shown for giveaway state draft.
+giveaway-state-active: "Abierto"
+# Text shown for giveaway state active.
+giveaway-state-drawn: "Ganadores elegidos"
+# Text shown for giveaway state drawn.
+giveaway-state-cancelled: "Cancelado"
+# Text shown for giveaway state cancelled.
+
+copy-code-hint: "Haz clic para copiar tu código de vinculación."
+# Editable display text; reload applies.
+
+confirm-click-hint: "Haz clic para confirmar. También puedes escribir este comando corto."
+# Editable display text; reload applies.
+
+invite-click-hint: "Haz clic para abrir Discord."
+# Editable display text; reload applies.
+
+invite-auto-unavailable: "No hay ninguna invitación de Discord configurada. Concede Crear invitación en un canal adecuado o establece discord.invite-url en config.yml."
+# Console guidance when an automatic permanent invite cannot be created.
+
+
+help-bot-language: "Establecer el idioma de Discord; auto sigue el ajuste del juego"
+# Bot language command; shares the existing language leaf permission.
+
+setting-unchanged: "&7Este ajuste ya está seleccionado."
+# Message shown for setting unchanged.
+
+help-prefix: "Cambiar el prefijo de los mensajes"
+# Message shown for help prefix.
+
+help-bot-guild: "Establecer el servidor de Discord del bot"
+# Message shown for help bot guild.
+
+help-chat-to-minecraft: "Activar o desactivar el chat Discord → Minecraft"
+# Message shown for help chat to minecraft.
+
+help-chat-to-discord: "Activar o desactivar el chat Minecraft → Discord"
+# Message shown for help chat to discord.
+
+help-chat-both: "Activar o desactivar ambas direcciones del chat"
+# Message shown for help chat both.
+
+help-chat-channel: "Establecer el canal de chat de Discord"
+# Message shown for help chat channel.
+
+chat-personal-already-on: "&7Los mensajes de Discord ya son visibles para ti."
+# Message shown for chat personal already on.
+
+chat-personal-already-off: "&7Los mensajes de Discord ya están ocultos para ti."
+# Message shown for chat personal already off.
+
+chat-personal-on: "&aLos mensajes de Discord ahora son visibles para ti."
+# Message shown for chat personal on.
+
+chat-personal-off: "&7Los mensajes de Discord ahora están ocultos para ti."
+# Message shown for chat personal off.
+
+chat-already-on: "&7El chat {direction} ya está activado."
+# Message shown for chat already on.
+
+chat-already-off: "&7El chat {direction} ya está desactivado."
+# Message shown for chat already off.
+
+chat-enabled: "&aChat {direction} activado."
+# Message shown for chat enabled.
+
+chat-disabled: "&7Chat {direction} desactivado."
+# Message shown for chat disabled.
+
+setup-connection-failed: "&cEl bot de Discord no pudo conectarse. Revisa token y guild-id en bot.yml, Developer Portal > Bot y el acceso a internet. Después ejecuta /dyda bot restart."
+# Explain how to repair a failed Discord connection.
+setup-chat-conflict: "&eEl chat Minecraft → Discord está en pausa porque otro plugin gestiona el chat. Ejecuta /dyda doctor para ver qué plugin necesita una integración compatible de chat público."
+# Notify administrators once when another chat handler blocks public forwarding.
+setup-chat-adapter: "&eEl chat Minecraft → Discord no pudo leer el evento de chat de este servidor. Ejecuta /dyda doctor y revisa la compatibilidad de DyDiscord con el servidor antes de reiniciar."
+# Explain an unavailable server chat adapter without exposing exception details.
+chat-compatibility-blocked: "Minecraft → Discord está en pausa. Plugins de chat: {plugins}. Hace falta una integración compatible de chat público; cambiar de canal no lo soluciona."
+# List bounded plugin names in status and doctor; preserve {plugins}.
+chat-compatibility-adapter: "Minecraft → Discord no está disponible: falló el adaptador de chat del servidor. Revisa las versiones de servidor compatibles y reinicia tras corregirlo."
+# Report a failed chat adapter instead of showing the configured direction as active.
+error-config-file: "No se pudo cargar {file}{position}. Revisa la sangría, las comillas y los permisos del archivo; se conservaron los datos existentes."
+# Localized console explanation; values and secrets are not printed.
+error-config-position: " (línea {line}, columna {column})"
+# Localized console explanation; values and secrets are not printed.
+error-config-setting: "El ajuste {setting} no es válido. Revisa su comentario en config.yml o bot.yml y corrige el valor."
+# Localized console explanation; values and secrets are not printed.
+error-command-collision: "Un comando de Discord existente no está gestionado por DyDiscord. No toques los demás comandos; usa un bot propio o resuelve el conflicto antes de reiniciar."
+# Localized console explanation; values and secrets are not printed.
+error-timeout: "La operación no terminó a tiempo. Revisa la carga del servidor y la conexión con Discord e inténtalo de nuevo en breve."
+# Localized console explanation; values and secrets are not printed.
+error-unexpected: "No se pudo completar la operación. Revisa los avisos de configuración; se omitieron los datos privados."
+# Localized console explanation; values and secrets are not printed.
+error-console-event: "Evento {event}: {reason}"
+# Localized console explanation; values and secrets are not printed.
+error-startup: "DyDiscord no pudo iniciarse. Corrige el problema de archivo o datos indicado y reinicia. Se conservaron los datos existentes."
+# Localized console explanation; values and secrets are not printed.
+error-translations-fallback: "{count} mensajes que faltan usan los textos incluidos. Revisa los archivos de mensajes para personalizarlos."
+# Localized console explanation; values and secrets are not printed.
+error-boost-data: "Las recompensas por boost no están disponibles. Revisa el almacenamiento y la configuración de Discord; se conservaron los datos de recompensas."
+# Localized console explanation; values and secrets are not printed.
+error-link-reward-data: "Las recompensas por vinculación no están disponibles. Revisa el almacenamiento; se conservaron los registros de recompensas."
+# Localized console explanation; values and secrets are not printed.
+error-giveaway-data: "Los sorteos no están disponibles. Revisa los permisos de Discord y el almacenamiento; se conservaron los registros existentes."
+# Localized console explanation; values and secrets are not printed.
+error-chat-preferences: "No se pudieron leer las preferencias de chat. La entrega está en pausa para los jugadores afectados; revisa los permisos del archivo de datos."
+# Localized console explanation; values and secrets are not printed.
+error-chat-delivery: "No se pudo entregar el chat. Se descartaron los mensajes antiguos en cola; revisa la conexión con Discord y los permisos del canal."
+# Localized console explanation; values and secrets are not printed.
+error-log-backend: "El reenvío de consola no puede leer este sistema de registros. Revisa la compatibilidad del servidor y el registro local de inicio."
+# Localized console explanation; values and secrets are not printed.
+error-chat-ranks: "No se pudieron leer los rangos del chat. Los mensajes siguen sin rango; revisa la configuración de LuckPerms/Vault."
+# Localized console explanation; values and secrets are not printed.
+error-role-provider: "No se pudieron leer los grupos de LuckPerms. La pertenencia es desconocida; por eso no se quitarán roles."
+# Localized console explanation; values and secrets are not printed.
+error-boost-pending: "Hay recompensas por boost pendientes. Revisa almacenamiento/Discord; los comandos con resultado incierto nunca se repiten automáticamente."
+# Localized console explanation; values and secrets are not printed.
+error-link-reward-pending: "Hay recompensas por vinculación pendientes. Revisa el almacenamiento; los comandos con resultado incierto nunca se repiten automáticamente."
+# Localized console explanation; values and secrets are not printed.
+error-discord-shutdown: "Discord no se desconectó a tiempo; se canceló la conexión."
+# Localized console explanation; values and secrets are not printed.
+error-panel-pending: "La entrega del panel está pendiente. Revisa panel.channel-id en bot.yml y los permisos Ver canal, Enviar mensajes, Insertar enlaces y Leer el historial de mensajes. Después ejecuta /dyda panel refresh."
+# Localized console explanation; values and secrets are not printed.
+error-discord-disconnected: "Discord se desconectó. Se volverá a conectar en breve; revisa el acceso a internet si continúa."
+# Localized console explanation; values and secrets are not printed.

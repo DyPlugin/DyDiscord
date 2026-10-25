@@ -47,7 +47,7 @@ Evidence remains local in `.local/simplify-101/`: `final-tests` build log, `test
 | `DyDiscord-1.0.1.jar` | 2177730 | `dab8049c63d6f0bcca30931262751e5acaffdc1d33904c2d9f16220e889e122e` |
 | `DyDiscord-1.0.1-standalone.jar` | 24096526 | `d01ff1b96a6586e6659fb5635d5911334e06bd68047e409ece3e029253c72847` |
 
-Artifacts are under `build/libs/`. Install one alternative only. The plain build is not the distribution.
+Artifacts are under `C:/Users/alph/Documents/DyDiscord/build/libs/`. Install one alternative only. The plain build is not the distribution.
 
 ## Limits and remaining acceptance
 

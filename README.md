@@ -4,26 +4,34 @@
 
 DyDiscord is a Minecraft–Discord integration plugin for survival, SMP and community servers. Connect player accounts, bring conversations together and follow your server through your own Discord bot.
 
-DyDiscord combines private account linking, two-way chat, Minecraft-to-Discord roles, configurable rewards and giveaways in one plugin. **Version 1.0.2** adds clearer account messages, simpler administration and smoother setup while preserving existing account links, custom settings and translations.
+DyDiscord combines private account linking, two-way chat, Minecraft-to-Discord roles, configurable rewards and giveaways in one plugin. **Version 1.1.0** adds a live server status card, DyClaim and DyRTP event logs, PlaceholderAPI placeholders, German, Spanish and Russian, MiniMessage formatting and a developer API, while preserving existing account links, custom settings and translations.
 
 ---
 
-## New in 1.0.2
+## New in 1.1.0
 
-**Use clearer shortcuts.** `/dyd` opens the player command path; `/dyda` keeps administration separate and uses the same leaf permissions as the full command.
+**Server status card.** One Discord message shows Online or Offline, players, version and TPS (on Paper and its forks). DyDiscord edits the same message on a timer and marks it Offline on a normal shutdown. Turn it on with `status-card` in bot.yml.
 
-**Configure with fewer surprises.** New installations enable both chat directions and join, quit and death notices once a separate chat channel is configured. Console relay stays off until enabled; its command subsetting still requires explicit Discord authorization. Existing settings stay yours. Tokens are configured only in the local file or environment.
+**Logs from DyClaim and DyRTP.** Claims created and removed, trust changes, ownership transfers and random teleports are posted to a channel you choose. Each kind has its own switch under `plugin-logs`; a blank channel turns them off.
 
-**Run readable giveaways.** Container cards keep participation and private replies together. Leaving asks for confirmation with Leave and Cancel buttons; existing active cards are updated in place.
+**PlaceholderAPI.** `%dydiscord_linked%`, `%dydiscord_discord_name%` and `%dydiscord_bot_connected%` for scoreboards, tab lists and chat formats.
 
-**Understand setup errors.** English and Turkish console diagnostics identify the affected file or setting and suggest a repair without printing private YAML values. Chat sending wakes on demand while keeping queue limits, expiry and Discord pacing.
+**More languages.** German, Spanish and Russian join English and Turkish for Minecraft and Discord messages. `lang: auto` follows the Minecraft client language.
+
+**MiniMessage.** On Paper and Purpur, Minecraft messages may use tags such as `<green>` or `<gradient:#55ff55:#55ffff>` next to `&` codes. Names and chat from players are never read as tags. Spigot keeps `&` codes.
+
+**Modern cards.** Every bot message except relayed chat uses Discord's container layout with a coloured accent.
+
+**For developers.** `DyDiscordAPI` looks up linked accounts, and `AccountLinkEvent` and `AccountUnlinkEvent` report changes.
+
+Version 1.0.2 added the `/dyd` and `/dyda` shortcuts, safer defaults, container giveaways and clearer setup errors.
 
 ## Choose your server build
 
 | Package | JAR | First startup |
 | --- | --- | --- |
-| Small | `DyDiscord-1.0.2.jar` | Internet access to resolve required libraries |
-| Standalone | `DyDiscord-1.0.2-standalone.jar` | Libraries included; available on GitHub |
+| Small | `DyDiscord-1.1.0.jar` | Internet access to resolve required libraries |
+| Standalone | `DyDiscord-1.1.0-standalone.jar` | Libraries included; available on GitHub |
 
 Install **one** JAR per server. Both packages provide the same features for **Bukkit, Spigot, Paper and Purpur**, with **Minecraft 1.20.x–26.x** as the current compatibility range. Stop the server and back up the full DyDiscord folder before replacing the JAR. Existing accounts do not need to be linked again.
 
@@ -37,7 +45,7 @@ Java 17 bytecode; use the runtime required by your server. Folia and proxy platf
 
 **Choose what you use.** Enable either chat direction, event messages, role synchronization, rewards or console access as needed. You can turn off the panel and keep command-based account access.
 
-**English and Turkish together.** Both command languages and Turkish ASCII spellings are accepted. Help and TAB follow the effective language and permissions. Explicit game/player language choices are respected; otherwise game messages follow the bot language.
+**Five languages.** English, Turkish, German, Spanish and Russian messages are included. Commands use English words, and Turkish also accepts its own command words and ASCII spellings. Help and TAB follow the effective language and permissions. Explicit game/player language choices are respected; otherwise game messages follow the client or bot language.
 
 ## Link accounts, your way
 
@@ -71,6 +79,8 @@ Relay actual server output to a separate console channel. Optionally authorize t
 
 The relay shows real server output without extra technical acceptance/rejection replies. Normal shutdown attempts a short yellow notification before disconnecting; bot restarts and reloads do not send it. Delivery cannot be guaranteed during crashes or network failures.
 
+A separate status card keeps one message up to date with the server state, and an optional log channel follows DyClaim and DyRTP activity.
+
 ## Familiar commands
 
 | Command | Purpose |
@@ -93,7 +103,7 @@ Turkish examples include `/dydiscord eşle`, `/dydiscord kaldır`, `/dydiscord s
 3. Reload valid settings, choose the channels you need and run `/dyda doctor`.
 4. Enable the required Discord intents for the features you use. Message commands, console input and incoming Discord chat need Message Content Intent; member-event features need Server Members Intent.
 
-Settings and messages include short English comments. Back up the complete data folder before upgrades; restoring local data does not undo Discord role changes or reward commands already executed.
+Settings and messages include short English comments. Anonymous [bStats](https://bstats.org/plugin/bukkit/DyDiscord/34918) statistics can be turned off with `metrics.enabled: false`. Back up the complete data folder before upgrades; restoring local data does not undo Discord role changes or reward commands already executed.
 
 ## Source and support
 

@@ -87,3 +87,4 @@ class Release102ConfigurationTest {
         config.load();assertEquals(first,Files.readString(folder.resolve("bot.yml")));
     }
 }
+

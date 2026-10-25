@@ -7,6 +7,10 @@ import java.util.*;
 import java.util.regex.*;
 
 public final class Messages {
+    /** Shipped languages. Commands keep English words except for Turkish. */
+    public static final List<String> LANGUAGES=List.of("en","tr","de","es","ru");
+    /** Accepted language settings and preferences. */
+    public static final Set<String> CHOICES=Set.of("en","tr","de","es","ru","auto");
     private final Map<String,Map<String,String>> packs;
     private final Set<String> missing;
     private Messages(Map<String,Map<String,String>> packs,Set<String> missing){this.packs=Map.copyOf(packs);this.missing=Set.copyOf(missing);}
@@ -14,10 +18,10 @@ public final class Messages {
     /** Newly introduced keys migrate in the selected language; existing owner text is untouched. */
     public static boolean releaseKey(String key){
         if(key.startsWith("chat-compatibility-")||Set.of("account-date","account-roles","copy-code-hint","confirm-click-hint","invite-click-hint","help-admin-topics","help-bot-language","invite-auto-unavailable").contains(key))return true;
-        return List.of("error-","chat-personal-","chat-already-","chat-enabled","chat-disabled","setting-unchanged","help-prefix","help-bot-guild","help-topic-","setup-","startup-","help-page","help-card-","giveaway-","players-","addresses-","address-","links-","notice-","help-chat-","help-announce","help-giveaway-").stream().anyMatch(key::startsWith)
+        return List.of("language-name-","status-card-","log-","error-","chat-personal-","chat-already-","chat-enabled","chat-disabled","setting-unchanged","help-prefix","help-bot-guild","help-topic-","setup-","startup-","help-page","help-card-","giveaway-","players-","addresses-","address-","links-","notice-","help-chat-","help-announce","help-giveaway-").stream().anyMatch(key::startsWith)
             ||Set.of("slash-players","slash-ip","slash-links","help-community","server-started","information-channel-only","link-welcome","community-notice","report-saved","validation-result","setup-guide","reward-preview","help-maintenance","help-restart-notice","help-support-report","help-config-validate","help-translations-validate","help-setup","help-rewards-preview").contains(key);
     }
-    public void validatePanel(String serverName){for(String lang:List.of("en","tr")){
+    public void validatePanel(String serverName){for(String lang:LANGUAGES){
         // Validate structured help before publishing a reload, rather than failing on Discord.
         try{dev.dydiscord.discord.HelpView.card(this,lang,true);dev.dydiscord.discord.HelpView.card(this,lang,false);}catch(IllegalArgumentException invalid){throw new IllegalArgumentException("Invalid message: discord/messages_"+lang+".yml:help-card");}
         String serverTitle=render(true,lang,"server-info-title",Map.of("server_name",serverName));
@@ -29,7 +33,8 @@ public final class Messages {
     }}
     public static String language(String global,String preference,String locale){
         if(!global.equals("auto"))return global;if(preference!=null&&!preference.equals("auto"))return preference;
-        return locale!=null&&locale.toLowerCase(Locale.ROOT).matches("tr([_-].*)?")?"tr":"en";
+        if(locale!=null&&locale.length()>=2&&(locale.length()==2||locale.charAt(2)=='_'||locale.charAt(2)=='-')){String code=locale.substring(0,2).toLowerCase(Locale.ROOT);if(LANGUAGES.contains(code))return code;}
+        return "en";
     }
     public String get(boolean discord,String lang,String key){return packs.get((discord?"discord/":"")+lang).getOrDefault(key,key);}
     public String render(boolean discord,String lang,String key,Map<String,String> values){
@@ -37,7 +42,9 @@ public final class Messages {
         // Format only templates; externally supplied values never become color/mention markup.
         if(!discord)template=template.replaceAll("&([0-9a-fk-orA-FK-OR])","§$1");
         Matcher m=Pattern.compile("\\{([a-z_]+)}").matcher(template);StringBuffer out=new StringBuffer();
-        while(m.find()){String v=values.getOrDefault(m.group(1),m.group());v=discord?safeDiscord(v):safeMinecraft(v);m.appendReplacement(out,Matcher.quoteReplacement(v));}m.appendTail(out);return out.toString();
+        while(m.find()){String v=values.getOrDefault(m.group(1),m.group());v=discord?safeDiscord(v):dev.dydiscord.util.Colors.escapeTags(safeMinecraft(v));m.appendReplacement(out,Matcher.quoteReplacement(v));}m.appendTail(out);
+        // MiniMessage tags in Minecraft templates apply where the server ships Adventure; inserted values stay as typed.
+        return discord?out.toString():dev.dydiscord.util.Colors.tags(out.toString());
     }
     public static String safeMinecraft(String s){return s.replace("§","").replaceAll("[\\p{Cntrl}]"," ");}
     public static String safeDiscord(String s){return s.replace("\\","\\\\").replace("@","@\u200b").replace("`","ˋ").replace("*","\\*").replace("_","\\_").replace("~","\\~").replace("|","\\|").replace("[","\\[").replace("]","\\]").replace("<","‹").replaceAll("[\\p{Cntrl}]"," ");}
@@ -49,13 +56,14 @@ public final class Messages {
         if(key.equals("already-linked")&&placeholders(value).isEmpty())return true;
         if(!Set.of("linked","account","confirm").contains(key))return false;
         try(InputStream in=Messages.class.getClassLoader().getResourceAsStream("legacy/release-101/"+surface+"messages_"+lang+".yml")){
+            if(in==null)return false;
             Object old=Configuration.parse(new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8)).get(key);
             return old instanceof String text&&placeholders(value).equals(placeholders(text));
         }
     }
     public static Messages load(Path folder)throws IOException{
         Map<String,Map<String,String>> packs=new HashMap<>();Set<String> missing=new HashSet<>();
-        for(String surface:List.of("","discord/"))for(String lang:List.of("en","tr")){
+        for(String surface:List.of("","discord/"))for(String lang:LANGUAGES){
             String file=surface+"messages_"+lang+".yml";
             Map<String,Object> bundled;try(InputStream in=Messages.class.getClassLoader().getResourceAsStream(surface+"messages_en.yml")){if(in==null)throw new IOException("Missing messages");bundled=Configuration.parse(new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8));}
             Map<String,Object> custom=new HashMap<>(Configuration.read(folder.resolve(file)));Map<String,String> result=new HashMap<>();

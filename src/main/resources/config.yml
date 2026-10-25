@@ -4,7 +4,7 @@ config-version: 2
 prefix: "&7[&9DyDiscord&7]"
 # Chat prefix. Minecraft color codes such as &9 are supported.
 lang: auto
-# auto uses a saved player preference, then the bot language; en/tr forces the game language.
+# auto uses a saved player preference, then the client language; en, tr, de, es or ru forces the game language.
 server-name: "Minecraft Server"
 # Displayed server name on the account panel.
 discord:
@@ -45,3 +45,11 @@ community:
   # Up to ten entries with name and HTTPS url; no credentials/custom ports.
   server-fields: []
   # Up to ten name/value fields, name up to 80 and value up to 160 characters.
+integrations:
+# Optional connections to other plugins.
+  placeholderapi: true
+  # Register %dydiscord_...% placeholders when PlaceholderAPI is installed.
+metrics:
+# Anonymous statistics on bStats.org; no player names, IDs or messages are sent.
+  enabled: true
+  # Send anonymous plugin statistics. The global plugins/bStats/config.yml switch also applies.

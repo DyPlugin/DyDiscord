@@ -12,13 +12,13 @@ import java.util.regex.*;
 /** Localized diagnostics accept only known filenames, setting paths and event IDs. */
 public final class ConsoleDiagnostics {
     private ConsoleDiagnostics(){}
-    private static final Pattern FILE=Pattern.compile("(?:(?:discord/)?messages_(?:en|tr)|config|bot)\\.yml");
+    private static final Pattern FILE=Pattern.compile("(?:(?:discord/)?messages_(?:en|tr|de|es|ru)|config|bot)\\.yml");
     private static final Pattern SETTING=Pattern.compile("Invalid (setting|message|file): ([a-zA-Z0-9_./:-]+)");
     private static final class Bundled {
         static final Map<String,Map<String,Object>> TEXT=load();
         static Map<String,Map<String,Object>> load(){
             Map<String,Map<String,Object>> packs=new HashMap<>();
-            for(String lang:List.of("en","tr"))try(InputStream in=ConsoleDiagnostics.class.getClassLoader().getResourceAsStream("messages_"+lang+".yml")){
+            for(String lang:Messages.LANGUAGES)try(InputStream in=ConsoleDiagnostics.class.getClassLoader().getResourceAsStream("messages_"+lang+".yml")){
                 packs.put(lang,Configuration.parse(new String(Objects.requireNonNull(in).readAllBytes(),StandardCharsets.UTF_8)));
             }catch(IOException failure){throw new IllegalStateException("Bundled diagnostics unavailable",failure);}
             return Map.copyOf(packs);
@@ -27,20 +27,20 @@ public final class ConsoleDiagnostics {
     /** Called on the I/O executor before parsing; never changes or validates owner files. */
     public static String detectLanguage(Path folder){
         String global=scalar(read(folder.resolve("config.yml")),"^lang"),bot=scalar(read(folder.resolve("bot.yml")),"^  language");
-        return Set.of("en","tr").contains(global)?global:Set.of("en","tr").contains(bot)?bot:"en";
+        return Messages.LANGUAGES.contains(global)?global:Messages.LANGUAGES.contains(bot)?bot:"en";
     }
     private static String read(Path file){try{return Files.size(file)<=262144?Files.readString(file):"";}catch(IOException ignored){return "";}}
-    private static String scalar(String text,String key){Matcher match=Pattern.compile("(?m)"+key+":\\s*[\"']?(en|tr|auto)[\"']?\\s*(?:#.*)?$").matcher(text);return match.find()?match.group(1):"auto";}
+    private static String scalar(String text,String key){Matcher match=Pattern.compile("(?m)"+key+":\\s*[\"']?(en|tr|de|es|ru|auto)[\"']?\\s*(?:#.*)?$").matcher(text);return match.find()?match.group(1):"auto";}
     public static String language(DyDiscord plugin){
         try{var settings=plugin.settings();if(settings!=null)return Messages.language(settings.language(),"auto",settings.botLanguage());}catch(RuntimeException ignored){}
-        return "tr".equals(plugin.diagnosticLanguage())?"tr":"en";
+        String detected=plugin.diagnosticLanguage();return detected!=null&&Messages.LANGUAGES.contains(detected)?detected:"en";
     }
     public static String text(DyDiscord plugin,String key,Map<String,String> values){
         Messages messages=null;try{messages=plugin.messages();}catch(RuntimeException ignored){}
         return text(messages,language(plugin),key,values);
     }
     public static String text(Messages messages,String language,String key,Map<String,String> values){
-        String lang="tr".equals(language)?"tr":"en";
+        String lang=language!=null&&Messages.LANGUAGES.contains(language)?language:"en";
         String template=messages==null?null:messages.get(false,lang,key);
         if(template==null||template.equals(key))template=String.valueOf(Bundled.TEXT.get(lang).getOrDefault(key,key));
         Matcher slots=Pattern.compile("\\{([a-z_]+)}").matcher(template);StringBuffer out=new StringBuffer();

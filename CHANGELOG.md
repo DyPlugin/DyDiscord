@@ -1,6 +1,36 @@
-# DyDiscord changelog
+# DyDiscord 1.1.0
 
-## 1.0.2
+This release adds a live server status card, logs from DyClaim and DyRTP, PlaceholderAPI placeholders, three more languages, MiniMessage formatting and a developer API. Account links, settings and custom translations are kept.
+
+## Added
+
+- **Server status card.** One Discord message shows Online or Offline, players, the Minecraft version and TPS (on Paper and its forks). DyDiscord edits the same message every `interval-seconds` (30–3600, default 60), posts a new one only when the old one was deleted, and marks it Offline on a normal shutdown. Settings: `status-card.enabled`, `channel-id` and `interval-seconds` in bot.yml.
+- **Logs from DyClaim and DyRTP.** Claims created and removed, trust changes, ownership transfers and random teleports are posted as small embeds to `plugin-logs.channel-id`. Each kind has its own switch: `dyclaim.claims`, `dyclaim.trust`, `dyclaim.transfers` and `dyrtp.teleports`. A blank channel turns all of them off. Neither plugin is required.
+- **PlaceholderAPI.** `%dydiscord_linked%`, `%dydiscord_discord_name%` and `%dydiscord_bot_connected%`, answered from memory without touching storage. Switch: `integrations.placeholderapi`.
+- **German, Spanish and Russian** for Minecraft and Discord messages. `lang: auto` follows the Minecraft client language; `/dyd language de|es|ru` and the bot language accept them too. Command words stay English; Turkish keeps its own.
+- **MiniMessage.** On Paper and Purpur, Minecraft messages and the Discord-to-Minecraft chat template may use tags such as `<green>` or `<gradient:#55ff55:#55ffff>` next to `&` codes. Player names and chat are never read as tags. Spigot keeps `&` codes; Adventure is not bundled.
+- **Developer API.** `dev.dydiscord.api.DyDiscordAPI` looks up linked accounts by Minecraft UUID or Discord ID. `AccountLinkEvent` and `AccountUnlinkEvent` report changes on the main thread.
+- **bStats statistics** (plugin ID 34918), off with `metrics.enabled: false`.
+
+## Changed
+
+- **Modern cards everywhere.** Every bot message except relayed chat now uses Discord's container layout with a coloured accent: private replies, help, `/server`, `/players`, `/ip`, `/links`, `/status`, `dy!` replies, the console relay, the shutdown notice, the status card and the plugin logs. Chat lines stay plain so conversations read naturally.
+- After choosing a language, the confirmation names that language in the new language.
+- Discord slash commands are unchanged: `/server`, `/players`, `/ip`, `/links`, `/link`, `/account`, `/unlink`, `/help` and `/status` keep working as before.
+
+## Upgrading
+
+Stop the server, back up the existing JAR and the complete `plugins/DyDiscord` folder, then replace the JAR with **one** 1.1.0 package (`DyDiscord-1.1.0.jar`, or `DyDiscord-1.1.0-standalone.jar`). Keep the data folder.
+
+- Account links, settings, custom messages and translations are kept. New settings are added with their defaults: the status card and plugin logs stay off until you choose a channel.
+- German, Spanish and Russian preferences are stored beside the existing table, so returning to 1.0.2 shows those players the automatic language instead of failing.
+- Existing Discord slash commands are reused; no new bot permissions are needed. The status card and logs need View Channel, Send Messages and Embed Links in their channel.
+
+Full changelog: https://dynastyplugins.com/dydiscord/versions/1.1.0
+
+---
+
+# DyDiscord 1.0.2
 
 - Added `/dyd`; hide `/dyda` suggestions unless an administration leaf is accessible.
 - Removed in-game token entry and its permission. Configure tokens through bot.yml or the environment.
@@ -15,9 +45,11 @@
 - Keep processing subsequent Paper chat events after transient reflected event-method failures; incompatible APIs remain blocked.
 - Locally verified with 699 automated tests and isolated relay measurements; no publication/production deployment. See [release evidence](docs/release-1.0.2-verification.md) and [measured comparison](docs/performance/2026-10-18/README.md). No overall speed-superiority claim.
 
-## 1.0.1
+---
 
-### Improved
+# DyDiscord 1.0.1
+
+## Improved
 
 - Six-character copyable linking codes with hover hints and a separate clickable invitation; automatic reusable permanent invitations when none is configured.
 - Natural English/Turkish account messages, readable private link dates, optional managed-role names, and a contained unlink confirmation.
@@ -30,7 +62,7 @@
 - Organized Discord help embeds shared by slash and message commands; other normal message-command replies also use embeds.
 - Exact primary Discord role RGB in Minecraft, including dark colors; gradient/holographic roles use their first color.
 
-### Simplified command surface
+## Simplified command surface
 
 - Added `/dyda` with the same administration leaf checks, prefix editing, guild setup and a no-argument, player-only token entry session. Local token-file editing remains preferred because client history and third-party logging cannot be guaranteed.
 - Player `chat on|off` now controls incoming Discord visibility only. Administrators choose explicit Discord → Minecraft, Minecraft → Discord or both directions and a chat channel.
@@ -39,7 +71,7 @@
 - Numbered help replaces topic navigation; player help omits itself, header prefix appears once and page footer stays unprefixed. YAML descriptions follow their setting, and owner comments remain.
 - Readable localized account dates and both account names remain private; configuration warnings reach authorized online administrators through `dydiscord.admin.alerts`.
 
-### Fixed
+## Fixed
 
 - Unrelated inactive channels blocking configuration changes and channel setup being rejected before bot connection.
 - Plain console output incorrectly requiring panel-specific history/embed permissions.
@@ -48,7 +80,7 @@
 - Missing restart guidance for failed sessions and stale callbacks surviving a denied-intent fallback reconnect.
 - Empty console channel generating repeated permission checks. Intent rejection now explains the affected features and Developer Portal settings.
 
-### Upgrade
+## Upgrade
 
 Replace the JAR with the server stopped; keep the entire DyDiscord data directory. No database schema change or account relinking is required. Choose either `DyDiscord-1.0.1.jar` or `DyDiscord-1.0.1-standalone.jar`, never both. See [the latest simplification report](docs/simplify-1.0.1-verification.md) for current evidence and limits; prior release/polish reports apply to their own artifacts.
 
@@ -145,14 +177,14 @@ By Claww / DyPlugin
 
 ## Added
 
-### Accounts and panel
+## Accounts and panel
 
 - Private Minecraft–Discord account linking with short-lived random codes.
 - One persistent Discord account panel with Link Account, Unlink and My Account.
 - Private account information, username-based messages and confirmed unlinking.
 - Local SQLite persistence for accounts, language preferences and panel state.
 
-### Chat and events
+## Chat and events
 
 - Independently configurable Minecraft → Discord and Discord → Minecraft text chat.
 - LuckPerms rank support, Vault Chat fallback and Discord role/display-name formatting.
@@ -160,7 +192,7 @@ By Claww / DyPlugin
 - A bounded yellow notification during normal server shutdown.
 - Mention suppression and safe handling of user-provided formatting.
 
-### Administration and language
+## Administration and language
 
 - Optional private console log relay and trusted-role console command access.
 - Local audit records, bounded queues and sensitive-value masking.

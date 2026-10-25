@@ -1,0 +1,220 @@
+# Setting descriptions follow their settings.
+panel-title: "{server_name} - Konto verknüpfen"
+# Title displayed on the account linking panel.
+panel-description: "Um deine Minecraft- und Discord-Konten zu verbinden, hol dir im Spiel mit `/discord link` deinen Code, wähle unten **Konto verknüpfen** und gib den Code ein.\n\n**Konto verknüpfen:** Verbindet deine Konten mit deinem Code aus dem Spiel.\n\n**Mein Konto:** Zeigt deine verknüpften Minecraft- und Discord-Konten.\n\n**Trennen:** Hebt deine bestehende Verknüpfung auf."
+# Instructions displayed above the account panel buttons.
+panel-privacy: "Nur du siehst deine Kontodaten. Halte deinen Code geheim."
+# Only you can see your account details. Keep your code private.
+link: "Konto verknüpfen"
+# Link Account
+account-button: "Mein Konto"
+# My Account
+unlink: "Trennen"
+# Unlink
+code-label: "Verknüpfungscode"
+# Linking code
+modal-title: "Konto verknüpfen"
+# Link Your Account
+help: "Mit dem Kontopanel verknüpfst, siehst oder trennst du dein eigenes Konto. Erzeuge in Minecraft mit /discord link einen Code. Codes laufen ab und überstehen keinen Serverneustart."
+# Guidance for linking and managing the user's own account.
+help-card-title: "Befehle"
+# Structured help card, shared by slash and prefix commands; no footer is added.
+help-card-accounts: "Deine Konten"
+# Text shown for help card accounts.
+help-card-account-commands: "`/link` — Code aus dem Spiel eingeben\n`/account` — Verknüpfte Konten ansehen\n`/unlink` — Kontoverknüpfung aufheben"
+# Text shown for help card account commands.
+help-card-server: "Server und Community"
+# Text shown for help card server.
+help-card-other: "Hilfe und Verbindung"
+# Text shown for help card other.
+help-card-other-commands: "`/help` — Dieses Menü anzeigen\n`/status` — Verbindungsstatus des Bots anzeigen\nNachrichtenbefehle funktionieren auch mit dem Präfix `dy!`. Kontodaten werden privat angezeigt."
+# Text shown for help card other commands.
+status: "DyDiscord {version}: {state}"
+# DyDiscord {version}: {state}
+state-disabled: "Deaktiviert"
+# Disabled
+state-starting: "Verbindet"
+# Connecting
+state-connected: "Verbunden"
+# Connected
+state-degraded: "Teilweise verfügbar"
+# Partially available
+state-stopping: "Wird beendet"
+# Stopping
+state-failed: "Verbindung fehlgeschlagen"
+# Connection failed
+account: "Minecraft-Konto: {name}\nDiscord-Konto: {discord}"
+# Editable private Discord message; keep placeholders.
+not-linked: "Dein Discord-Konto ist mit keinem Minecraft-Konto verknüpft."
+# Editable private Discord message; keep placeholders.
+linked: "Dein Minecraft-Konto **{name}** ist jetzt mit deinem Discord-Konto verknüpft!"
+# Editable private Discord message; keep placeholders.
+unlinked: "Deine Kontoverknüpfung wurde aufgehoben."
+# Editable private Discord message; keep placeholders.
+invalid-code: "Dieser Code ist ungültig oder abgelaufen. Erzeuge in Minecraft einen neuen Code."
+# That code is invalid or expired. Generate a new code in Minecraft.
+already-linked: "Dieses Konto ist bereits mit @{discord} verknüpft!"
+# An account is already linked. Unlink it first.
+rate-limit: "Zu viele Versuche. Bitte versuche es später noch einmal."
+# Too many attempts. Please try again later.
+data-unavailable: "Kontodaten sind nicht verfügbar. Wende dich an den Serveradministrator."
+# Account data is unavailable. Contact the server administrator.
+no-permission: "Du kannst diese Aktion nicht ausführen."
+# You cannot perform this action.
+confirmation-invalid: "Diese Bestätigung ist ungültig oder abgelaufen."
+# This confirmation is invalid or expired.
+confirm: "Möchtest du die Verknüpfung deines Kontos aufheben?"
+# Editable private Discord message; keep placeholders.
+confirm-button: "Trennen"
+# Editable private Discord message; keep placeholders.
+cancel-button: "Abbrechen"
+# Editable private Discord message; keep placeholders.
+cancelled: "Deine Kontoverknüpfung bleibt bestehen."
+# Editable private Discord message; keep placeholders.
+private-prompt: "Öffne das Kontopanel, um privat fortzufahren: {url}"
+# Open the account panel to continue privately: {url}
+panel-disabled: "Das Kontopanel ist deaktiviert. Nutze /link, /account oder /unlink."
+# Panel-off response; slash replies are private. Reload applies this text.
+commands-prompt: "Nutze {command}, um privat fortzufahren. Nur du siehst die Antwort."
+# Prefix command guidance. Keep {command}; never include account details here.
+commands-help: "Nutze /link, um deinen Code aus dem Spiel einzugeben, /account, um dein Konto anzusehen, oder /unlink, um die Verknüpfung aufzuheben. Deinen Code bekommst du in Minecraft mit /discord link. Antworten sind privat."
+# Command-only help, used while panel.enabled is false; reload applies it.
+panel-missing: "Das Kontopanel ist nicht verfügbar. Wende dich an den Serveradministrator."
+# The account panel is unavailable. Contact the server administrator.
+console-rejected: "Konsolenanfrage abgelehnt. Prüfe die Einrichtung der privaten Konsole und deinen Zugriff."
+# Response when console command access is denied.
+console-prefix: "Nutze Bot-Befehle außerhalb des Konsolenkanals."
+# Use bot commands outside the console channel.
+busy: "Der Dienst ist ausgelastet. Bitte versuche es gleich noch einmal."
+# The service is busy. Please try again shortly.
+failed: "Der Vorgang ist fehlgeschlagen. Ereignis {event}; wende dich an den Serveradministrator."
+# The operation failed. Event {event}; contact the server administrator.
+slash-help: "DyDiscord-Hilfe anzeigen"
+# Show DyDiscord help
+slash-link: "Privates Formular zur Kontoverknüpfung öffnen"
+# Open the private account linking form
+slash-account: "Dein verknüpftes Konto anzeigen"
+# Show your own linked account
+slash-unlink: "Dein Konto mit Bestätigung trennen"
+# Unlink your own account with confirmation
+slash-status: "Verbindungsstatus des Bots anzeigen"
+# Show the bot connection state
+slash-server: "Informationen zum Minecraft-Server anzeigen"
+# Server slash-command description (1-100 characters); bot restart applies it.
+help-server: "Serverinformationen mit /server oder dy!server ansehen."
+# Extra help line. Combined help text must fit 2000 characters; reload applies it.
+server-info-title: "{server_name}"
+# Embed title, at most 256 characters after {server_name} expands; reload applies it.
+server-info-players: "Spieler"
+# Player-count field label (1-256 characters); reload applies it.
+server-info-version: "Minecraft-Version"
+# Game-version field label (1-256 characters); reload applies it.
+
+chat-to-discord: "{rank}{name} **»** {message}"
+# Normal Minecraft chat. {rank} includes bold text and a trailing space when present.
+chat-to-minecraft: "&9[Discord] &7{role}&f{name} &8» &7{message}"
+# Minecraft colors apply only to this template; {role} adds a space only when present.
+chat-join: "{name} hat den Server betreten."
+# Public join event. Keep {name} unchanged.
+chat-quit: "{name} hat den Server verlassen."
+# Public quit event. Keep {name} unchanged.
+chat-death: "{death}"
+# Existing death reason, safely escaped; it is not automatically translated.
+server-stopping: "Der Server wird heruntergefahren."
+# Normal server shutdown only, before the process has fully stopped.
+
+slash-players: "Sichtbare Spieler online anzeigen"
+# Community commands and private first-link guidance; placeholders must match both languages.
+slash-ip: "Eingestellte Serveradressen anzeigen"
+# Text shown for slash ip.
+slash-links: "Nützliche Serverlinks anzeigen"
+# Text shown for slash links.
+help-community: "/players — Spieler online\n/ip — Serveradressen\n/links — Nützliche Links"
+# Text shown for help community.
+information-channel-only: "Nutze für diesen Befehl den Kanal für Serverinformationen."
+# Text shown for information channel only.
+players-title: "Spieler online ({count})"
+# Text shown for players title.
+players-empty: "Es sind keine Spieler online."
+# Text shown for players empty.
+players-more: "Und {count} weitere Spieler."
+# Text shown for players more.
+addresses-title: "Serveradressen"
+# Text shown for addresses title.
+address-java: "Java Edition"
+# Text shown for address java.
+address-bedrock: "Bedrock Edition"
+# Text shown for address bedrock.
+addresses-empty: "Es wurden keine Serveradressen eingerichtet."
+# Text shown for addresses empty.
+links-title: "Nützliche Links"
+# Text shown for links title.
+links-empty: "Es wurden keine Links eingerichtet."
+# Text shown for links empty.
+link-welcome: "Willkommen! Deine Minecraft- und Discord-Konten sind jetzt verbunden."
+# Text shown for link welcome.
+giveaway-title: "Gewinnspiel"
+# Giveaway card text and private participation responses; never mention users.
+giveaway-enter: "Teilnehmen"
+# Text shown for giveaway enter.
+giveaway-open: "Preis: {prize}\nGewinner: {winners}\nEndet: {ends}\n\nWähle Teilnehmen, um mitzumachen. Eine Teilnahme pro Konto."
+# Text shown for giveaway open.
+giveaway-drawn: "Preis: {prize}\nGewinner: {winners}"
+# Text shown for giveaway drawn.
+giveaway-cancelled: "Gewinnspiel abgebrochen. Preis: {prize}"
+# Text shown for giveaway cancelled.
+giveaway-no-winners: "Keine berechtigten Teilnehmer"
+# Text shown for giveaway no winners.
+giveaway-joined: "Du nimmst an diesem Gewinnspiel teil."
+# Text shown for giveaway joined.
+giveaway-already: "Du nimmst bereits an diesem Gewinnspiel teil."
+# Text shown for giveaway already.
+giveaway-closed: "Dieses Gewinnspiel ist beendet."
+# Text shown for giveaway closed.
+giveaway-full: "Dieses Gewinnspiel hat die maximale Teilnehmerzahl erreicht."
+# Text shown for giveaway full.
+giveaway-ineligible: "Du erfüllst die Teilnahmebedingungen nicht."
+# Text shown for giveaway ineligible.
+giveaway-unavailable: "Dieses Gewinnspiel ist vorübergehend nicht verfügbar. Bitte versuche es später noch einmal."
+# Text shown for giveaway unavailable.
+giveaway-leave: "Verlassen"
+# Text shown for giveaway leave.
+giveaway-leave-cancel: "Abbrechen"
+# Text shown for giveaway leave cancel.
+giveaway-leave-confirm: "Dieses Gewinnspiel verlassen?\n\nDeine Teilnahme bleibt bis zur Bestätigung bestehen. Diese Anfrage läuft in 60 Sekunden ab."
+# Text shown for giveaway leave confirm.
+giveaway-left: "Du hast dieses Gewinnspiel verlassen."
+# Text shown for giveaway left.
+giveaway-leave-cancelled: "Du nimmst weiterhin an diesem Gewinnspiel teil."
+# Text shown for giveaway leave cancelled.
+giveaway-leave-expired: "Diese Bestätigung ist abgelaufen oder wurde schon genutzt. Wähle erneut Verlassen."
+# Text shown for giveaway leave expired.
+giveaway-not-entered: "Du nimmst nicht an diesem Gewinnspiel teil."
+# Text shown for giveaway not entered.
+
+account-date: "Verknüpft am: {date}"
+# Editable display text; reload applies.
+
+account-roles: "Synchronisierte Rollen:"
+# Editable display text; reload applies.
+
+status-card-state: "Status"
+# Live status card; reload applies these labels.
+status-card-online: "🟢 Online"
+# Text shown for status card online.
+status-card-offline: "🔴 Offline"
+# Text shown for status card offline.
+status-card-tps: "TPS"
+# Text shown for status card tps.
+log-claim-created: "**{owner}** hat in {world} bei {x}, {z} Land beansprucht."
+# Plugin log lines for DyClaim and DyRTP events; keep the placeholders.
+log-claim-removed: "Der Claim von **{owner}** in {world} bei {x}, {z} wurde entfernt."
+# Text shown for log claim removed.
+log-trust-added: "**{owner}** hat **{player}** Zugriff auf den Claim in {world} bei {x}, {z} gegeben."
+# Text shown for log trust added.
+log-trust-removed: "**{owner}** hat **{player}** den Zugriff auf den Claim in {world} bei {x}, {z} entzogen."
+# Text shown for log trust removed.
+log-claim-transferred: "Der Claim in {world} bei {x}, {z} ging von **{from}** an **{to}**."
+# Text shown for log claim transferred.
+log-rtp: "**{player}** wurde zufällig nach {world} teleportiert ({x}, {y}, {z})."
+# Text shown for log rtp.

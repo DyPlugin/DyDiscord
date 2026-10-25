@@ -45,7 +45,7 @@ public final class ConsoleBridge implements AutoCloseable {
         try{
             if(!relayCurrent(version,session,captured))return;plugin.bot().validateChannel(captured.consoleChannel(),true);TextChannel target=plugin.bot().channel(captured.consoleChannel());String text;
             synchronized(buffer){if(!relayCurrent(version,session,captured))return;text=buffer.drain();}
-            if(!text.isEmpty())plugin.bot().await(target.sendMessage(text).setAllowedMentions(List.of()).setCheck(()->relayCurrent(version,session,captured)));
+            if(!text.isEmpty())plugin.bot().await(target.sendMessage(dev.dydiscord.discord.PanelView.create(dev.dydiscord.discord.Cards.console(text))).setAllowedMentions(List.of()).setCheck(()->relayCurrent(version,session,captured)));
             failures=0;nextFlushNanos=0;
         }catch(Exception failure){
             if(!closed&&version==policy.get()&&plugin.bot().alive(session)){failures=Math.min(failures+1,5);nextFlushNanos=System.nanoTime()+TimeUnit.SECONDS.toNanos(Math.min(60,2L<<failures))+ThreadLocalRandom.current().nextLong(1_000_000_000L);Instant now=plugin.clock().instant();if(now.isAfter(lastFailureLog.plusSeconds(60))){lastFailureLog=now;plugin.error(failure);}}

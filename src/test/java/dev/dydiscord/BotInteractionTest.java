@@ -64,7 +64,7 @@ class BotInteractionTest {
     }
     @Test void disabledPanelRejectsButtonsButSlashStillOpensPrivateModal()throws Exception{
         var off=Settings.read(Map.of(),Map.of("guild-id",settings.guild(),"panel",Map.of("enabled",false,"channel-id",settings.panelChannel())),null);when(host.settings()).thenReturn(off);
-        var button=button("link","423456789012345678");var reply=mock(ReplyCallbackAction.class);when(button.reply(anyString())).thenReturn(reply);when(reply.setEphemeral(true)).thenReturn(reply);when(reply.setAllowedMentions(any())).thenReturn(reply);
+        var button=button("link","423456789012345678");var reply=mock(ReplyCallbackAction.class);when(button.reply(any(net.dv8tion.jda.api.utils.messages.MessageCreateData.class))).thenReturn(reply);when(reply.setEphemeral(true)).thenReturn(reply);when(reply.setAllowedMentions(any())).thenReturn(reply);
         listener.onButtonInteraction(button);verify(button,never()).replyModal(any());
         var slash=mock(net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent.class);Guild guild=mock(Guild.class);User user=mock(User.class);when(slash.isFromGuild()).thenReturn(true);when(slash.getGuild()).thenReturn(guild);when(guild.getId()).thenReturn(settings.guild());when(slash.getMember()).thenReturn(mock(Member.class));when(slash.getUser()).thenReturn(user);when(user.getId()).thenReturn("523456789012345678");when(slash.getName()).thenReturn("link");when(slash.replyModal(any())).thenReturn(mock(ModalCallbackAction.class));
         listener.onSlashCommandInteraction(slash);verify(slash).replyModal(any());
@@ -84,8 +84,8 @@ class BotInteractionTest {
     void restrictedInformationChannelsRejectBeforeSchedulingButPrivateAccountStillWorks(String action)throws Exception {
         Settings restricted=Settings.read(Map.of(),Map.of("guild-id",settings.guild(),"community",Map.of("information-channel-ids",List.of("823456789012345678"))),null);when(host.settings()).thenReturn(restricted);
         var event=mock(net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent.class,RETURNS_DEEP_STUBS);when(event.isFromGuild()).thenReturn(true);when(event.getGuild().getId()).thenReturn(settings.guild());when(event.getUser().getId()).thenReturn("523456789012345678");when(event.getName()).thenReturn(action);when(event.getChannel().getId()).thenReturn("923456789012345678");
-        var reply=mock(ReplyCallbackAction.class,RETURNS_SELF);when(event.reply(anyString())).thenReturn(reply);listener.onSlashCommandInteraction(event);
-        verify(event).reply(bot.text("information-channel-only",Map.of()));verify(reply).setEphemeral(true);verify(event,never()).deferReply(anyBoolean());verify(host,never()).submit(any());
+        var reply=mock(ReplyCallbackAction.class,RETURNS_SELF);when(event.reply(any(net.dv8tion.jda.api.utils.messages.MessageCreateData.class))).thenReturn(reply);listener.onSlashCommandInteraction(event);
+        verify(event).reply(argThat(TestSupport.v2(bot.text("information-channel-only",Map.of()))));verify(reply).setEphemeral(true);verify(event,never()).deferReply(anyBoolean());verify(host,never()).submit(any());
         var link=mock(net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent.class,RETURNS_DEEP_STUBS);when(link.isFromGuild()).thenReturn(true);when(link.getGuild().getId()).thenReturn(settings.guild());when(link.getUser().getId()).thenReturn("623456789012345678");when(link.getName()).thenReturn("link");listener.onSlashCommandInteraction(link);verify(link).replyModal(any());
     }
     @Test void uncachedMemberUpdateSignalsFreshBoostReconciliation(){
@@ -107,11 +107,11 @@ class BotInteractionTest {
         ButtonInteractionEvent event=mock(ButtonInteractionEvent.class);Guild guild=mock(Guild.class);User user=mock(User.class);MessageChannelUnion channel=mock(MessageChannelUnion.class);
         when(event.getComponentId()).thenReturn("dd:panel:"+action);when(event.isFromGuild()).thenReturn(true);when(event.getGuild()).thenReturn(guild);when(guild.getId()).thenReturn(settings.guild());when(event.getMember()).thenReturn(mock(Member.class));
         when(event.getUser()).thenReturn(user);when(user.getId()).thenReturn(actor);when(event.getMessageId()).thenReturn("323456789012345678");when(event.getChannel()).thenReturn(channel);when(channel.getId()).thenReturn(settings.panelChannel());
-        ReplyCallbackAction reply=mock(ReplyCallbackAction.class,RETURNS_SELF);when(event.reply(anyString())).thenReturn(reply);when(event.replyModal(any(Modal.class))).thenReturn(mock(ModalCallbackAction.class));return event;
+        ReplyCallbackAction reply=mock(ReplyCallbackAction.class,RETURNS_SELF);when(event.reply(any(net.dv8tion.jda.api.utils.messages.MessageCreateData.class))).thenReturn(reply);when(event.replyModal(any(Modal.class))).thenReturn(mock(ModalCallbackAction.class));return event;
     }
     @Test void repeatedPanelRequestsAreLimitedBeforeModalOrAsyncWork(){
         ButtonInteractionEvent first=button("link","423456789012345678"),second=button("link","423456789012345678");listener.onButtonInteraction(first);listener.onButtonInteraction(second);
-        verify(first).replyModal(any());verify(second,never()).replyModal(any());verify(second).reply(bot.text("rate-limit",Map.of()));verify(host,never()).submit(any());
+        verify(first).replyModal(any());verify(second,never()).replyModal(any());verify(second).reply(argThat(TestSupport.v2(bot.text("rate-limit",Map.of()))));verify(host,never()).submit(any());
     }
     @org.junit.jupiter.params.ParameterizedTest @org.junit.jupiter.params.provider.ValueSource(strings={"account","unlink"})
     void sessionLostDuringMemberLookupCannotRefreshAccountOrCreateConfirmation(String action)throws Exception{
@@ -146,7 +146,7 @@ class BotInteractionTest {
     }
     @Test void interactionLimitIsPerActionAndUserAndExpires(){
         listener.onButtonInteraction(button("link","423456789012345678"));
-        var unrelated=button("unknown","423456789012345678");listener.onButtonInteraction(unrelated);verify(unrelated,never()).reply(anyString());
+        var unrelated=button("unknown","423456789012345678");listener.onButtonInteraction(unrelated);verify(unrelated,never()).reply(any(net.dv8tion.jda.api.utils.messages.MessageCreateData.class));
         var other=button("link","523456789012345678");listener.onButtonInteraction(other);verify(other).replyModal(any());
         ((TestSupport.Time)host.clock()).advance(1);var later=button("link","423456789012345678");listener.onButtonInteraction(later);verify(later).replyModal(any());
     }
@@ -169,28 +169,28 @@ class BotInteractionTest {
         var opening=button("link","423456789012345678");listener.onButtonInteraction(opening);var form=ArgumentCaptor.forClass(Modal.class);verify(opening).replyModal(form.capture());
         var field=Bot.class.getDeclaredField("modalLimit");field.setAccessible(true);assertTrue(((IngressLimit)field.get(bot)).admit("423456789012345678"));
         var event=mock(ModalInteractionEvent.class,RETURNS_DEEP_STUBS);when(event.getModalId()).thenReturn(form.getValue().getId());when(event.isFromGuild()).thenReturn(true);when(event.getGuild().getId()).thenReturn(settings.guild());when(event.getUser().getId()).thenReturn("423456789012345678");listener.onModalInteraction(event);
-        verify(event).reply(bot.text("rate-limit",Map.of()));verify(event,never()).deferReply(anyBoolean());verify(host,never()).submit(any());
+        verify(event).reply(argThat(TestSupport.v2(bot.text("rate-limit",Map.of()))));verify(event,never()).deferReply(anyBoolean());verify(host,never()).submit(any());
     }
     @Test void slashAndPanelLinkShareTheSameAdmissionLimit(){
         var event=mock(net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent.class,RETURNS_DEEP_STUBS);when(event.isFromGuild()).thenReturn(true);when(event.getGuild().getId()).thenReturn(settings.guild());when(event.getUser().getId()).thenReturn("423456789012345678");when(event.getName()).thenReturn("link");listener.onSlashCommandInteraction(event);verify(event).replyModal(any());
-        var panel=button("link","423456789012345678");listener.onButtonInteraction(panel);verify(panel,never()).replyModal(any());verify(panel).reply(bot.text("rate-limit",Map.of()));
+        var panel=button("link","423456789012345678");listener.onButtonInteraction(panel);verify(panel,never()).replyModal(any());verify(panel).reply(argThat(TestSupport.v2(bot.text("rate-limit",Map.of()))));
     }
     @Test void sharedPanelOpensModalAsFirstResponseForAnyHumanMember(){
         ButtonInteractionEvent event=button("link","423456789012345678");listener.onButtonInteraction(event);
         ArgumentCaptor<Modal> form=ArgumentCaptor.forClass(Modal.class);verify(event).replyModal(form.capture());assertTrue(form.getValue().getId().startsWith("dd:form:"));
-        verify(event,never()).deferReply(anyBoolean());verify(event,never()).reply(anyString());verify(host,never()).submit(any());
+        verify(event,never()).deferReply(anyBoolean());verify(event,never()).reply(any(net.dv8tion.jda.api.utils.messages.MessageCreateData.class));verify(host,never()).submit(any());
     }
     @Test void stalePanelCannotOpenModal(){
         ButtonInteractionEvent event=button("link","423456789012345678");when(event.getMessageId()).thenReturn("old-message");listener.onButtonInteraction(event);
-        verify(event).reply(bot.text("panel-missing",Map.of()));verify(event,never()).replyModal(any());verify(host,never()).submit(any());
+        verify(event).reply(argThat(TestSupport.v2(bot.text("panel-missing",Map.of()))));verify(event,never()).replyModal(any());verify(host,never()).submit(any());
     }
     @Test void wrongGuildCannotReadOrMutateAccount(){
         ButtonInteractionEvent event=button("account","423456789012345678");when(event.getGuild().getId()).thenReturn("other-guild");listener.onButtonInteraction(event);
-        verify(event).reply(bot.text("no-permission",Map.of()));verify(event,never()).deferReply(anyBoolean());verify(host,never()).submit(any());
+        verify(event).reply(argThat(TestSupport.v2(bot.text("no-permission",Map.of()))));verify(event,never()).deferReply(anyBoolean());verify(host,never()).submit(any());
     }
     @Test void forgedOrExpiredModalGetsPrivateGenericFailure(){
         ModalInteractionEvent event=mock(ModalInteractionEvent.class);User user=mock(User.class);when(event.getUser()).thenReturn(user);when(user.getId()).thenReturn("423456789012345678");when(event.getModalId()).thenReturn("dd:form:unknown");
-        ReplyCallbackAction reply=mock(ReplyCallbackAction.class);when(event.reply(anyString())).thenReturn(reply);when(reply.setEphemeral(true)).thenReturn(reply);
-        listener.onModalInteraction(event);verify(event).reply(bot.text("invalid-code",Map.of()));verify(reply).setEphemeral(true);verify(event,never()).deferReply(anyBoolean());verify(host,never()).submit(any());
+        ReplyCallbackAction reply=mock(ReplyCallbackAction.class);when(event.reply(any(net.dv8tion.jda.api.utils.messages.MessageCreateData.class))).thenReturn(reply);when(reply.setEphemeral(true)).thenReturn(reply);
+        listener.onModalInteraction(event);verify(event).reply(argThat(TestSupport.v2(bot.text("invalid-code",Map.of()))));verify(reply).setEphemeral(true);verify(event,never()).deferReply(anyBoolean());verify(host,never()).submit(any());
     }
 }

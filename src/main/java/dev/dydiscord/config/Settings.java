@@ -8,7 +8,7 @@ public record Settings(String prefix, String language, String serverName, String
         int confirmationTimeout, boolean botEnabled, String token, String tokenSource, String guild,
         String botLanguage, String botPrefix, boolean prefixEnabled, String activity, String panelChannel,
         boolean consoleEnabled, String consoleChannel, boolean commandsEnabled, boolean administrator,
-        Set<String> roles,String panelImage,boolean updateChecks,ChatSettings chat,RoleSettings roleSync,BoostSettings boostRewards,boolean panelEnabled,CommunitySettings community,LinkRewardSettings linkRewards,ToolsSettings tools,GiveawaySettings giveaways,AccountSettings accounts) {
+        Set<String> roles,String panelImage,boolean updateChecks,ChatSettings chat,RoleSettings roleSync,BoostSettings boostRewards,boolean panelEnabled,CommunitySettings community,LinkRewardSettings linkRewards,ToolsSettings tools,GiveawaySettings giveaways,AccountSettings accounts,IntegrationSettings integrations) {
     @Override public String toString() { return "Settings[language="+language+", botLanguage="+botLanguage+", token=REDACTED]"; }
     public boolean needsRestart(Settings other) {
         return !token.equals(other.token) || !guild.equals(other.guild) || !botLanguage.equals(other.botLanguage)
@@ -18,7 +18,7 @@ public record Settings(String prefix, String language, String serverName, String
     public boolean memberIntentRequested(){return roleSync.enabled()&&roleSync.memberEvents()||boostRewards.enabled();}
     public static Settings read(Map<String,Object> c, Map<String,Object> b, String environment) {
         number(c,"config-version",1,1,2); number(b,"config-version",1,1,2);
-        String lang=choice(c,"lang","auto",Set.of("en","tr","auto"));
+        String lang=choice(c,"lang","auto",dev.dydiscord.language.Messages.CHOICES);
         String invite=string(c,"discord.invite-url",""); validateInvite(invite);
         String panel=id(b,"panel.channel-id"), console=id(b,"console.channel-id");
         if (!panel.isEmpty() && panel.equals(console)) throw invalid("console.channel-id");
@@ -34,9 +34,9 @@ public record Settings(String prefix, String language, String serverName, String
             number(c,"linking.attempt-window-seconds",300,30,900),number(c,"linking.confirmation-timeout-seconds",30,10,120),
             bool(b,"enabled",false),token,source,id(b,"guild-id"),botLanguage(b,lang),
             choice(b,"bot.prefix","dy!",Set.of("dy!")),bool(b,"bot.prefix-commands-enabled",true),"",
-            panel,bool(b,"console.enabled",false),console,bool(b,"console.commands.enabled",true),bool(b,"console.commands.allow-administrator",true),Set.copyOf(roles),image(b),bool(c,"updates.enabled",true),ChatSettings.read(b,panel,console),RoleSettings.read(b,id(b,"guild-id"),roles),BoostSettings.read(b),bool(b,"panel.enabled",true),CommunitySettings.read(c,b),LinkRewardSettings.read(c,b),ToolsSettings.read(c,b),GiveawaySettings.read(b),AccountSettings.read(b));
+            panel,bool(b,"console.enabled",false),console,bool(b,"console.commands.enabled",true),bool(b,"console.commands.allow-administrator",true),Set.copyOf(roles),image(b),bool(c,"updates.enabled",true),ChatSettings.read(b,panel,console),RoleSettings.read(b,id(b,"guild-id"),roles),BoostSettings.read(b),bool(b,"panel.enabled",true),CommunitySettings.read(c,b),LinkRewardSettings.read(c,b),ToolsSettings.read(c,b),GiveawaySettings.read(b),AccountSettings.read(b),IntegrationSettings.read(c,b));
     }
-    private static String botLanguage(Map<String,Object> values,String game){String selected=choice(values,"bot.language","auto",Set.of("auto","en","tr"));return selected.equals("auto")?(game.equals("tr")?"tr":"en"):selected;}
+    private static String botLanguage(Map<String,Object> values,String game){String selected=choice(values,"bot.language","auto",dev.dydiscord.language.Messages.CHOICES);return selected.equals("auto")?(game.equals("auto")?"en":game):selected;}
     private static String image(Map<String,Object> values){String value=bounded(values,"panel.image-url","",2048);if(value.isEmpty())return value;try{URI uri=URI.create(value);if(!"https".equals(uri.getScheme())||uri.getHost()==null||uri.getRawUserInfo()!=null||uri.getPort()!=-1||value.chars().anyMatch(Character::isISOControl))throw invalid("panel.image-url");return value;}catch(IllegalArgumentException e){throw invalid("panel.image-url");}}
     public static void validateInvite(String value) {
         if(value.isEmpty())return;

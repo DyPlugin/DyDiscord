@@ -10,7 +10,7 @@ guild-id: ""
 bot:
 # Discord language: auto follows the configured game language (English when both are auto).
   language: auto
-  # Bot/panel language: auto, en or tr. Unset game language follows this choice. Restart applies.
+  # Bot/panel language: auto, en, tr, de, es or ru. Unset game language follows this choice. Restart applies.
   prefix: "dy!"
   # Message command prefix; the supported value is dy!.
   prefix-commands-enabled: true
@@ -129,3 +129,27 @@ account:
   # Show only currently assigned roles managed by role sync; never raw role IDs.
   time-zone: UTC
   # IANA time zone for readable account dates, for example Europe/Istanbul or UTC.
+status-card:
+# One live server status message that DyDiscord edits in place; reload applies.
+  enabled: false
+  # Show online status, player count and version in the channel below.
+  channel-id: ""
+  # Guild text channel ID, quoted as text; must differ from the console channel.
+  interval-seconds: 60
+  # Refresh period in seconds (30-3600). The card shows Offline after a normal shutdown.
+plugin-logs:
+# Events from DyClaim and DyRTP, posted as small embeds; a blank channel disables them. Reload applies.
+  channel-id: ""
+  # Guild text channel ID, quoted as text; must differ from the console channel.
+  dyclaim:
+  # Needs DyClaim 1.1.0 or newer.
+    claims: true
+    # Claims created and removed.
+    trust: true
+    # Players trusted or untrusted in a claim.
+    transfers: true
+    # Claim ownership transfers and market sales.
+  dyrtp:
+  # Needs DyRTP 1.0.0 or newer.
+    teleports: true
+    # Finished random teleports with their destination world.

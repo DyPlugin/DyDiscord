@@ -3,7 +3,7 @@ import java.util.*;
 import java.util.function.Predicate;
 public record Definition(String path,String permission,boolean player,int arguments,boolean remainder,String key) {
     public String[] words(){return path.isEmpty()?new String[0]:path.split(" ");}
-    public String usage(){return path+(arguments==0?"":switch(key){case "giveaway-start"->" <seconds> <winners> <prize>";case "chat-inbound","chat-to-minecraft","chat-to-discord","chat-both"->" <on|off>";case "prefix"->" <text>";case "invite"->" <url>";case "language","global-language","bot-language"->" <en|tr|auto>";case "admin-unlink"->" <uuid> <reason>";case "roles-preview","roles-sync"->" <uuid>";case "roles-cleanup-confirm"->" <token>";default->" <id>";});}
+    public String usage(){return path+(arguments==0?"":switch(key){case "giveaway-start"->" <seconds> <winners> <prize>";case "chat-inbound","chat-to-minecraft","chat-to-discord","chat-both"->" <on|off>";case "prefix"->" <text>";case "invite"->" <url>";case "language","global-language","bot-language"->" <en|tr|de|es|ru|auto>";case "admin-unlink"->" <uuid> <reason>";case "roles-preview","roles-sync"->" <uuid>";case "roles-cleanup-confirm"->" <token>";default->" <id>";});}
     public boolean match(String[] args){String[] words=words();if(args.length!=words.length+arguments&&!(remainder&&args.length>=words.length+arguments))return false;for(int i=0;i<words.length;i++)if(!Words.matches(words[i],args[i]))return false;return true;}
     public static final List<Definition> ALL=List.of(
         d("","dydiscord.invite",false,0,"invite-show"),d("help","dydiscord.help",false,0,"help"),d("link","dydiscord.link",true,0,"link"),d("status","dydiscord.status",true,0,"status"),d("unlink","dydiscord.unlink",true,0,"unlink"),d("language","dydiscord.language",true,1,"language"),
@@ -39,7 +39,7 @@ public record Definition(String path,String permission,boolean player,int argume
     public static List<String> tabs(String[] args,String lang,boolean player,Predicate<String> allowed){
         if(args.length==0)return List.of();int pos=args.length-1;Set<String> out=new LinkedHashSet<>();
         for(Definition d:ALL){if(!allowed.test(d.permission)||d.player&&!player)continue;String[] words=d.words();boolean match=true;for(int i=0;i<pos;i++){if(i>=words.length||!Words.matches(words[i],args[i])){match=false;break;}}if(!match)continue;
-            if(pos<words.length)out.add(Words.display(words[pos],lang));else if(pos==words.length&&(d.key.equals("language")||d.key.equals("global-language")||d.key.equals("bot-language")))out.addAll(List.of("en","tr","auto"));else if(pos==words.length&&Set.of("chat-inbound","chat-to-minecraft","chat-to-discord","chat-both").contains(d.key))out.addAll(List.of(Words.display("on",lang),Words.display("off",lang)));
+            if(pos<words.length)out.add(Words.display(words[pos],lang));else if(pos==words.length&&(d.key.equals("language")||d.key.equals("global-language")||d.key.equals("bot-language")))out.addAll(List.of("en","tr","de","es","ru","auto"));else if(pos==words.length&&Set.of("chat-inbound","chat-to-minecraft","chat-to-discord","chat-both").contains(d.key))out.addAll(List.of(Words.display("on",lang),Words.display("off",lang)));
         }
         if(pos==0){if(adminVisible(allowed))out.add(Words.display("admin",lang));if(allowed.test("dydiscord.admin.invite"))out.add(Words.display("setinvite",lang));}
         return out.stream().filter(v->Words.plain(v).startsWith(Words.plain(args[pos]))).toList();

@@ -3,7 +3,7 @@ version: '${version}'
 main: dev.dydiscord.DyDiscord
 api-version: '1.20'
 author: Claww
-softdepend: [LuckPerms, Vault]
+softdepend: [LuckPerms, Vault, PlaceholderAPI, DyClaim, DyRTP]
 description: Minecraft and Discord integration, account linking, chat and community tools by DyPlugin.
 commands:
   dydiscord:

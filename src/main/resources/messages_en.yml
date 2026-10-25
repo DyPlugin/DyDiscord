@@ -101,6 +101,12 @@ language-name-en: "English"
 # English
 language-name-tr: "Turkish"
 # Turkish
+language-name-de: "German"
+# German
+language-name-es: "Spanish"
+# Spanish
+language-name-ru: "Russian"
+# Russian
 language-name-auto: "Automatic"
 # Automatic
 state-disabled: "Disabled"

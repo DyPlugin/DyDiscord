@@ -1,0 +1,379 @@
+# Setting descriptions follow their settings.
+no-permission: "&cУ вас нет прав на эту команду!"
+# Text shown when the sender lacks permission.
+startup-failed: "&cDyDiscord не удалось запустить. Проверьте ошибку запуска в журнале сервера."
+# Text shown when plugin startup fails.
+help-page: "&7Страница &f{page}/{pages}&7. Используйте &6{command} <page>&7."
+# Text shown for help page.
+help-page-invalid: "&cТакой страницы справки нет. Используйте /dydiscord admin help 1."
+# Text shown for help page invalid.
+setup-channel-missing: "Сначала укажите канал: /dydiscord admin panel channel <id> или /dydiscord admin console channel <id>."
+# Text shown for setup channel missing.
+setup-bot-unavailable: "Бот не подключён. Проверьте token/guild-id в bot.yml и /dydiscord admin doctor."
+# Text shown for setup bot unavailable.
+setup-channel-invisible: "Канал недоступен. Проверьте его ID, сервер и право бота «Просматривать канал»."
+# Text shown for setup channel invisible.
+setup-channel-permissions: "Дайте боту права «Просматривать канал» и «Отправлять сообщения». Панелям аккаунта также нужны «Встраивать ссылки» и «Читать историю сообщений»."
+# Text shown for setup channel permissions.
+setup-console-private: "Канал консоли открыт. Любой с доступом к каналу видит вывод сервера; для выполнения команд нужно отдельное разрешение."
+# Text shown for setup console private.
+setup-access-denied: "Discord отказал в доступе. Проверьте токен бота, его участие в сервере и права канала."
+# Text shown for setup access denied.
+setup-rate-limited: "Проверки прав Discord ограничены по частоте. Подождите перед повтором; небезопасных действий не разрешено."
+# Text shown for setup rate limited.
+setup-restart-required: "Перезапустите бота после смены его сервера Discord: /dydiscord admin bot restart."
+# Text shown for setup restart required.
+setup-intents-denied: "Discord отклонил привилегированный intent (4014). Включите Message Content Intent в Developer Portal > Bot для команд в сообщениях, ввода в консоль и чата Discord → Minecraft. Включите Server Members Intent для настроенных событий участников. Переподключение только со слэш-командами и панелью; затронутые функции недоступны до исправления и перезапуска бота."
+# Text shown for setup intents denied.
+player-only: "&cЭту команду могут использовать только игроки!"
+# Only players can use this command!
+reload-success: "&aКонфигурация успешно перезагружена!"
+# Configuration reloaded successfully!
+reload-invalid: "&cНе удалось перезагрузить конфигурацию. Прежние настройки сохранены."
+# Configuration could not be reloaded. Previous settings remain active.
+restart-required: "&eЧтобы применить настройки подключения, нужен перезапуск бота."
+# Bot restart required to apply connection settings.
+invite: "&7Discord: &b{invite_url}"
+# Editable Minecraft message; keep placeholders.
+invite-not-set: "&eПриглашение в Discord ещё не настроено."
+# The Discord invite has not been configured yet.
+link-code: "&7Ваш код привязки: &e{code}"
+# Editable Minecraft message; keep placeholders.
+panel-link: "&7Панель привязки: &b{url}"
+# Linking panel: {url}
+panel-disabled: "&eПанель аккаунта выключена. Используйте слэш-команды Discord."
+# Panel-off notice. Discord slash commands remain available.
+help-panel-enable: "Включить панель аккаунта"
+# Enable the panel without changing links or its recorded message.
+help-panel-disable: "Выключить панель и использовать команды"
+# Disable panel buttons; Discord account commands stay available.
+bot-unavailable: "&eDiscord временно недоступен. Попробуйте чуть позже."
+# Discord is temporarily unavailable. Please try again shortly.
+bot-setup-incomplete: "&eУкажите token и guild-id в bot.yml и выполните /dydiscord admin reload перед включением бота."
+# Set token and guild-id in bot.yml, then run /dydiscord admin reload before enabling the bot.
+discord-validation-pending: "&eБот отключён. Права каналов и ролей будут проверены после подключения."
+# Discord is not connected; channel and role access will be checked before use after connection.
+linking-disabled: "&eПривязка аккаунтов выключена."
+# Account linking is disabled.
+data-unavailable: "&cДанные аккаунта недоступны. Обратитесь к администратору сервера."
+# Account data is unavailable. Contact the server administrator.
+already-linked: "&eЭтот аккаунт уже привязан к @{discord}!"
+# An account is already linked. Unlink it first.
+not-linked: "&7Ваш аккаунт Minecraft не привязан к аккаунту Discord."
+# Editable Minecraft message; keep placeholders.
+account: "&7Minecraft: &f{name} &7| Discord: &f{discord}"
+# Minecraft: {name} | Discord: {discord}
+discord-account: "Аккаунт Discord"
+# Discord account
+linked: "&aВаш аккаунт Minecraft {name} теперь привязан к аккаунту Discord {discord}!"
+# Editable Minecraft message; keep placeholders.
+unlinked: "&aПривязка аккаунта удалена."
+# Account unlinked successfully.
+confirm: "&eУдалить привязку аккаунта? &6/dydiscord confirm {token} &7({seconds} с)"
+# Editable Minecraft message; keep placeholders.
+confirmation-invalid: "&cЭто подтверждение недействительно или истекло."
+# That confirmation is invalid or expired.
+cancelled: "&7Ожидающее подтверждение отменено."
+# Pending confirmation cancelled.
+cooldown: "&eПодождите, прежде чем создавать новый код."
+# Please wait before generating another code.
+busy: "&eСервис занят. Попробуйте чуть позже."
+# The service is busy. Please try again shortly.
+invalid-code: "&cЭтот код привязки недействителен или истёк."
+# That linking code is invalid or expired.
+rate-limit: "&eСлишком много попыток. Попробуйте позже."
+# Too many attempts. Please try again later.
+usage: "&eНеверные аргументы команды. Используйте /dydiscord help."
+# Invalid command arguments. Use /dydiscord help.
+saved: "&aНастройки сохранены."
+# Settings saved successfully.
+language-saved: "&aЯзык сохранён: &f{language}"
+# Language preference saved: {language}
+language-forced: "&eВаш выбор сохранён; сейчас сервер принудительно использует {language}."
+# Your preference is stored; the server currently forces {language}.
+failed: "&cОперация не удалась. Событие {event}; см. локальный журнал сервера."
+# Operation failed. Event {event}; see the local server log.
+status-line: "&7{status}"
+# {status}
+help: "Справка"
+# Help
+language-name-en: "Английский"
+# English
+language-name-tr: "Турецкий"
+# Turkish
+language-name-de: "Немецкий"
+# German
+language-name-es: "Испанский"
+# Spanish
+language-name-ru: "Русский"
+# Russian
+language-name-auto: "Автоматически"
+# Automatic
+state-disabled: "Выключен"
+# Disabled
+state-starting: "Подключение"
+# Connecting
+state-connected: "Подключён"
+# Connected
+state-degraded: "Частично доступен"
+# Partially available
+state-stopping: "Остановка"
+# Stopping
+state-failed: "Ошибка подключения"
+# Connection failed
+help-admin: "Команды администратора"
+# Administrator commands
+help-invite-show: "Показать приглашение в Discord"
+# Show the Discord invite
+help-player-only: "только для игроков"
+# players only
+help-confirm: "Подтвердить удаление привязки"
+# Confirm your pending unlink
+help-cancel: "Отменить ожидающее подтверждение"
+# Cancel your pending confirmation
+help-help: "Показать доступные команды"
+# Show available commands
+help-link: "Привязать аккаунт Minecraft"
+# Link your Minecraft account
+help-status: "Показать привязанный аккаунт"
+# Show your linked account
+help-unlink: "Удалить привязку с подтверждением"
+# Unlink your account with confirmation
+help-language: "Сохранить выбор языка"
+# Save your language preference
+help-invite: "Указать приглашение в Discord"
+# Set the Discord invite
+help-global-language: "Указать язык сервера"
+# Set the server language
+help-reload: "Проверить и перезагрузить настройки"
+# Validate and reload settings
+help-admin-status: "Показать состояние бота, данных, панели и консоли"
+# Show bot, data, panel and console health
+help-doctor: "Проверить настройку и права"
+# Check setup and permissions
+help-bot-enable: "Включить бота Discord"
+# Enable the Discord bot
+help-bot-disable: "Выключить бота Discord"
+# Disable the Discord bot
+help-bot-restart: "Перезапустить бота Discord"
+# Restart the Discord bot
+help-panel-channel: "Указать канал привязки"
+# Set the linking channel
+help-panel-send: "Создать или обновить панель"
+# Create or update the single panel
+help-panel-refresh: "Восстановить существующую панель"
+# Repair the existing panel
+help-console-channel: "Указать канал консоли"
+# Set the private console channel
+help-console-enable: "Включить пересылку журнала"
+# Enable log relay
+help-console-disable: "Выключить пересылку журнала"
+# Disable log relay
+help-commands-enable: "Включить удалённые команды консоли"
+# Enable remote console commands
+help-commands-disable: "Выключить удалённые команды консоли"
+# Disable remote console commands
+help-role-add: "Разрешить доверенную роль администратора"
+# Authorize a trusted administrator role
+help-role-remove: "Убрать разрешённую роль"
+# Remove an authorized role
+help-role-list: "Список ID разрешённых ролей"
+# List authorized role IDs
+help-administrator-on: "Разрешить администраторов Discord"
+# Allow Discord Administrators
+help-administrator-off: "Требовать разрешённую роль"
+# Require an authorized role
+help-admin-unlink: "Отвязать UUID с причиной и подтверждением"
+# Unlink a target UUID with reason and confirmation
+
+update-available: "&eДоступна DyDiscord {version}: &b{url}"
+# A compatible update is available; click the message to view its Modrinth page.
+help-roles-status: "Показать состояние синхронизации ролей"
+# Text shown for help roles status.
+help-roles-linked-list: "Список ролей для привязанных аккаунтов"
+# Text shown for help roles linked list.
+help-roles-linked-add: "Добавить роль для привязанных аккаунтов"
+# Text shown for help roles linked add.
+help-roles-linked-remove: "Убрать роль для привязанных аккаунтов"
+# Text shown for help roles linked remove.
+help-roles-groups-list: "Список правил ролей для групп Minecraft"
+# Text shown for help roles groups list.
+help-roles-groups-add: "Добавить правило роли для группы Minecraft"
+# Text shown for help roles groups add.
+help-roles-groups-remove: "Убрать правило роли для группы Minecraft"
+# Text shown for help roles groups remove.
+help-roles-preview: "Показать изменения для привязанного аккаунта"
+# Text shown for help roles preview.
+help-roles-sync-all: "Синхронизировать все привязанные аккаунты"
+# Text shown for help roles sync all.
+help-roles-sync: "Синхронизировать привязанный аккаунт"
+# Text shown for help roles sync.
+help-roles-cleanup-preview: "Показать очистку устаревших управляемых ролей"
+# Text shown for help roles cleanup preview.
+help-roles-cleanup-confirm: "Подтвердить очистку устаревших управляемых ролей"
+# Text shown for help roles cleanup confirm.
+roles-summary: "&7Синхронизация ролей: &f{status}"
+# Text shown for roles summary.
+roles-preview-result: "&7Добавить роли: &f{add}&7; убрать: &f{remove}&7; не определено: &f{unknown}"
+# Text shown for roles preview result.
+roles-cleanup-confirmation: "&eПодтвердите показанную очистку ролей командой /dydiscord admin roles cleanup confirm {token} в течение {seconds} секунд."
+# Text shown for roles cleanup confirmation.
+roles-disabled: "&eСинхронизация ролей выключена."
+# Text shown for roles disabled.
+roles-started: "&aСинхронизация ролей поставлена в очередь."
+# Text shown for roles started.
+roles-saved: "&aНастройки ролей сохранены."
+# Text shown for roles saved.
+roles-unavailable: "&eСинхронизация ролей недоступна. Проверьте бота и плагин прав."
+# Text shown for roles unavailable.
+roles-invalid-confirmation: "&cЭто подтверждение очистки ролей недействительно или истекло."
+# Text shown for roles invalid confirmation.
+
+link-welcome: "&aДобро пожаловать! Ваши аккаунты Minecraft и Discord связаны."
+# Text shown for link welcome.
+help-chat-inbound: "Показать или скрыть чат Discord для себя"
+# Text shown for help chat inbound.
+giveaway-created: "&aРозыгрыш создан. ID: &f{id}"
+# Giveaway administration; an ID identifies the draw, not a player account.
+giveaway-not-found: "&eЭтот розыгрыш недоступен или уже закрыт."
+# Text shown for giveaway not found.
+help-giveaway-start: "Начать розыгрыш: секунды, число победителей, приз"
+# Text shown for help giveaway start.
+help-giveaway-end: "Закрыть участие и запросить выбор победителей"
+# Text shown for help giveaway end.
+help-giveaway-cancel: "Отменить розыгрыш без выбора победителей"
+# Text shown for help giveaway cancel.
+help-giveaway-list: "Список розыгрышей и их ID"
+# Text shown for help giveaway list.
+giveaway-ending: "&aУчастие закрыто. Выбор победителей запрошен; результат появится после проверок."
+# Text shown for giveaway ending.
+giveaway-cancelled-admin: "&aРозыгрыш отменён. Его карточка в Discord обновится, когда это станет возможно."
+# Text shown for giveaway cancelled admin.
+giveaway-none: "&7Розыгрыши ещё не создавались."
+# Text shown for giveaway none.
+giveaway-list-entry: "&f{id} &7| {state} | &f{prize}"
+# Text shown for giveaway list entry.
+giveaway-state-draft: "Публикация не подтверждена"
+# Text shown for giveaway state draft.
+giveaway-state-active: "Открыт"
+# Text shown for giveaway state active.
+giveaway-state-drawn: "Победители выбраны"
+# Text shown for giveaway state drawn.
+giveaway-state-cancelled: "Отменён"
+# Text shown for giveaway state cancelled.
+
+copy-code-hint: "Нажмите, чтобы скопировать код привязки."
+# Editable display text; reload applies.
+
+confirm-click-hint: "Нажмите, чтобы подтвердить. Можно также ввести эту короткую команду."
+# Editable display text; reload applies.
+
+invite-click-hint: "Нажмите, чтобы открыть Discord."
+# Editable display text; reload applies.
+
+invite-auto-unavailable: "Приглашение в Discord не настроено. Дайте право «Создавать приглашения» в подходящем канале или укажите discord.invite-url в config.yml."
+# Console guidance when an automatic permanent invite cannot be created.
+
+
+help-bot-language: "Указать язык Discord; auto следует настройке игры"
+# Bot language command; shares the existing language leaf permission.
+
+setting-unchanged: "&7Эта настройка уже выбрана."
+# Message shown for setting unchanged.
+
+help-prefix: "Изменить префикс сообщений"
+# Message shown for help prefix.
+
+help-bot-guild: "Указать сервер Discord для бота"
+# Message shown for help bot guild.
+
+help-chat-to-minecraft: "Включить или выключить чат Discord → Minecraft"
+# Message shown for help chat to minecraft.
+
+help-chat-to-discord: "Включить или выключить чат Minecraft → Discord"
+# Message shown for help chat to discord.
+
+help-chat-both: "Включить или выключить оба направления чата"
+# Message shown for help chat both.
+
+help-chat-channel: "Указать канал чата Discord"
+# Message shown for help chat channel.
+
+chat-personal-already-on: "&7Сообщения Discord уже видны вам."
+# Message shown for chat personal already on.
+
+chat-personal-already-off: "&7Сообщения Discord уже скрыты от вас."
+# Message shown for chat personal already off.
+
+chat-personal-on: "&aТеперь сообщения Discord видны вам."
+# Message shown for chat personal on.
+
+chat-personal-off: "&7Теперь сообщения Discord скрыты от вас."
+# Message shown for chat personal off.
+
+chat-already-on: "&7Чат {direction} уже включён."
+# Message shown for chat already on.
+
+chat-already-off: "&7Чат {direction} уже выключен."
+# Message shown for chat already off.
+
+chat-enabled: "&aЧат {direction} включён."
+# Message shown for chat enabled.
+
+chat-disabled: "&7Чат {direction} выключен."
+# Message shown for chat disabled.
+
+setup-connection-failed: "&cБот Discord не смог подключиться. Проверьте token и guild-id в bot.yml, Developer Portal > Bot и доступ в интернет. Затем выполните /dyda bot restart."
+# Explain how to repair a failed Discord connection.
+setup-chat-conflict: "&eЧат Minecraft → Discord приостановлен, потому что чат обрабатывает другой плагин. Выполните /dyda doctor, чтобы узнать, какому плагину нужна поддерживаемая интеграция общего чата."
+# Notify administrators once when another chat handler blocks public forwarding.
+setup-chat-adapter: "&eЧат Minecraft → Discord не смог прочитать событие чата этого сервера. Выполните /dyda doctor и проверьте совместимость DyDiscord с сервером перед перезапуском."
+# Explain an unavailable server chat adapter without exposing exception details.
+chat-compatibility-blocked: "Minecraft → Discord приостановлен. Плагины чата: {plugins}. Нужна поддерживаемая интеграция общего чата; смена канала это не исправит."
+# List bounded plugin names in status and doctor; preserve {plugins}.
+chat-compatibility-adapter: "Minecraft → Discord недоступен: адаптер чата сервера дал сбой. Проверьте поддерживаемые версии сервера и перезапустите после исправления."
+# Report a failed chat adapter instead of showing the configured direction as active.
+error-config-file: "Не удалось загрузить {file}{position}. Проверьте отступы, кавычки и права на файл; существующие данные сохранены."
+# Localized console explanation; values and secrets are not printed.
+error-config-position: " (строка {line}, столбец {column})"
+# Localized console explanation; values and secrets are not printed.
+error-config-setting: "Настройка {setting} недействительна. Проверьте её комментарий в config.yml или bot.yml и исправьте значение."
+# Localized console explanation; values and secrets are not printed.
+error-command-collision: "Существующая команда Discord не управляется DyDiscord. Не трогайте другие команды; используйте отдельного бота или устраните конфликт перед перезапуском."
+# Localized console explanation; values and secrets are not printed.
+error-timeout: "Операция не завершилась вовремя. Проверьте нагрузку сервера и подключение к Discord и попробуйте чуть позже."
+# Localized console explanation; values and secrets are not printed.
+error-unexpected: "Не удалось выполнить операцию. Проверьте предупреждения настройки; личные данные скрыты."
+# Localized console explanation; values and secrets are not printed.
+error-console-event: "Событие {event}: {reason}"
+# Localized console explanation; values and secrets are not printed.
+error-startup: "DyDiscord не удалось запустить. Исправьте указанную проблему с файлом или данными и перезапустите. Существующие данные сохранены."
+# Localized console explanation; values and secrets are not printed.
+error-translations-fallback: "{count} отсутствующих сообщений используют встроенные тексты. Проверьте файлы сообщений, чтобы изменить их."
+# Localized console explanation; values and secrets are not printed.
+error-boost-data: "Награды за буст недоступны. Проверьте хранилище и настройку Discord; данные наград сохранены."
+# Localized console explanation; values and secrets are not printed.
+error-link-reward-data: "Награды за привязку недоступны. Проверьте хранилище; записи наград сохранены."
+# Localized console explanation; values and secrets are not printed.
+error-giveaway-data: "Розыгрыши недоступны. Проверьте права Discord и хранилище; существующие записи сохранены."
+# Localized console explanation; values and secrets are not printed.
+error-chat-preferences: "Не удалось прочитать настройки чата. Доставка для затронутых игроков приостановлена; проверьте права на файл данных."
+# Localized console explanation; values and secrets are not printed.
+error-chat-delivery: "Не удалось доставить чат. Старые сообщения из очереди отброшены; проверьте подключение к Discord и права канала."
+# Localized console explanation; values and secrets are not printed.
+error-log-backend: "Пересылка консоли не может читать эту систему журналов. Проверьте совместимость сервера и локальный журнал запуска."
+# Localized console explanation; values and secrets are not printed.
+error-chat-ranks: "Не удалось прочитать ранги чата. Сообщения идут без ранга; проверьте настройку LuckPerms/Vault."
+# Localized console explanation; values and secrets are not printed.
+error-role-provider: "Не удалось прочитать группы LuckPerms. Членство неизвестно, поэтому роли на этом основании не снимаются."
+# Localized console explanation; values and secrets are not printed.
+error-boost-pending: "Некоторые награды за буст ожидают выдачи. Проверьте хранилище/Discord; команды с неясным результатом никогда не повторяются автоматически."
+# Localized console explanation; values and secrets are not printed.
+error-link-reward-pending: "Некоторые награды за привязку ожидают выдачи. Проверьте хранилище; команды с неясным результатом никогда не повторяются автоматически."
+# Localized console explanation; values and secrets are not printed.
+error-discord-shutdown: "Discord не отключился вовремя; подключение прервано."
+# Localized console explanation; values and secrets are not printed.
+error-panel-pending: "Доставка панели ожидает. Проверьте panel.channel-id в bot.yml и права «Просматривать канал», «Отправлять сообщения», «Встраивать ссылки» и «Читать историю сообщений». Затем выполните /dyda panel refresh."
+# Localized console explanation; values and secrets are not printed.
+error-discord-disconnected: "Discord отключился. Скоро будет повторное подключение; проверьте доступ в интернет, если это продолжается."
+# Localized console explanation; values and secrets are not printed.

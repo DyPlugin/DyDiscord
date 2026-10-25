@@ -1,1 +1,1 @@
-Bring your Minecraft server and Discord community together through your own bot.
+Link accounts, bridge chat and follow your server from Discord through your own bot.

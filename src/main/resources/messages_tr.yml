@@ -165,6 +165,12 @@ language-name-en: "İngilizce"
 # English
 language-name-tr: "Türkçe"
 # Turkish
+language-name-de: "Almanca"
+# German
+language-name-es: "İspanyolca"
+# Spanish
+language-name-ru: "Rusça"
+# Russian
 language-name-auto: "Otomatik"
 # Automatic
 state-disabled: "Kapalı"

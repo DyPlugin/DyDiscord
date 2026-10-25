@@ -197,3 +197,24 @@ account-date: "Eşleme tarihi: {date}"
 
 account-roles: "Entegre roller:"
 # Editable display text; reload applies.
+
+status-card-state: "Durum"
+# Live status card; reload applies these labels.
+status-card-online: "🟢 Çevrimiçi"
+# Text shown for status card online.
+status-card-offline: "🔴 Çevrimdışı"
+# Text shown for status card offline.
+status-card-tps: "TPS"
+# Text shown for status card tps.
+log-claim-created: "**{owner}**, {world} dünyasında {x}, {z} konumunda claim aldı."
+# Plugin log lines for DyClaim and DyRTP events; keep the placeholders.
+log-claim-removed: "**{owner}** oyuncusunun {world} dünyasındaki {x}, {z} claim'i kaldırıldı."
+# Text shown for log claim removed.
+log-trust-added: "**{owner}**, {world} dünyasındaki {x}, {z} claim'ine **{player}** oyuncusuna güven verdi."
+# Text shown for log trust added.
+log-trust-removed: "**{owner}**, {world} dünyasındaki {x}, {z} claim'inden **{player}** oyuncusunun güvenini kaldırdı."
+# Text shown for log trust removed.
+log-claim-transferred: "{world} dünyasındaki {x}, {z} claim'i **{from}** oyuncusundan **{to}** oyuncusuna geçti."
+# Text shown for log claim transferred.
+log-rtp: "**{player}** rastgele {world} dünyasına ışınlandı ({x}, {y}, {z})."
+# Text shown for log rtp.

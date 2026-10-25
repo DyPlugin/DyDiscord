@@ -14,7 +14,7 @@ public final class Configuration {
     /** Only bundled filenames and fixed operation labels reach the public diagnostic. */
     public static final class FileFailure extends IOException {
         public FileFailure(String file,IOException cause){super("Cannot load or migrate "+safeFile(file)+position(cause)+"; check YAML syntax, file access and available disk space.",cause);}
-        private static String safeFile(String file){return file!=null&&file.matches("(?:(?:discord/)?messages_(?:en|tr)|config|bot)\\.yml")?file:"configuration file";}
+        private static String safeFile(String file){return file!=null&&file.matches("(?:(?:discord/)?messages_(?:en|tr|de|es|ru)|config|bot)\\.yml")?file:"configuration file";}
         private static String position(Throwable cause){for(int depth=0;cause!=null&&depth<16;depth++,cause=cause.getCause()){if(cause instanceof SyntaxFailure syntax&&syntax.line()>0)return " at line "+syntax.line()+", column "+syntax.column();if(cause instanceof org.yaml.snakeyaml.error.MarkedYAMLException marked&&marked.getProblemMark()!=null){var mark=marked.getProblemMark();return " at line "+(mark.getLine()+1)+", column "+(mark.getColumn()+1);}}return "";}
     }
     /** Retain a safe location, never the YAML line/token contained in parser exceptions. */
@@ -29,6 +29,8 @@ public final class Configuration {
         public Snapshot{messages.validatePanel(settings.serverName());migrations=Map.copyOf(migrations);sources=Map.copyOf(sources);}
         @Override public String toString(){return "Snapshot["+settings+", pendingFiles="+migrations.keySet()+"]";}
     }
+    /** Owner-editable files, created from the bundled copies when missing. */
+    private static final List<String> FILES=java.util.stream.Stream.concat(java.util.stream.Stream.of("config.yml","bot.yml"),java.util.stream.Stream.of("","discord/").flatMap(surface->Messages.LANGUAGES.stream().map(lang->surface+"messages_"+lang+".yml"))).toList();
     private final Path folder;
     private volatile Snapshot active;
     public Configuration(Path folder){this.folder=folder;}
@@ -63,17 +65,17 @@ public final class Configuration {
         Snapshot next=preview(); apply(next); return next;
     }
     public Snapshot preview() throws IOException {
-        for(String file:List.of("config.yml","bot.yml","messages_en.yml","messages_tr.yml","discord/messages_en.yml","discord/messages_tr.yml")) {
+        for(String file:FILES) {
             Path target=folder.resolve(file);try{if(!Files.exists(target)){Files.createDirectories(target.getParent());try(InputStream in=getClass().getClassLoader().getResourceAsStream(file)){if(in==null)throw new IOException("Missing bundled resource: "+file);Files.copy(in,target);}}}catch(IOException failure){throw new FileFailure(file,failure);}
         }
         Map<String,String> changes=new LinkedHashMap<>(),sources=new LinkedHashMap<>();Map<String,Object> config=null,bot=null;
-        for(String file:List.of("config.yml","bot.yml","messages_en.yml","messages_tr.yml","discord/messages_en.yml","discord/messages_tr.yml")){
+        for(String file:FILES){
             String before,after;try{before=Files.readString(folder.resolve(file));after=upgrade(file,before);}catch(IOException failure){throw new FileFailure(file,failure);}sources.put(file,digest(before));if(!before.equals(after))changes.put(file,digest(before));
             if(file.equals("config.yml"))config=parse(after);if(file.equals("bot.yml"))bot=parse(after);
         }
         return new Snapshot(Settings.read(config,bot,System.getenv("DYDISCORD_BOT_TOKEN")),Messages.load(folder),changes,sources);
     }
-    private Map<String,String> sources()throws IOException{Map<String,String> result=new LinkedHashMap<>();for(String file:List.of("config.yml","bot.yml","messages_en.yml","messages_tr.yml","discord/messages_en.yml","discord/messages_tr.yml"))result.put(file,digest(Files.readString(folder.resolve(file))));return result;}
+    private Map<String,String> sources()throws IOException{Map<String,String> result=new LinkedHashMap<>();for(String file:FILES)result.put(file,digest(Files.readString(folder.resolve(file))));return result;}
     private void requireSources(Map<String,String> sources)throws IOException{for(var entry:sources.entrySet())if(!digest(Files.readString(folder.resolve(entry.getKey()))).equals(entry.getValue()))throw new IOException("Configuration changed during validation; retry reload");}
     private static String upgrade(String file,String text)throws IOException{try(InputStream in=Configuration.class.getClassLoader().getResourceAsStream(file)){if(in==null)throw new IOException("Missing bundled resource");return SchemaUpgrade.merge(text,new String(in.readAllBytes(),StandardCharsets.UTF_8),file.equals("config.yml")||file.equals("bot.yml"));}}
     private static String digest(String text){try{return HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(text.getBytes(StandardCharsets.UTF_8)));}catch(java.security.NoSuchAlgorithmException impossible){throw new IllegalStateException(impossible);}}

@@ -14,8 +14,8 @@ import java.util.*;
 public final class AccountView {
     private AccountView(){}
     public static String details(Messages messages,String lang,Store.Link link,String discord,AccountSettings settings,List<String> roles){
-        Locale locale=lang.equals("tr")?Locale.forLanguageTag("tr-TR"):Locale.ENGLISH;
-        String date=DateTimeFormatter.ofPattern(lang.equals("tr")?"d MMMM yyyy, HH:mm z":"MMMM d, yyyy, HH:mm z",locale).withZone(settings.zone()).format(link.linkedAt());
+        Locale locale=lang.equals("en")?Locale.ENGLISH:Locale.forLanguageTag(lang);
+        String date=DateTimeFormatter.ofPattern(lang.equals("en")?"MMMM d, yyyy, HH:mm z":"d MMMM yyyy, HH:mm z",locale).withZone(settings.zone()).format(link.linkedAt());
         String result=messages.render(true,lang,"account",Map.of("name",link.name(),"discord",discord,"date",date));
         if(!Messages.placeholders(messages.get(true,lang,"account")).contains("date"))result+="\n"+messages.render(true,lang,"account-date",Map.of("date",date));
         if(settings.showRoles()&&!roles.isEmpty()){

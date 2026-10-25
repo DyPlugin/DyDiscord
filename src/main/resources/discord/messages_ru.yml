@@ -1,0 +1,220 @@
+# Setting descriptions follow their settings.
+panel-title: "{server_name} - Привязка аккаунта"
+# Title displayed on the account linking panel.
+panel-description: "Чтобы связать аккаунты Minecraft и Discord, получите код в игре командой `/discord link`, затем нажмите **Привязать аккаунт** ниже и введите код.\n\n**Привязать аккаунт:** Связывает аккаунты по коду из игры.\n\n**Мой аккаунт:** Показывает привязанные аккаунты Minecraft и Discord.\n\n**Отвязать:** Удаляет текущую привязку."
+# Instructions displayed above the account panel buttons.
+panel-privacy: "Данные аккаунта видите только вы. Никому не сообщайте код."
+# Only you can see your account details. Keep your code private.
+link: "Привязать аккаунт"
+# Link Account
+account-button: "Мой аккаунт"
+# My Account
+unlink: "Отвязать"
+# Unlink
+code-label: "Код привязки"
+# Linking code
+modal-title: "Привязка аккаунта"
+# Link Your Account
+help: "Через панель аккаунта можно привязать, посмотреть или отвязать свой аккаунт. Получите код в Minecraft командой /discord link. Коды истекают и не сохраняются после перезапуска сервера."
+# Guidance for linking and managing the user's own account.
+help-card-title: "Команды"
+# Structured help card, shared by slash and prefix commands; no footer is added.
+help-card-accounts: "Ваши аккаунты"
+# Text shown for help card accounts.
+help-card-account-commands: "`/link` — Ввести код из игры\n`/account` — Посмотреть привязанные аккаунты\n`/unlink` — Удалить привязку"
+# Text shown for help card account commands.
+help-card-server: "Сервер и сообщество"
+# Text shown for help card server.
+help-card-other: "Справка и подключение"
+# Text shown for help card other.
+help-card-other-commands: "`/help` — Показать это меню\n`/status` — Показать состояние подключения бота\nКоманды в сообщениях работают и с префиксом `dy!`. Данные аккаунта показываются лично вам."
+# Text shown for help card other commands.
+status: "DyDiscord {version}: {state}"
+# DyDiscord {version}: {state}
+state-disabled: "Выключен"
+# Disabled
+state-starting: "Подключение"
+# Connecting
+state-connected: "Подключён"
+# Connected
+state-degraded: "Частично доступен"
+# Partially available
+state-stopping: "Остановка"
+# Stopping
+state-failed: "Ошибка подключения"
+# Connection failed
+account: "Аккаунт Minecraft: {name}\nАккаунт Discord: {discord}"
+# Editable private Discord message; keep placeholders.
+not-linked: "Ваш аккаунт Discord не привязан к аккаунту Minecraft."
+# Editable private Discord message; keep placeholders.
+linked: "Ваш аккаунт Minecraft **{name}** теперь привязан к вашему аккаунту Discord!"
+# Editable private Discord message; keep placeholders.
+unlinked: "Привязка аккаунта удалена."
+# Editable private Discord message; keep placeholders.
+invalid-code: "Этот код недействителен или истёк. Получите новый код в Minecraft."
+# That code is invalid or expired. Generate a new code in Minecraft.
+already-linked: "Этот аккаунт уже привязан к @{discord}!"
+# An account is already linked. Unlink it first.
+rate-limit: "Слишком много попыток. Попробуйте позже."
+# Too many attempts. Please try again later.
+data-unavailable: "Данные аккаунта недоступны. Обратитесь к администратору сервера."
+# Account data is unavailable. Contact the server administrator.
+no-permission: "Вы не можете выполнить это действие."
+# You cannot perform this action.
+confirmation-invalid: "Это подтверждение недействительно или истекло."
+# This confirmation is invalid or expired.
+confirm: "Отвязать ваш аккаунт?"
+# Editable private Discord message; keep placeholders.
+confirm-button: "Отвязать"
+# Editable private Discord message; keep placeholders.
+cancel-button: "Отмена"
+# Editable private Discord message; keep placeholders.
+cancelled: "Привязка аккаунта сохранена."
+# Editable private Discord message; keep placeholders.
+private-prompt: "Откройте панель аккаунта, чтобы продолжить лично: {url}"
+# Open the account panel to continue privately: {url}
+panel-disabled: "Панель аккаунта выключена. Используйте /link, /account или /unlink."
+# Panel-off response; slash replies are private. Reload applies this text.
+commands-prompt: "Используйте {command}, чтобы продолжить лично. Ответ увидите только вы."
+# Prefix command guidance. Keep {command}; never include account details here.
+commands-help: "Используйте /link, чтобы ввести код из игры, /account, чтобы посмотреть аккаунт, или /unlink, чтобы удалить привязку. Код можно получить в Minecraft командой /discord link. Ответы видите только вы."
+# Command-only help, used while panel.enabled is false; reload applies it.
+panel-missing: "Панель аккаунта недоступна. Обратитесь к администратору сервера."
+# The account panel is unavailable. Contact the server administrator.
+console-rejected: "Запрос к консоли отклонён. Проверьте настройку закрытой консоли и свой доступ."
+# Response when console command access is denied.
+console-prefix: "Используйте команды бота вне канала консоли."
+# Use bot commands outside the console channel.
+busy: "Сервис занят. Попробуйте чуть позже."
+# The service is busy. Please try again shortly.
+failed: "Операция не удалась. Событие {event}; обратитесь к администратору сервера."
+# The operation failed. Event {event}; contact the server administrator.
+slash-help: "Показать справку DyDiscord"
+# Show DyDiscord help
+slash-link: "Открыть закрытую форму привязки аккаунта"
+# Open the private account linking form
+slash-account: "Показать ваш привязанный аккаунт"
+# Show your own linked account
+slash-unlink: "Отвязать ваш аккаунт с подтверждением"
+# Unlink your own account with confirmation
+slash-status: "Показать состояние подключения бота"
+# Show the bot connection state
+slash-server: "Показать информацию о сервере Minecraft"
+# Server slash-command description (1-100 characters); bot restart applies it.
+help-server: "Информация о сервере: /server или dy!server."
+# Extra help line. Combined help text must fit 2000 characters; reload applies it.
+server-info-title: "{server_name}"
+# Embed title, at most 256 characters after {server_name} expands; reload applies it.
+server-info-players: "Игроки"
+# Player-count field label (1-256 characters); reload applies it.
+server-info-version: "Версия Minecraft"
+# Game-version field label (1-256 characters); reload applies it.
+
+chat-to-discord: "{rank}{name} **»** {message}"
+# Normal Minecraft chat. {rank} includes bold text and a trailing space when present.
+chat-to-minecraft: "&9[Discord] &7{role}&f{name} &8» &7{message}"
+# Minecraft colors apply only to this template; {role} adds a space only when present.
+chat-join: "{name} зашёл на сервер."
+# Public join event. Keep {name} unchanged.
+chat-quit: "{name} вышел с сервера."
+# Public quit event. Keep {name} unchanged.
+chat-death: "{death}"
+# Existing death reason, safely escaped; it is not automatically translated.
+server-stopping: "Сервер выключается."
+# Normal server shutdown only, before the process has fully stopped.
+
+slash-players: "Показать видимых игроков онлайн"
+# Community commands and private first-link guidance; placeholders must match both languages.
+slash-ip: "Показать адреса сервера"
+# Text shown for slash ip.
+slash-links: "Показать полезные ссылки сервера"
+# Text shown for slash links.
+help-community: "/players — Игроки онлайн\n/ip — Адреса сервера\n/links — Полезные ссылки"
+# Text shown for help community.
+information-channel-only: "Используйте для этой команды канал с информацией о сервере."
+# Text shown for information channel only.
+players-title: "Игроки онлайн ({count})"
+# Text shown for players title.
+players-empty: "Сейчас никого нет онлайн."
+# Text shown for players empty.
+players-more: "И ещё {count} игроков."
+# Text shown for players more.
+addresses-title: "Адреса сервера"
+# Text shown for addresses title.
+address-java: "Java Edition"
+# Text shown for address java.
+address-bedrock: "Bedrock Edition"
+# Text shown for address bedrock.
+addresses-empty: "Адреса сервера не настроены."
+# Text shown for addresses empty.
+links-title: "Полезные ссылки"
+# Text shown for links title.
+links-empty: "Ссылки не настроены."
+# Text shown for links empty.
+link-welcome: "Добро пожаловать! Ваши аккаунты Minecraft и Discord связаны."
+# Text shown for link welcome.
+giveaway-title: "Розыгрыш"
+# Giveaway card text and private participation responses; never mention users.
+giveaway-enter: "Участвовать"
+# Text shown for giveaway enter.
+giveaway-open: "Приз: {prize}\nПобедителей: {winners}\nЗавершится: {ends}\n\nНажмите «Участвовать». Одно участие на аккаунт."
+# Text shown for giveaway open.
+giveaway-drawn: "Приз: {prize}\nПобедители: {winners}"
+# Text shown for giveaway drawn.
+giveaway-cancelled: "Розыгрыш отменён. Приз: {prize}"
+# Text shown for giveaway cancelled.
+giveaway-no-winners: "Нет подходящих участников"
+# Text shown for giveaway no winners.
+giveaway-joined: "Вы участвуете в этом розыгрыше."
+# Text shown for giveaway joined.
+giveaway-already: "Вы уже участвуете в этом розыгрыше."
+# Text shown for giveaway already.
+giveaway-closed: "Этот розыгрыш закрыт."
+# Text shown for giveaway closed.
+giveaway-full: "В этом розыгрыше достигнут лимит участников."
+# Text shown for giveaway full.
+giveaway-ineligible: "Вы не соответствуете условиям участия."
+# Text shown for giveaway ineligible.
+giveaway-unavailable: "Этот розыгрыш временно недоступен. Попробуйте позже."
+# Text shown for giveaway unavailable.
+giveaway-leave: "Выйти"
+# Text shown for giveaway leave.
+giveaway-leave-cancel: "Отмена"
+# Text shown for giveaway leave cancel.
+giveaway-leave-confirm: "Выйти из этого розыгрыша?\n\nВаше участие сохраняется до подтверждения. Запрос истекает через 60 секунд."
+# Text shown for giveaway leave confirm.
+giveaway-left: "Вы вышли из этого розыгрыша."
+# Text shown for giveaway left.
+giveaway-leave-cancelled: "Вы по-прежнему участвуете в этом розыгрыше."
+# Text shown for giveaway leave cancelled.
+giveaway-leave-expired: "Это подтверждение истекло или уже использовано. Нажмите «Выйти» ещё раз."
+# Text shown for giveaway leave expired.
+giveaway-not-entered: "Вы не участвуете в этом розыгрыше."
+# Text shown for giveaway not entered.
+
+account-date: "Привязан: {date}"
+# Editable display text; reload applies.
+
+account-roles: "Синхронизированные роли:"
+# Editable display text; reload applies.
+
+status-card-state: "Статус"
+# Live status card; reload applies these labels.
+status-card-online: "🟢 Онлайн"
+# Text shown for status card online.
+status-card-offline: "🔴 Офлайн"
+# Text shown for status card offline.
+status-card-tps: "TPS"
+# Text shown for status card tps.
+log-claim-created: "**{owner}** занял территорию в {world} на {x}, {z}."
+# Plugin log lines for DyClaim and DyRTP events; keep the placeholders.
+log-claim-removed: "Приват **{owner}** в {world} на {x}, {z} удалён."
+# Text shown for log claim removed.
+log-trust-added: "**{owner}** дал **{player}** доступ к привату в {world} на {x}, {z}."
+# Text shown for log trust added.
+log-trust-removed: "**{owner}** забрал у **{player}** доступ к привату в {world} на {x}, {z}."
+# Text shown for log trust removed.
+log-claim-transferred: "Приват в {world} на {x}, {z} перешёл от **{from}** к **{to}**."
+# Text shown for log claim transferred.
+log-rtp: "**{player}** случайно телепортирован в {world} ({x}, {y}, {z})."
+# Text shown for log rtp.

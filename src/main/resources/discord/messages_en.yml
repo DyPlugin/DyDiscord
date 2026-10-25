@@ -197,3 +197,24 @@ account-date: "Linked on: {date}"
 
 account-roles: "Synced roles:"
 # Editable display text; reload applies.
+
+status-card-state: "Status"
+# Live status card; reload applies these labels.
+status-card-online: "🟢 Online"
+# Text shown for status card online.
+status-card-offline: "🔴 Offline"
+# Text shown for status card offline.
+status-card-tps: "TPS"
+# Text shown for status card tps.
+log-claim-created: "**{owner}** claimed land in {world} at {x}, {z}."
+# Plugin log lines for DyClaim and DyRTP events; keep the placeholders.
+log-claim-removed: "The claim of **{owner}** in {world} at {x}, {z} was removed."
+# Text shown for log claim removed.
+log-trust-added: "**{owner}** trusted **{player}** in the claim in {world} at {x}, {z}."
+# Text shown for log trust added.
+log-trust-removed: "**{owner}** removed **{player}** from the claim in {world} at {x}, {z}."
+# Text shown for log trust removed.
+log-claim-transferred: "The claim in {world} at {x}, {z} moved from **{from}** to **{to}**."
+# Text shown for log claim transferred.
+log-rtp: "**{player}** teleported randomly to {world} ({x}, {y}, {z})."
+# Text shown for log rtp.
