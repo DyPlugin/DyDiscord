@@ -18,6 +18,8 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberUpdateEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateBoostTimeEvent;
 import net.dv8tion.jda.api.events.role.update.RoleUpdatePermissionsEvent;
+import net.dv8tion.jda.api.events.guild.GuildBanEvent;
+import net.dv8tion.jda.api.events.guild.GuildUnbanEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.*;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
@@ -46,7 +48,10 @@ public final class Bot {
     private volatile Instant nextInviteAttempt=Instant.EPOCH;private volatile String inviteGuild="";
     private final DiscordAccess access=new DiscordAccess();
     private final IngressLimit prefixLimit,interactionLimit,modalLimit;
-    public Bot(DyDiscord plugin)throws Exception{this.plugin=plugin;panel=new PanelService(plugin.store());prefixLimit=new IngressLimit(plugin.clock());interactionLimit=new IngressLimit(plugin.clock());modalLimit=new IngressLimit(plugin.clock());}
+    private final StaffNotices staff;
+    public StaffNotices staff(){return staff;}
+    JDA client(){return jda;}
+    public Bot(DyDiscord plugin)throws Exception{this.plugin=plugin;staff=new StaffNotices(plugin,this);panel=new PanelService(plugin.store());prefixLimit=new IngressLimit(plugin.clock());interactionLimit=new IngressLimit(plugin.clock());modalLimit=new IngressLimit(plugin.clock());}
     public State state(){return state;}public long generation(){return generation.get();}public Settings applied(){return applied;}public boolean usable(){return jda!=null&&jda.getStatus()==JDA.Status.CONNECTED&&!activeLanguage.isEmpty()&&(state==State.CONNECTED||state==State.DEGRADED);}public PanelService panel(){return panel;}public boolean content(){return content;}
     public boolean alive(long g){return generation.get()==g&&plugin.ready()&&jda!=null;}
     public void start(){synchronized(lifecycle){startLocked();}}
@@ -61,7 +66,7 @@ public final class Bot {
     }
     private void connect(Settings s,long g,boolean withContent){
         try{
-            EnumSet<GatewayIntent> intents=EnumSet.of(GatewayIntent.GUILD_MESSAGES);if(withContent)intents.add(GatewayIntent.MESSAGE_CONTENT);if(members)intents.add(GatewayIntent.GUILD_MEMBERS);
+            EnumSet<GatewayIntent> intents=EnumSet.of(GatewayIntent.GUILD_MESSAGES);if(withContent)intents.add(GatewayIntent.MESSAGE_CONTENT);if(members)intents.add(GatewayIntent.GUILD_MEMBERS);if(s.moderation().banFromDiscord())intents.add(GatewayIntent.GUILD_MODERATION);
             jda=JDABuilder.createLight(s.token(),intents).setEnableShutdownHook(false).setAutoReconnect(true).setRequestTimeoutRetry(false)
                 .setHttpClientBuilder(new okhttp3.OkHttpClient.Builder().connectTimeout(4,TimeUnit.SECONDS).readTimeout(8,TimeUnit.SECONDS).callTimeout(10,TimeUnit.SECONDS))
                 .addEventListeners(new Events(g)).build();
@@ -270,6 +275,8 @@ public final class Bot {
         @Override public void onGuildMemberRemove(GuildMemberRemoveEvent event){if(alive(g)&&usable()&&event.getGuild().getId().equals(applied.guild())&&plugin.boosts()!=null)plugin.boosts().signal(event.getUser().getId());}
         @Override public void onGuildMemberUpdate(GuildMemberUpdateEvent event){if(alive(g)&&usable()&&event.getGuild().getId().equals(applied.guild())&&plugin.boosts()!=null)plugin.boosts().signal(event.getUser().getId());}
         @Override public void onGuildMemberUpdateBoostTime(GuildMemberUpdateBoostTimeEvent event){if(alive(g)&&usable()&&event.getGuild().getId().equals(applied.guild())&&plugin.boosts()!=null)plugin.boosts().signal(event.getUser().getId());}
+        @Override public void onGuildBan(GuildBanEvent event){if(alive(g)&&usable()&&event.getGuild().getId().equals(applied.guild())&&plugin.accountSync()!=null)plugin.accountSync().fromDiscord(event.getUser().getId(),true);}
+        @Override public void onGuildUnban(GuildUnbanEvent event){if(alive(g)&&usable()&&event.getGuild().getId().equals(applied.guild())&&plugin.accountSync()!=null)plugin.accountSync().fromDiscord(event.getUser().getId(),false);}
         @Override public void onRoleUpdatePermissions(RoleUpdatePermissionsEvent event){if(alive(g)&&usable()&&event.getGuild().getId().equals(applied.guild())&&plugin.roles()!=null)plugin.roles().requestSweep();}
         private void degraded(Exception failure){synchronized(Bot.this){if(!alive(g))return;state=State.DEGRADED;plugin.warn("setup-connection-failed");plugin.error(failure);}}
         @Override public void onSessionDisconnect(SessionDisconnectEvent event){synchronized(Bot.this){if(!alive(g))return;state=State.DEGRADED;if(plugin.roles()!=null)plugin.roles().refresh();if(plugin.boosts()!=null)plugin.boosts().refresh();plugin.linking().invalidate();plugin.console().invalidate();if(plugin.chat()!=null)plugin.chat().invalidate();Instant now=plugin.clock().instant();if(now.isAfter(lastWarning.plusSeconds(60))){lastWarning=now;plugin.getLogger().warning(dev.dydiscord.language.ConsoleDiagnostics.text(plugin,"error-discord-disconnected",java.util.Map.of()));}}}

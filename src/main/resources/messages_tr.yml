@@ -376,3 +376,69 @@ error-panel-pending: "Panel gönderimi bekliyor. bot.yml içindeki panel.channel
 # Localized console explanation; values and secrets are not printed.
 error-discord-disconnected: "Discord bağlantısı kesildi. Biraz sonra yeniden bağlanılacak; sürerse internet erişimini kontrol edin."
 # Localized console explanation; values and secrets are not printed.
+cheatcheck-usage: "&cKullanım: /hile-kontrol <oyuncu> [bitir] veya /hile-kontrol liste"
+# Text shown for cheatcheck usage.
+cheatcheck-not-found: "&c{player} çevrimiçi değil."
+# Text shown for cheatcheck not found.
+cheatcheck-exempt: "&c{player} hile kontrolüne alınamaz."
+# Text shown for cheatcheck exempt.
+cheatcheck-already: "&e{player} zaten hile kontrolünde."
+# Text shown for cheatcheck already.
+cheatcheck-none: "&e{player} hile kontrolünde değil."
+# Text shown for cheatcheck none.
+cheatcheck-started: "&a&f{player} &aiçin hile kontrolü başladı. Bitirmek için &6/hile-kontrol {player} bitir&a."
+# Text shown for cheatcheck started.
+cheatcheck-linked: "&c&lHile kontrolü! &f{staff} &cseni hile için kontrol ediyor. &eDiscord'dan sana mesaj attık: hemen ses kanalına gir. &cOyundan çıkma."
+# Text shown for cheatcheck linked.
+cheatcheck-unlinked: "&c&lHile kontrolü! &f{staff} &cseni hile için kontrol ediyor. &eDiscord sunucumuza gel ve ses kanalında bekle. &cOyundan çıkma."
+# Text shown for cheatcheck unlinked.
+cheatcheck-delivery-dm: "&7Discord: &a{player} oyuncusuna özel mesaj gönderildi."
+# Text shown for cheatcheck delivery dm.
+cheatcheck-delivery-channel: "&7Discord: &a{player} hile kontrolü kanalında etiketlendi."
+# Text shown for cheatcheck delivery channel.
+cheatcheck-delivery-both: "&7Discord: &a{player} oyuncusuna özel mesaj ve kanal etiketi gönderildi."
+# Text shown for cheatcheck delivery both.
+cheatcheck-delivery-failed: "&7Discord: &c{player} oyuncusuna mesaj ulaştırılamadı (DM kapalı ve kanal yok)."
+# Text shown for cheatcheck delivery failed.
+cheatcheck-delivery-unlinked: "&7Discord: &e{player} hesabını eşlememiş; ona Discord daveti gösterildi."
+# Text shown for cheatcheck delivery unlinked.
+cheatcheck-title: "&c&lHİLE KONTROLÜ"
+# Text shown for cheatcheck title.
+cheatcheck-subtitle-linked: "&eDiscord'a bak ve ses kanalına gir"
+# Text shown for cheatcheck subtitle linked.
+cheatcheck-subtitle-unlinked: "&eHemen Discord ses kanalımıza gel"
+# Text shown for cheatcheck subtitle unlinked.
+cheatcheck-ended-player: "&aHile kontrolü bitti. Sabrın için teşekkürler."
+# Text shown for cheatcheck ended player.
+cheatcheck-ended: "&a&f{player} &aiçin hile kontrolü bitti."
+# Text shown for cheatcheck ended.
+cheatcheck-notify: "&6[Hile kontrolü] &f{staff} &7, &f{player} &7oyuncusunu kontrole aldı."
+# Text shown for cheatcheck notify.
+cheatcheck-quit: "&c[Hile kontrolü] &f{player} &c, &f{staff} &ctarafından yapılan kontrol sırasında oyundan çıktı."
+# Text shown for cheatcheck quit.
+cheatcheck-frozen: "&cHile kontrolü sırasında bunu yapamazsın."
+# Text shown for cheatcheck frozen.
+cheatcheck-list: "&7Süren hile kontrolleri: &f{players}"
+# Text shown for cheatcheck list.
+cheatcheck-list-empty: "&7Süren hile kontrolü yok."
+# Text shown for cheatcheck list empty.
+player-report-usage: "&cKullanım: /rapor <oyuncu> <sebep>"
+# Text shown for player report usage.
+player-report-not-found: "&c{player} çevrimiçi değil."
+# Text shown for player report not found.
+player-report-self: "&cKendini raporlayamazsın."
+# Text shown for player report self.
+player-report-cooldown: "&cYeni rapor için {seconds} saniye bekle."
+# Text shown for player report cooldown.
+player-report-sent: "&aRaporun yetkililere iletildi. Teşekkürler!"
+# Text shown for player report sent.
+player-report-staff: "&c[Rapor] &f{reporter} &7, &f{player} &7oyuncusunu raporladı: &f{reason} &8({world} {x}, {y}, {z})"
+# Text shown for player report staff.
+require-link-kick: "&cBu sunucuya girmek için Discord hesabını eşlemelisin.\n\n&7Kodun: &e&l{code}\n\n&7Discord sunucumuzda &f/link &7komutunu ya da &fEşle &7butonunu kullan,\n&7sonra kodu gir. Kod {minutes} dakika geçerli."
+# Text shown for require link kick.
+require-link-invite: "&7Discord: &9{invite}"
+# Text shown for require link invite.
+require-link-unavailable: "&cGiriş için Discord eşlemesi gerekiyor ama şu an kullanılamıyor. Bir dakika sonra tekrar dene."
+# Text shown for require link unavailable.
+moderation-banned: "Discord sunucusundan yasaklandın."
+# Text shown for moderation banned.

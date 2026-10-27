@@ -377,3 +377,69 @@ error-panel-pending: "La entrega del panel está pendiente. Revisa panel.channel
 # Localized console explanation; values and secrets are not printed.
 error-discord-disconnected: "Discord se desconectó. Se volverá a conectar en breve; revisa el acceso a internet si continúa."
 # Localized console explanation; values and secrets are not printed.
+cheatcheck-usage: "&cUso: /cheatcheck <jugador> [end] o /cheatcheck list"
+# Text shown for cheatcheck usage.
+cheatcheck-not-found: "&c{player} no está conectado."
+# Text shown for cheatcheck not found.
+cheatcheck-exempt: "&c{player} no puede ser revisado."
+# Text shown for cheatcheck exempt.
+cheatcheck-already: "&e{player} ya está en revisión."
+# Text shown for cheatcheck already.
+cheatcheck-none: "&e{player} no está en revisión."
+# Text shown for cheatcheck none.
+cheatcheck-started: "&aRevisión de trampas iniciada para &f{player}&a. Termínala con &6/cheatcheck {player} end&a."
+# Text shown for cheatcheck started.
+cheatcheck-linked: "&c&l¡Revisión de trampas! &f{staff} &cte está revisando. &eTe escribimos por Discord: entra ahora al canal de voz. &cNo te desconectes."
+# Text shown for cheatcheck linked.
+cheatcheck-unlinked: "&c&l¡Revisión de trampas! &f{staff} &cte está revisando. &eEntra a nuestro Discord y espera en el canal de voz. &cNo te desconectes."
+# Text shown for cheatcheck unlinked.
+cheatcheck-delivery-dm: "&7Discord: &amensaje privado enviado a {player}."
+# Text shown for cheatcheck delivery dm.
+cheatcheck-delivery-channel: "&7Discord: &ase mencionó a {player} en el canal de revisiones."
+# Text shown for cheatcheck delivery channel.
+cheatcheck-delivery-both: "&7Discord: &amensaje privado y mención en el canal enviados a {player}."
+# Text shown for cheatcheck delivery both.
+cheatcheck-delivery-failed: "&7Discord: &cno se pudo entregar el mensaje a {player} (MD cerrados y sin canal)."
+# Text shown for cheatcheck delivery failed.
+cheatcheck-delivery-unlinked: "&7Discord: &e{player} no tiene cuenta vinculada; se le mostró la invitación."
+# Text shown for cheatcheck delivery unlinked.
+cheatcheck-title: "&c&lREVISIÓN DE TRAMPAS"
+# Text shown for cheatcheck title.
+cheatcheck-subtitle-linked: "&eMira Discord y entra al canal de voz"
+# Text shown for cheatcheck subtitle linked.
+cheatcheck-subtitle-unlinked: "&eEntra ya a nuestro canal de voz de Discord"
+# Text shown for cheatcheck subtitle unlinked.
+cheatcheck-ended-player: "&aLa revisión terminó. Gracias por tu paciencia."
+# Text shown for cheatcheck ended player.
+cheatcheck-ended: "&aLa revisión de &f{player} &aterminó."
+# Text shown for cheatcheck ended.
+cheatcheck-notify: "&6[Revisión] &f{staff} &7empezó a revisar a &f{player}&7."
+# Text shown for cheatcheck notify.
+cheatcheck-quit: "&c[Revisión] &f{player} &csalió del servidor durante la revisión de &f{staff}&c."
+# Text shown for cheatcheck quit.
+cheatcheck-frozen: "&cNo puedes hacer eso durante una revisión de trampas."
+# Text shown for cheatcheck frozen.
+cheatcheck-list: "&7Revisiones en curso: &f{players}"
+# Text shown for cheatcheck list.
+cheatcheck-list-empty: "&7No hay revisiones en curso."
+# Text shown for cheatcheck list empty.
+player-report-usage: "&cUso: /report <jugador> <motivo>"
+# Text shown for player report usage.
+player-report-not-found: "&c{player} no está conectado."
+# Text shown for player report not found.
+player-report-self: "&cNo puedes reportarte a ti mismo."
+# Text shown for player report self.
+player-report-cooldown: "&cEspera {seconds} segundos para enviar otro reporte."
+# Text shown for player report cooldown.
+player-report-sent: "&aTu reporte se envió al equipo. ¡Gracias!"
+# Text shown for player report sent.
+player-report-staff: "&c[Reporte] &f{reporter} &7reportó a &f{player}&7: &f{reason} &8({world} {x}, {y}, {z})"
+# Text shown for player report staff.
+require-link-kick: "&cVincula tu cuenta de Discord para entrar a este servidor.\n\n&7Tu código: &e&l{code}\n\n&7En nuestro Discord usa &f/link &7o el botón &fVincular&7,\n&7y escribe el código. Caduca en {minutes} minutos."
+# Text shown for require link kick.
+require-link-invite: "&7Discord: &9{invite}"
+# Text shown for require link invite.
+require-link-unavailable: "&cSe requiere vincular Discord, pero ahora no está disponible. Inténtalo en un minuto."
+# Text shown for require link unavailable.
+moderation-banned: "Estás baneado del servidor de Discord."
+# Text shown for moderation banned.

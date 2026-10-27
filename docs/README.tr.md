@@ -1,3 +1,17 @@
+# DyDiscord 1.2.0
+
+**Hile kontrolü.** `/hile-kontrol <oyuncu>` (İngilizce `/cheatcheck`) oyuncunun ekranına başlık, sohbete uyarı ve bir ses gönderir; kontrol bitene kadar `cheat-check.reminder-seconds` aralıkla tekrarlar. Hesabı eşlenmişse bot ona Discord'dan (DM, kanal ya da ikisi; `bot.yml` içinde `cheat-check.notify`) `voice-channel-id` ses kanalına gelmesini söyler. DM kapalıysa `cheat-check.channel-id` kanalında etiketlenir. Eşlenmemişse oyunda Discord daveti gösterilir. `freeze: true` iken oyuncu yerinden ayrılamaz ve yalnızca `allowed-commands` komutlarını kullanabilir. Kontrol sırasında çıkarsa `quit-commands` konsoldan çalışır (örnek: `ban {player} Hile kontrolünden kaçtı`). Bitirmek: `/hile-kontrol <oyuncu> bitir`; süren kontroller: `/hile-kontrol liste`. Yetkililer her adımı oyunda ve `log-channel-id` (boşsa `plugin-logs.channel-id`) kanalında görür. İzinler: `dydiscord.cheatcheck`, `dydiscord.cheatcheck.notify`, muafiyet için `dydiscord.cheatcheck.exempt`.
+
+**Oyuncu raporu.** `/rapor <oyuncu> <sebep>` çevrimiçi yetkililere (`dydiscord.report.notify`) iletilir ve `reports.channel-id` kanalına raporlanan oyuncunun konumuyla gönderilir; `ping-role-id` rolü etiketlenir. Bekleme süresi `reports.cooldown-seconds`.
+
+**Girişte eşleme zorunluluğu.** `linking.require-to-join: true` iken hesabı eşlenmemiş oyuncu sunucuya giremez; atılma ekranında eşleme kodu ve Discord daveti görünür. Kodu Discord'da `/link` ya da paneldeki Eşle düğmesiyle girer. Operatörler `require-bypass-ops` ile girebilir. Bot bağlı değilse oyuncu açık bir mesajla bekletilir.
+
+**Takma ad ve ban eşitleme.** `moderation.nickname-sync` eşlenen üyenin Discord takma adını Minecraft adı yapar (`nickname-format`, Takma Adları Yönet izni gerekir). `moderation.ban-sync`: `off`, `minecraft-to-discord`, `discord-to-minecraft` veya `both`. Discord'dan Minecraft'a ban için bot yeniden bağlanır.
+
+**Folia.** Aynı JAR Bukkit, Spigot, Paper, Purpur ve Folia'da çalışır.
+
+**DyHomes logları.** `plugin-logs.dyhomes.warps` ve `public-homes` açık, her ışınlanmayı yazan `teleports` kapalı gelir.
+
 # DyDiscord 1.1.0
 
 **Durum kartı.** `bot.yml` içindeki `status-card` ile tek bir Discord mesajı sunucunun Çevrimiçi/Çevrimdışı durumunu, oyuncu sayısını, sürümü ve (Paper ve türevlerinde) TPS'i gösterir. Mesaj `interval-seconds` (30–3600) aralıkla yerinde düzenlenir, normal kapanışta Çevrimdışı olur. Kanal konsol kanalıyla aynı olamaz.

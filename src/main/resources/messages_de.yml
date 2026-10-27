@@ -377,3 +377,69 @@ error-panel-pending: "Die Panelzustellung steht aus. Prüfe panel.channel-id in 
 # Localized console explanation; values and secrets are not printed.
 error-discord-disconnected: "Discord-Verbindung getrennt. Neue Verbindung in Kürze; prüfe den Internetzugang, falls das anhält."
 # Localized console explanation; values and secrets are not printed.
+cheatcheck-usage: "&cVerwendung: /cheatcheck <Spieler> [end] oder /cheatcheck list"
+# Text shown for cheatcheck usage.
+cheatcheck-not-found: "&c{player} ist nicht online."
+# Text shown for cheatcheck not found.
+cheatcheck-exempt: "&c{player} kann nicht überprüft werden."
+# Text shown for cheatcheck exempt.
+cheatcheck-already: "&e{player} wird bereits überprüft."
+# Text shown for cheatcheck already.
+cheatcheck-none: "&e{player} wird nicht überprüft."
+# Text shown for cheatcheck none.
+cheatcheck-started: "&aCheat-Check für &f{player} &agestartet. Beenden mit &6/cheatcheck {player} end&a."
+# Text shown for cheatcheck started.
+cheatcheck-linked: "&c&lCheat-Check! &f{staff} &cüberprüft dich auf Cheats. &eWir haben dir auf Discord geschrieben: Tritt jetzt dem Sprachkanal bei. &cLogge dich nicht aus."
+# Text shown for cheatcheck linked.
+cheatcheck-unlinked: "&c&lCheat-Check! &f{staff} &cüberprüft dich auf Cheats. &eKomm auf unseren Discord und warte im Sprachkanal. &cLogge dich nicht aus."
+# Text shown for cheatcheck unlinked.
+cheatcheck-delivery-dm: "&7Discord: &aPrivatnachricht an {player} gesendet."
+# Text shown for cheatcheck delivery dm.
+cheatcheck-delivery-channel: "&7Discord: &a{player} wurde im Cheat-Check-Kanal erwähnt."
+# Text shown for cheatcheck delivery channel.
+cheatcheck-delivery-both: "&7Discord: &aPrivatnachricht und Kanalerwähnung an {player} gesendet."
+# Text shown for cheatcheck delivery both.
+cheatcheck-delivery-failed: "&7Discord: &cDie Nachricht an {player} kam nicht an (DMs geschlossen, kein Kanal)."
+# Text shown for cheatcheck delivery failed.
+cheatcheck-delivery-unlinked: "&7Discord: &e{player} hat kein verknüpftes Konto; die Einladung wurde angezeigt."
+# Text shown for cheatcheck delivery unlinked.
+cheatcheck-title: "&c&lCHEAT-CHECK"
+# Text shown for cheatcheck title.
+cheatcheck-subtitle-linked: "&eSieh auf Discord nach und tritt dem Sprachkanal bei"
+# Text shown for cheatcheck subtitle linked.
+cheatcheck-subtitle-unlinked: "&eKomm jetzt in unseren Discord-Sprachkanal"
+# Text shown for cheatcheck subtitle unlinked.
+cheatcheck-ended-player: "&aDer Cheat-Check ist vorbei. Danke für deine Geduld."
+# Text shown for cheatcheck ended player.
+cheatcheck-ended: "&aDer Cheat-Check für &f{player} &aist beendet."
+# Text shown for cheatcheck ended.
+cheatcheck-notify: "&6[Cheat-Check] &f{staff} &7überprüft jetzt &f{player}&7."
+# Text shown for cheatcheck notify.
+cheatcheck-quit: "&c[Cheat-Check] &f{player} &chat den Server während des Checks von &f{staff} &cverlassen."
+# Text shown for cheatcheck quit.
+cheatcheck-frozen: "&cDas geht während eines Cheat-Checks nicht."
+# Text shown for cheatcheck frozen.
+cheatcheck-list: "&7Laufende Cheat-Checks: &f{players}"
+# Text shown for cheatcheck list.
+cheatcheck-list-empty: "&7Es laufen keine Cheat-Checks."
+# Text shown for cheatcheck list empty.
+player-report-usage: "&cVerwendung: /report <Spieler> <Grund>"
+# Text shown for player report usage.
+player-report-not-found: "&c{player} ist nicht online."
+# Text shown for player report not found.
+player-report-self: "&cDu kannst dich nicht selbst melden."
+# Text shown for player report self.
+player-report-cooldown: "&cWarte {seconds} Sekunden bis zur nächsten Meldung."
+# Text shown for player report cooldown.
+player-report-sent: "&aDeine Meldung wurde an das Team gesendet. Danke!"
+# Text shown for player report sent.
+player-report-staff: "&c[Meldung] &f{reporter} &7hat &f{player} &7gemeldet: &f{reason} &8({world} {x}, {y}, {z})"
+# Text shown for player report staff.
+require-link-kick: "&cVerknüpfe dein Discord-Konto, um diesen Server zu betreten.\n\n&7Dein Code: &e&l{code}\n\n&7Nutze auf unserem Discord &f/link &7oder den Button &fVerknüpfen&7,\n&7und gib den Code ein. Er läuft in {minutes} Minuten ab."
+# Text shown for require link kick.
+require-link-invite: "&7Discord: &9{invite}"
+# Text shown for require link invite.
+require-link-unavailable: "&cDiscord-Verknüpfung ist Pflicht, aber gerade nicht verfügbar. Versuche es in einer Minute erneut."
+# Text shown for require link unavailable.
+moderation-banned: "Du bist vom Discord-Server gebannt."
+# Text shown for moderation banned.

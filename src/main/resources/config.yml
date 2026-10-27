@@ -27,6 +27,10 @@ linking:
   # Failed-attempt window in seconds (30-900).
   confirmation-timeout-seconds: 30
   # Time allowed to confirm unlinking, in seconds (10-120).
+  require-to-join: false
+  # Players without a linked Discord account cannot join; the kick screen shows their linking code. Needs a connected bot.
+  require-bypass-ops: true
+  # Server operators may join without a linked account.
 updates:
 # Optional version notices from the public Modrinth project dydiscord.
   notify: both
@@ -53,3 +57,19 @@ metrics:
 # Anonymous statistics on bStats.org; no player names, IDs or messages are sent.
   enabled: true
   # Send anonymous plugin statistics. The global plugins/bStats/config.yml switch also applies.
+cheat-check:
+# /cheatcheck <player>: a screen title, chat message and sound, plus a Discord message when the player has linked.
+  freeze: true
+  # Keep the player in place and block commands outside allowed-commands until the check ends.
+  reminder-seconds: 15
+  # Repeat the title and sound this often in seconds; 0 shows them once.
+  sound: "block.note_block.pling"
+  # Minecraft sound key; blank plays no sound.
+  allowed-commands: ["msg", "tell", "r", "w", "dydiscord", "discord", "link"]
+  # Commands a frozen player may still use.
+  quit-commands: []
+  # Console commands when the player leaves during a check, for example "ban {player} Left during a cheat check". Up to ten.
+reports:
+# /report <player> <reason>: sends a report to staff in game and to the Discord reports channel in bot.yml.
+  cooldown-seconds: 60
+  # Wait between reports from the same player, in seconds (0-3600).

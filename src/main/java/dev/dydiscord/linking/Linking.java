@@ -12,6 +12,8 @@ public final class Linking {
     public static final class Rejected extends Exception {public final String key; public final Map<String,String> values; public Rejected(String key){this(key,Map.of());} public Rejected(String key,Map<String,String> values){super(key);this.key=key;this.values=Map.copyOf(values);}}
     public record Code(UUID uuid,String name,String digest,Instant expires,long session) {}
     public record Confirmation(String actor,Store.Link target,String permission,String reason,Instant expires,long generation) {}
+    /** Session of codes shown on the join screen when linking is required; the player is not online. */
+    public static final long OFFLINE=-2L;
     public record Issued(String code,int seconds) { @Override public String toString(){return "Issued[code=REDACTED]";} }
     private final Store store; private final Clock clock; private final SecureRandom random;
     private final Map<UUID,Code> codes=new HashMap<>();private final Map<UUID,Instant> generated=new HashMap<>();
@@ -28,6 +30,19 @@ public final class Linking {
         String alphabet="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",value;
         do{StringBuilder out=new StringBuilder();for(int i=0;i<settings.codeLength();i++)out.append(alphabet.charAt(random.nextInt(alphabet.length())));value=out.toString();}while(find(digest(value))!=null);
         codes.put(uuid,new Code(uuid,name,digest(value),now.plusSeconds(settings.codeExpiry()),session));generated.put(uuid,now);
+        return new Issued(value,settings.codeExpiry());
+    }
+    /**
+     * A code for the kick screen of a player who must link before joining. It replaces any earlier code of
+     * that player and skips the generation cooldown, since each join attempt needs a code it can show.
+     */
+    public synchronized Issued issueOffline(UUID uuid,String name,Settings settings,boolean available)throws Exception{
+        cleanup();if(!settings.linking())throw new Rejected("linking-disabled");if(!available)throw new Rejected("bot-unavailable");
+        if(!store.writable())throw new Rejected("data-unavailable");if(store.byUuid(uuid).isPresent())throw new Rejected("already-linked",Map.of("discord","Discord"));
+        if(codes.size()>=4096&&!codes.containsKey(uuid))throw new Rejected("busy");
+        String alphabet="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",value;
+        do{StringBuilder out=new StringBuilder();for(int i=0;i<settings.codeLength();i++)out.append(alphabet.charAt(random.nextInt(alphabet.length())));value=out.toString();}while(find(digest(value))!=null);
+        codes.put(uuid,new Code(uuid,name,digest(value),clock.instant().plusSeconds(settings.codeExpiry()),OFFLINE));
         return new Issued(value,settings.codeExpiry());
     }
     public synchronized Optional<Code> inspect(String input){cleanup();if(input==null||!input.matches("[A-HJ-NP-Z2-9]{6,16}"))return Optional.empty();return Optional.ofNullable(find(digest(input)));}
@@ -60,7 +75,7 @@ public final class Linking {
         audit.accept(c);if(!permission.test(c.permission))throw new Rejected("no-permission");if(!clock.instant().isBefore(c.expires))throw new Rejected("confirmation-invalid");boolean result=store.unlink(c.target);codes.remove(c.target.uuid());confirmations.values().removeIf(v->v.target.uuid().equals(c.target.uuid()));return result;
     }
     public synchronized void cancel(String actor){confirmations.values().removeIf(c->c.actor.equals(actor));}
-    public synchronized void leave(UUID uuid){codes.remove(uuid);cancel("mc:"+uuid);}
+    public synchronized void leave(UUID uuid){Code code=codes.get(uuid);if(code!=null&&code.session()!=OFFLINE)codes.remove(uuid);cancel("mc:"+uuid);}
     public synchronized void invalidate(){generation++;codes.clear();confirmations.clear();attempts.clear();global.clear();generated.clear();}
     public synchronized void cleanup(){Instant now=clock.instant();codes.values().removeIf(c->!now.isBefore(c.expires));confirmations.values().removeIf(c->!now.isBefore(c.expires));generated.values().removeIf(t->!now.isBefore(t.plusSeconds(900)));attempts.values().removeIf(q->q.isEmpty()||!now.isBefore(q.peekLast().plusSeconds(900)));}
     static void prune(Deque<Instant> q,Instant boundary){while(!q.isEmpty()&&!q.peekFirst().isAfter(boundary))q.removeFirst();}

@@ -18,7 +18,7 @@ public final class Messages {
     /** Newly introduced keys migrate in the selected language; existing owner text is untouched. */
     public static boolean releaseKey(String key){
         if(key.startsWith("chat-compatibility-")||Set.of("account-date","account-roles","copy-code-hint","confirm-click-hint","invite-click-hint","help-admin-topics","help-bot-language","invite-auto-unavailable").contains(key))return true;
-        return List.of("language-name-","status-card-","log-","error-","chat-personal-","chat-already-","chat-enabled","chat-disabled","setting-unchanged","help-prefix","help-bot-guild","help-topic-","setup-","startup-","help-page","help-card-","giveaway-","players-","addresses-","address-","links-","notice-","help-chat-","help-announce","help-giveaway-").stream().anyMatch(key::startsWith)
+        return List.of("language-name-","status-card-","log-","cheatcheck-","player-report-","require-link-","moderation-","error-","chat-personal-","chat-already-","chat-enabled","chat-disabled","setting-unchanged","help-prefix","help-bot-guild","help-topic-","setup-","startup-","help-page","help-card-","giveaway-","players-","addresses-","address-","links-","notice-","help-chat-","help-announce","help-giveaway-").stream().anyMatch(key::startsWith)
             ||Set.of("slash-players","slash-ip","slash-links","help-community","server-started","information-channel-only","link-welcome","community-notice","report-saved","validation-result","setup-guide","reward-preview","help-maintenance","help-restart-notice","help-support-report","help-config-validate","help-translations-validate","help-setup","help-rewards-preview").contains(key);
     }
     public void validatePanel(String serverName){for(String lang:LANGUAGES){

@@ -218,3 +218,39 @@ log-claim-transferred: "Der Claim in {world} bei {x}, {z} ging von **{from}** an
 # Text shown for log claim transferred.
 log-rtp: "**{player}** wurde zufällig nach {world} teleportiert ({x}, {y}, {z})."
 # Text shown for log rtp.
+cheatcheck-dm: "**{staff}** hat einen Cheat-Check für dein Minecraft-Konto **{player}** gestartet. Tritt jetzt dem Sprachkanal bei und bleib in Minecraft online, bis der Check vorbei ist."
+# Text shown for cheatcheck dm.
+cheatcheck-voice: "Sprachkanal:"
+# Text shown for cheatcheck voice.
+cheatcheck-delivery-dm: "Privatnachricht"
+# Text shown for cheatcheck delivery dm.
+cheatcheck-delivery-channel: "Kanalerwähnung"
+# Text shown for cheatcheck delivery channel.
+cheatcheck-delivery-both: "Privatnachricht und Kanalerwähnung"
+# Text shown for cheatcheck delivery both.
+cheatcheck-delivery-failed: "nicht zugestellt"
+# Text shown for cheatcheck delivery failed.
+cheatcheck-delivery-unlinked: "kein verknüpftes Konto"
+# Text shown for cheatcheck delivery unlinked.
+log-cheatcheck-started: "🔎 **{staff}** hat einen Cheat-Check für **{player}** gestartet (Discord: {delivery})."
+# Text shown for log cheatcheck started.
+log-cheatcheck-ended: "✅ **{staff}** hat den Cheat-Check für **{player}** nach {minutes} Min. beendet."
+# Text shown for log cheatcheck ended.
+log-cheatcheck-quit: "⚠️ **{player}** hat den Server während des Cheat-Checks von **{staff}** verlassen."
+# Text shown for log cheatcheck quit.
+log-report: "🚩 **{reporter}** hat **{player}** gemeldet: {reason}"
+# Text shown for log report.
+log-report-location: "Position von {player}: {world} ({x}, {y}, {z})"
+# Text shown for log report location.
+log-warp-created: "**{player}** hat den Warp **{warp}** in {world} bei {x}, {y}, {z} erstellt."
+# Text shown for log warp created.
+log-warp-moved: "**{player}** hat den Warp **{warp}** nach {world} bei {x}, {y}, {z} verschoben."
+# Text shown for log warp moved.
+log-warp-deleted: "**{player}** hat den Warp **{warp}** gelöscht."
+# Text shown for log warp deleted.
+log-home-public: "**{owner}** hat das Home **{home}** öffentlich gemacht."
+# Text shown for log home public.
+log-home-private: "**{owner}** hat das Home **{home}** privat gemacht."
+# Text shown for log home private.
+log-home-teleport: "**{player}** hat sich ({kind}) zu **{name}** in {world} teleportiert."
+# Text shown for log home teleport.

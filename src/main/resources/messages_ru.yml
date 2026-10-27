@@ -377,3 +377,69 @@ error-panel-pending: "Доставка панели ожидает. Провер
 # Localized console explanation; values and secrets are not printed.
 error-discord-disconnected: "Discord отключился. Скоро будет повторное подключение; проверьте доступ в интернет, если это продолжается."
 # Localized console explanation; values and secrets are not printed.
+cheatcheck-usage: "&cИспользование: /cheatcheck <игрок> [end] или /cheatcheck list"
+# Text shown for cheatcheck usage.
+cheatcheck-not-found: "&c{player} не в сети."
+# Text shown for cheatcheck not found.
+cheatcheck-exempt: "&c{player} нельзя проверить."
+# Text shown for cheatcheck exempt.
+cheatcheck-already: "&e{player} уже на проверке."
+# Text shown for cheatcheck already.
+cheatcheck-none: "&e{player} не на проверке."
+# Text shown for cheatcheck none.
+cheatcheck-started: "&aПроверка на читы для &f{player} &aначата. Завершить: &6/cheatcheck {player} end&a."
+# Text shown for cheatcheck started.
+cheatcheck-linked: "&c&lПроверка на читы! &f{staff} &cпроверяет вас. &eМы написали вам в Discord: зайдите в голосовой канал. &cНе выходите из игры."
+# Text shown for cheatcheck linked.
+cheatcheck-unlinked: "&c&lПроверка на читы! &f{staff} &cпроверяет вас. &eЗайдите в наш Discord и ждите в голосовом канале. &cНе выходите из игры."
+# Text shown for cheatcheck unlinked.
+cheatcheck-delivery-dm: "&7Discord: &aличное сообщение отправлено игроку {player}."
+# Text shown for cheatcheck delivery dm.
+cheatcheck-delivery-channel: "&7Discord: &a{player} упомянут в канале проверок."
+# Text shown for cheatcheck delivery channel.
+cheatcheck-delivery-both: "&7Discord: &aличное сообщение и упоминание в канале отправлены игроку {player}."
+# Text shown for cheatcheck delivery both.
+cheatcheck-delivery-failed: "&7Discord: &cсообщение игроку {player} не доставлено (ЛС закрыты, канала нет)."
+# Text shown for cheatcheck delivery failed.
+cheatcheck-delivery-unlinked: "&7Discord: &eу {player} нет привязанного аккаунта; ему показано приглашение."
+# Text shown for cheatcheck delivery unlinked.
+cheatcheck-title: "&c&lПРОВЕРКА НА ЧИТЫ"
+# Text shown for cheatcheck title.
+cheatcheck-subtitle-linked: "&eПроверьте Discord и зайдите в голосовой канал"
+# Text shown for cheatcheck subtitle linked.
+cheatcheck-subtitle-unlinked: "&eЗайдите в наш голосовой канал Discord"
+# Text shown for cheatcheck subtitle unlinked.
+cheatcheck-ended-player: "&aПроверка окончена. Спасибо за терпение."
+# Text shown for cheatcheck ended player.
+cheatcheck-ended: "&aПроверка игрока &f{player} &aзавершена."
+# Text shown for cheatcheck ended.
+cheatcheck-notify: "&6[Проверка] &f{staff} &7начал проверку игрока &f{player}&7."
+# Text shown for cheatcheck notify.
+cheatcheck-quit: "&c[Проверка] &f{player} &cвышел во время проверки, которую вёл &f{staff}&c."
+# Text shown for cheatcheck quit.
+cheatcheck-frozen: "&cВо время проверки на читы это нельзя."
+# Text shown for cheatcheck frozen.
+cheatcheck-list: "&7Идут проверки: &f{players}"
+# Text shown for cheatcheck list.
+cheatcheck-list-empty: "&7Проверок сейчас нет."
+# Text shown for cheatcheck list empty.
+player-report-usage: "&cИспользование: /report <игрок> <причина>"
+# Text shown for player report usage.
+player-report-not-found: "&c{player} не в сети."
+# Text shown for player report not found.
+player-report-self: "&cНельзя пожаловаться на себя."
+# Text shown for player report self.
+player-report-cooldown: "&cПодождите {seconds} сек. перед следующей жалобой."
+# Text shown for player report cooldown.
+player-report-sent: "&aЖалоба отправлена команде. Спасибо!"
+# Text shown for player report sent.
+player-report-staff: "&c[Жалоба] &f{reporter} &7пожаловался на &f{player}&7: &f{reason} &8({world} {x}, {y}, {z})"
+# Text shown for player report staff.
+require-link-kick: "&cПривяжите аккаунт Discord, чтобы зайти на сервер.\n\n&7Ваш код: &e&l{code}\n\n&7В нашем Discord используйте &f/link &7или кнопку &fПривязать&7,\n&7и введите код. Он действует {minutes} мин."
+# Text shown for require link kick.
+require-link-invite: "&7Discord: &9{invite}"
+# Text shown for require link invite.
+require-link-unavailable: "&cНужна привязка Discord, но сейчас она недоступна. Попробуйте через минуту."
+# Text shown for require link unavailable.
+moderation-banned: "Вы забанены на Discord-сервере."
+# Text shown for moderation banned.

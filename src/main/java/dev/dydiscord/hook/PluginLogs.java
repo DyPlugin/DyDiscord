@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Posts DyClaim and DyRTP events to the plugin-logs channel. The other plugins are optional,
+ * Posts DyClaim, DyRTP and DyHomes events to the plugin-logs channel. The other plugins are optional,
  * so their event classes are found at runtime and read through their public API methods.
  */
 public final class PluginLogs implements Listener {
@@ -25,9 +25,10 @@ public final class PluginLogs implements Listener {
     /** Hooks every supported plugin that is enabled now; also called when a plugin enables later. */
     public void hookAll(){for(Plugin other:Bukkit.getPluginManager().getPlugins())if(other.isEnabled())hook(other);}
     public void hook(Plugin other){
-        String name=other.getName();if(!Set.of("DyClaim","DyRTP").contains(name)||!hooked.add(name))return;
+        String name=other.getName();if(!Set.of("DyClaim","DyRTP","DyHomes").contains(name)||!hooked.add(name))return;
         ClassLoader loader=other.getClass().getClassLoader();int count=0;
         if(name.equals("DyClaim"))for(String event:List.of("ClaimCreateEvent","ClaimRemoveEvent","ClaimTrustChangeEvent","ClaimTransferEvent"))count+=listen(loader,"dev.dyclaim.api.event."+event)?1:0;
+        else if(name.equals("DyHomes"))for(String event:List.of("WarpChangeEvent","HomePublicChangeEvent","DyHomesTeleportEvent"))count+=listen(loader,"dev.dyhomes.api.event."+event)?1:0;
         else count+=listen(loader,"dev.dyrtp.api.event.DyRtpPostTeleportEvent")?1:0;
         if(count==0)hooked.remove(name);else plugin.getLogger().info("Discord plugin logs: "+name+" events hooked.");
     }
@@ -54,12 +55,26 @@ public final class PluginLogs implements Listener {
             }finally{pending.decrementAndGet();}return null;
         }).exceptionally(e->{plugin.error(e);return null;});
     }
-    /** Turns a DyClaim or DyRTP event into a log entry; null for events that are not logged. */
+    /** Turns a DyClaim, DyRTP or DyHomes event into a log entry; null for events that are not logged. */
     public static Entry entry(Event fired)throws ReflectiveOperationException{
         String type=fired.getClass().getSimpleName();
         if(type.equals("DyRtpPostTeleportEvent")){
             Player player=(Player)call(fired,"getPlayer");Location to=(Location)call(fired,"getLocation");
             return new Entry("dyrtp.teleports","log-rtp",Map.of("player",player.getName(),"world",to.getWorld()==null?"?":to.getWorld().getName(),"x",Integer.toString(to.getBlockX()),"y",Integer.toString(to.getBlockY()),"z",Integer.toString(to.getBlockZ())),0x55AAFF);
+        }
+        if(type.equals("WarpChangeEvent")){
+            Object warp=call(fired,"getWarp"),sender=call(fired,"getSender");Map<String,String> values=place(call(warp,"location"));
+            values.put("warp",String.valueOf(call(warp,"name")));values.put("player",sender==null?"?":String.valueOf(call(sender,"getName")));
+            boolean created=(Boolean)call(fired,"isCreated"),deleted=(Boolean)call(fired,"isDeleted");
+            return new Entry("dyhomes.warps",deleted?"log-warp-deleted":created?"log-warp-created":"log-warp-moved",values,deleted?0xAAAAAA:0x55AA55);
+        }
+        if(type.equals("HomePublicChangeEvent")){
+            Object home=call(fired,"getHome");Map<String,String> values=new HashMap<>();values.put("home",String.valueOf(call(home,"name")));values.put("owner",name((UUID)call(home,"owner")));
+            boolean open=(Boolean)call(home,"publicHome");return new Entry("dyhomes.public-homes",open?"log-home-public":"log-home-private",values,open?0x55AAFF:0xAAAAAA);
+        }
+        if(type.equals("DyHomesTeleportEvent")){
+            Player player=(Player)call(fired,"getPlayer");Location to=(Location)call(fired,"getDestination");Object kind=call(fired,"getKind");
+            return new Entry("dyhomes.teleports","log-home-teleport",Map.of("player",player.getName(),"kind",String.valueOf(kind).toLowerCase(Locale.ROOT),"name",String.valueOf(call(fired,"getName")),"world",to.getWorld()==null?"?":to.getWorld().getName()),0x55AAFF);
         }
         if(!type.startsWith("Claim"))return null;
         Object claim=call(fired,"getClaim");Map<String,String> values=new HashMap<>();
@@ -71,6 +86,11 @@ public final class PluginLogs implements Listener {
             case "ClaimTransferEvent"->{values.put("from",name((UUID)call(fired,"getPreviousOwner")));values.put("to",name((UUID)call(fired,"getNewOwner")));yield new Entry("dyclaim.transfers","log-claim-transferred",values,0xAA55FF);}
             default->null;
         };
+    }
+    /** World and block coordinates of a DyHomes saved location. */
+    private static Map<String,String> place(Object location)throws ReflectiveOperationException{
+        Map<String,String> values=new HashMap<>();values.put("world",String.valueOf(call(location,"world")));
+        for(String axis:List.of("x","y","z"))values.put(axis,Long.toString((long)Math.floor((Double)call(location,axis))));return values;
     }
     private static String name(UUID id){if(id==null)return "?";String name=Bukkit.getOfflinePlayer(id).getName();return name==null?id.toString().substring(0,8):name;}
     /** Calls a public method through a public declaring type, so implementation classes may stay private. */

@@ -218,3 +218,39 @@ log-claim-transferred: "{world} dünyasındaki {x}, {z} claim'i **{from}** oyunc
 # Text shown for log claim transferred.
 log-rtp: "**{player}** rastgele {world} dünyasına ışınlandı ({x}, {y}, {z})."
 # Text shown for log rtp.
+cheatcheck-dm: "**{staff}**, Minecraft hesabın **{player}** için hile kontrolü başlattı. Hemen ses kanalına gir ve kontrol bitene kadar oyundan çıkma."
+# Text shown for cheatcheck dm.
+cheatcheck-voice: "Ses kanalı:"
+# Text shown for cheatcheck voice.
+cheatcheck-delivery-dm: "özel mesaj"
+# Text shown for cheatcheck delivery dm.
+cheatcheck-delivery-channel: "kanal etiketi"
+# Text shown for cheatcheck delivery channel.
+cheatcheck-delivery-both: "özel mesaj ve kanal etiketi"
+# Text shown for cheatcheck delivery both.
+cheatcheck-delivery-failed: "ulaştırılamadı"
+# Text shown for cheatcheck delivery failed.
+cheatcheck-delivery-unlinked: "eşlenmiş hesap yok"
+# Text shown for cheatcheck delivery unlinked.
+log-cheatcheck-started: "🔎 **{staff}**, **{player}** için hile kontrolü başlattı (Discord: {delivery})."
+# Text shown for log cheatcheck started.
+log-cheatcheck-ended: "✅ **{staff}**, **{player}** için hile kontrolünü {minutes} dk sonra bitirdi."
+# Text shown for log cheatcheck ended.
+log-cheatcheck-quit: "⚠️ **{player}**, **{staff}** tarafından yapılan hile kontrolü sırasında oyundan çıktı."
+# Text shown for log cheatcheck quit.
+log-report: "🚩 **{reporter}**, **{player}** oyuncusunu raporladı: {reason}"
+# Text shown for log report.
+log-report-location: "{player} konumu: {world} ({x}, {y}, {z})"
+# Text shown for log report location.
+log-warp-created: "**{player}**, {world} dünyasında {x}, {y}, {z} konumuna **{warp}** warpını oluşturdu."
+# Text shown for log warp created.
+log-warp-moved: "**{player}**, **{warp}** warpını {world} dünyasında {x}, {y}, {z} konumuna taşıdı."
+# Text shown for log warp moved.
+log-warp-deleted: "**{player}**, **{warp}** warpını sildi."
+# Text shown for log warp deleted.
+log-home-public: "**{owner}**, **{home}** evini herkese açtı."
+# Text shown for log home public.
+log-home-private: "**{owner}**, **{home}** evini gizli yaptı."
+# Text shown for log home private.
+log-home-teleport: "**{player}** ({kind}) {world} dünyasındaki **{name}** noktasına ışınlandı."
+# Text shown for log home teleport.

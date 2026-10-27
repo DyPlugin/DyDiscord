@@ -17,7 +17,9 @@ public record BoostSettings(boolean enabled,List<String> commands,List<String> r
             Settings.number(values,"boost-rewards.recheck-seconds",300,30,3600),
             Settings.number(values,"boost-rewards.cooldown-hours",168,168,8760));
     }
-    private static List<String> commands(Map<String,Object> values,String path){
+    private static List<String> commands(Map<String,Object> values,String path){return commands(values,path,BLOCKED);}
+    /** The reward command grammar with a caller-chosen set of refused verbs. */
+    static List<String> commands(Map<String,Object> values,String path,Set<String> blocked){
         Object raw=Settings.get(values,path,List.of());
         if(!(raw instanceof List<?> entries)||entries.size()>10)throw Settings.invalid(path);
         List<String> commands=new ArrayList<>();
@@ -29,7 +31,7 @@ public record BoostSettings(boolean enabled,List<String> commands,List<String> r
             String verb=command.substring(0,separator).toLowerCase(Locale.ROOT);
             if(!verb.matches("(?:[a-z0-9_.-]+:)?[a-z0-9_.-]+"))throw Settings.invalid(path);
             int namespace=verb.indexOf(':');if(namespace>=0)verb=verb.substring(namespace+1);
-            if(BLOCKED.contains(verb))throw Settings.invalid(path);
+            if(blocked.contains(verb))throw Settings.invalid(path);
             String args=command.substring(separator+1);
             if(!args.contains("{player}")&&!args.contains("{uuid}"))throw Settings.invalid(path);
             String remaining=args.replace("{player}","").replace("{uuid}","");

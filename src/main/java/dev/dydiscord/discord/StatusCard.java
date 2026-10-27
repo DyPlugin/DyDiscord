@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class StatusCard {
     public record Snapshot(ServerInfo.Snapshot server,double tps) {}
     private final DyDiscord plugin;private final AtomicBoolean publishing=new AtomicBoolean();
-    private BukkitTask task;private int interval;
+    private dev.dydiscord.util.Tasks.Task task;private int interval;
     public StatusCard(DyDiscord plugin){this.plugin=plugin;}
 
     /** Applies the current settings; call on the main thread after startup and every reload. */
@@ -28,7 +28,7 @@ public final class StatusCard {
         if(!settings.statusCard()){cancel();return;}
         if(task!=null&&interval==settings.statusInterval())return;
         cancel();interval=settings.statusInterval();long ticks=interval*20L;
-        task=plugin.getServer().getScheduler().runTaskTimer(plugin,this::tick,100,ticks);
+        task=plugin.tasks().globalTimer(this::tick,100,ticks);
     }
     public synchronized void cancel(){if(task!=null){task.cancel();task=null;}}
     private void tick(){

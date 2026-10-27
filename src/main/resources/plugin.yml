@@ -2,8 +2,9 @@ name: DyDiscord
 version: '${version}'
 main: dev.dydiscord.DyDiscord
 api-version: '1.20'
+folia-supported: true
 author: Claww
-softdepend: [LuckPerms, Vault, PlaceholderAPI, DyClaim, DyRTP]
+softdepend: [LuckPerms, Vault, PlaceholderAPI, DyClaim, DyRTP, DyHomes]
 description: Minecraft and Discord integration, account linking, chat and community tools by DyPlugin.
 commands:
   dydiscord:
@@ -17,6 +18,16 @@ commands:
     description: Generate a private account linking code
     aliases: [link, esle, eşle, hesap-esle, hesap-eşle]
     usage: /dydiscord link
+  cheatcheck:
+    description: Start or end a cheat check on a player
+    aliases: [hile-kontrol, hilekontrol, cheat-check]
+    usage: /cheatcheck <player> [end] | /cheatcheck list
+    permission: dydiscord.cheatcheck
+  report:
+    description: Report a player to the staff
+    aliases: [rapor, dyreport]
+    usage: /report <player> <reason>
+    permission: dydiscord.report
 permissions:
   dydiscord.player:
     default: true
@@ -30,6 +41,7 @@ permissions:
       dydiscord.chat.send: true
       dydiscord.chat.receive: true
       dydiscord.chat.preferences: true
+      dydiscord.report: true
   dydiscord.admin:
     default: op
     children:
@@ -64,6 +76,9 @@ permissions:
       dydiscord.admin.roles.sync: true
       dydiscord.admin.roles.cleanup.preview: true
       dydiscord.admin.roles.cleanup.confirm: true
+      dydiscord.cheatcheck: true
+      dydiscord.cheatcheck.notify: true
+      dydiscord.report.notify: true
   dydiscord.invite:
     default: false
   dydiscord.help:
@@ -146,4 +161,19 @@ permissions:
   dydiscord.admin.chat:
     default: false
   dydiscord.admin.chat.channel:
+    default: false
+  dydiscord.cheatcheck:
+    description: Start, end and list cheat checks
+    default: false
+  dydiscord.cheatcheck.notify:
+    description: See cheat-check notices in game
+    default: false
+  dydiscord.cheatcheck.exempt:
+    description: Cannot be put under a cheat check
+    default: false
+  dydiscord.report:
+    description: Report players with /report
+    default: false
+  dydiscord.report.notify:
+    description: See player reports in game and skip the report cooldown
     default: false

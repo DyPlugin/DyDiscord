@@ -218,3 +218,39 @@ log-claim-transferred: "Приват в {world} на {x}, {z} перешёл о�
 # Text shown for log claim transferred.
 log-rtp: "**{player}** случайно телепортирован в {world} ({x}, {y}, {z})."
 # Text shown for log rtp.
+cheatcheck-dm: "**{staff}** начал проверку на читы вашего аккаунта Minecraft **{player}**. Зайдите в голосовой канал и не выходите из игры до конца проверки."
+# Text shown for cheatcheck dm.
+cheatcheck-voice: "Голосовой канал:"
+# Text shown for cheatcheck voice.
+cheatcheck-delivery-dm: "личное сообщение"
+# Text shown for cheatcheck delivery dm.
+cheatcheck-delivery-channel: "упоминание в канале"
+# Text shown for cheatcheck delivery channel.
+cheatcheck-delivery-both: "личное сообщение и упоминание"
+# Text shown for cheatcheck delivery both.
+cheatcheck-delivery-failed: "не доставлено"
+# Text shown for cheatcheck delivery failed.
+cheatcheck-delivery-unlinked: "нет привязанного аккаунта"
+# Text shown for cheatcheck delivery unlinked.
+log-cheatcheck-started: "🔎 **{staff}** начал проверку на читы игрока **{player}** (Discord: {delivery})."
+# Text shown for log cheatcheck started.
+log-cheatcheck-ended: "✅ **{staff}** завершил проверку игрока **{player}** через {minutes} мин."
+# Text shown for log cheatcheck ended.
+log-cheatcheck-quit: "⚠️ **{player}** вышел с сервера во время проверки, которую вёл **{staff}**."
+# Text shown for log cheatcheck quit.
+log-report: "🚩 **{reporter}** пожаловался на **{player}**: {reason}"
+# Text shown for log report.
+log-report-location: "Позиция {player}: {world} ({x}, {y}, {z})"
+# Text shown for log report location.
+log-warp-created: "**{player}** создал варп **{warp}** в {world} на {x}, {y}, {z}."
+# Text shown for log warp created.
+log-warp-moved: "**{player}** перенёс варп **{warp}** в {world} на {x}, {y}, {z}."
+# Text shown for log warp moved.
+log-warp-deleted: "**{player}** удалил варп **{warp}**."
+# Text shown for log warp deleted.
+log-home-public: "**{owner}** сделал дом **{home}** публичным."
+# Text shown for log home public.
+log-home-private: "**{owner}** сделал дом **{home}** приватным."
+# Text shown for log home private.
+log-home-teleport: "**{player}** телепортировался ({kind}) к **{name}** в {world}."
+# Text shown for log home teleport.

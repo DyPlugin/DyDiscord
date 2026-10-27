@@ -25,7 +25,7 @@ public final class Modrinth implements AutoCloseable {
         }
     }
     private static String encode(String value){return URLEncoder.encode(value,StandardCharsets.UTF_8);}
-    public static Set<String> loaders(String platform){return switch(platform.toLowerCase(Locale.ROOT)){case "bukkit","craftbukkit"->Set.of("bukkit");case "spigot"->Set.of("spigot","bukkit");case "paper"->Set.of("paper","spigot","bukkit");case "purpur"->Set.of("purpur","paper","spigot","bukkit");default->Set.of();};}
+    public static Set<String> loaders(String platform){return switch(platform.toLowerCase(Locale.ROOT)){case "bukkit","craftbukkit"->Set.of("bukkit");case "spigot"->Set.of("spigot","bukkit");case "paper"->Set.of("paper","spigot","bukkit");case "purpur"->Set.of("purpur","paper","spigot","bukkit");case "folia"->Set.of("folia","paper","spigot","bukkit");default->Set.of();};}
     public static Optional<Release> newer(String json,String current,String minecraft,Set<String> loaders)throws IOException {
         return newer(json,current,minecraft,loaders,VersionNumber.parse(current).map(v->!v.prerelease().isEmpty()).orElse(false));
     }

@@ -25,6 +25,12 @@ import java.util.function.*;
 
 public final class DyDiscord extends JavaPlugin implements Listener {
     private final Clock clock=Clock.systemUTC();
+    private volatile dev.dydiscord.util.Tasks tasks;
+    /** Created on first use, so instances built without a constructor in tests still schedule work. */
+    public dev.dydiscord.util.Tasks tasks(){return scheduling();}
+    private dev.dydiscord.util.Tasks scheduling(){dev.dydiscord.util.Tasks current=tasks;if(current==null)tasks=current=new dev.dydiscord.util.Tasks(this);return current;}
+    private dev.dydiscord.moderation.CheatCheck cheatCheck;private dev.dydiscord.moderation.Reports reports;private dev.dydiscord.moderation.AccountSync accountSync;
+    public dev.dydiscord.moderation.CheatCheck cheatCheck(){return cheatCheck;}public dev.dydiscord.moderation.AccountSync accountSync(){return accountSync;}
     private final ThreadPoolExecutor io=new ThreadPoolExecutor(1,1,0,TimeUnit.SECONDS,new ArrayBlockingQueue<>(256),PluginThreads.factory("DyDiscord-io"),new ThreadPoolExecutor.AbortPolicy());
     private final Map<UUID,String> preferences=new ConcurrentHashMap<>();
     private final Map<UUID,Long> sessions=new ConcurrentHashMap<>();
@@ -53,6 +59,9 @@ public final class DyDiscord extends JavaPlugin implements Listener {
         Router shortcut=new Router(this,true);Objects.requireNonNull(getCommand("dylink")).setExecutor(shortcut);getCommand("dylink").setTabCompleter(shortcut);
         PluginCommand discord=getServer().getPluginCommand("discord");if(discord!=null&&discord.getPlugin()!=this)getLogger().warning("/discord is owned by another plugin. Use /dydiscord or /dydiscord:dydiscord.");
         getServer().getPluginManager().registerEvents(this,this);
+        cheatCheck=new dev.dydiscord.moderation.CheatCheck(this);reports=new dev.dydiscord.moderation.Reports(this);accountSync=new dev.dydiscord.moderation.AccountSync(this);
+        for(var command:Map.of("cheatcheck",(TabExecutor)cheatCheck,"report",reports).entrySet()){PluginCommand registered=Objects.requireNonNull(getCommand(command.getKey()));registered.setExecutor(command.getValue());registered.setTabCompleter(command.getValue());}
+        for(Listener listener:List.of(cheatCheck,accountSync,new dev.dydiscord.moderation.JoinGate(this)))getServer().getPluginManager().registerEvents(listener,this);
         for(Player p:getServer().getOnlinePlayers())sessions.put(p.getUniqueId(),++sessionCounter);
         submit(()->{
             initializationLanguage=ConsoleDiagnostics.detectLanguage(getDataFolder().toPath());configuration.load();translationWarnings();store=new Store(getDataFolder().toPath().resolve("data/dydiscord.db"));preferences.putAll(store.preferences());store.accountListener(this::accountChanged);for(UUID online:sessions.keySet())store.byUuid(online).ifPresent(link->{if(sessions.containsKey(online))onlineLinks.put(online,link);});
@@ -69,10 +78,10 @@ public final class DyDiscord extends JavaPlugin implements Listener {
             mainValue(()->{ready=true;getLogger().info("DyDiscord "+getDescription().getVersion()+" enabled!");console.attach();chatEvents.register();chat.start();statusCard.refresh();pluginLogs.hookAll();placeholders();startMetrics();return null;});
             roles.start();if(boosts!=null)boosts.start();updates=new dev.dydiscord.update.UpdateChecker(this);updates.refresh();bot.start();return null;
         }).exceptionally(e->{initializationFailed=true;warn("startup-failed");error(e);getLogger().severe(ConsoleDiagnostics.text(this,"error-startup",Map.of()));return null;});
-        getServer().getScheduler().runTaskTimer(this,()->{if(ready&&!closing)submit(()->{linking.cleanup();return null;});},200,200);
+        scheduling().globalTimer(()->{if(ready&&!closing)submit(()->{linking.cleanup();return null;});},200,200);
     }
     @Override public void onDisable(){
-        if(adminWarnings!=null)adminWarnings.close();if(giveaways!=null)giveaways.close();if(linkRewards!=null)linkRewards.close();
+        if(cheatCheck!=null)cheatCheck.close();if(adminWarnings!=null)adminWarnings.close();if(giveaways!=null)giveaways.close();if(linkRewards!=null)linkRewards.close();
         if(boosts!=null)boosts.close();
         closing=true;ready=false;if(roleCommands!=null)roleCommands.close();if(roles!=null)roles.close();if(chat!=null)chat.close();if(statusCard!=null&&configuration.active()!=null)statusCard.offline();if(bot!=null&&configuration.active()!=null)bot.serverShutdownNotice(dev.dydiscord.chat.ShutdownNotice.stopping(getServer()));if(placeholders!=null){placeholders.unregister();placeholders=null;}if(metrics!=null)metrics.shutdown();if(linking!=null)linking.invalidate();if(console!=null)console.close();
         if(updates!=null)updates.close();if(bot!=null)bot.stop();io.shutdown();try{if(!io.awaitTermination(5,TimeUnit.SECONDS))io.shutdownNow();}catch(InterruptedException e){Thread.currentThread().interrupt();io.shutdownNow();}
@@ -128,13 +137,13 @@ public final class DyDiscord extends JavaPlugin implements Listener {
         if(closing){result.completeExceptionally(new RejectedExecutionException());return result;}
         try{io.execute(()->{if(closing||System.nanoTime()>deadline){result.completeExceptionally(new TimeoutException());return;}try{result.complete(action.call());}catch(Throwable e){result.completeExceptionally(e);}});}catch(RejectedExecutionException e){result.completeExceptionally(e);}return result;
     }
-    public void onMain(Runnable action){if(closing)return;try{getServer().getScheduler().runTask(this,()->{if(!closing)action.run();});}catch(IllegalStateException e){if(!closing)error(e);}}
+    public void onMain(Runnable action){if(closing)return;try{scheduling().global(()->{if(!closing)action.run();});}catch(IllegalStateException e){if(!closing)error(e);}}
     public <T> T mainValue(Callable<T> action)throws Exception{
         if(closing)throw new RejectedExecutionException();CompletableFuture<T> future=new CompletableFuture<>();long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(3);onMain(()->{if(future.isDone()||System.nanoTime()>deadline){future.completeExceptionally(new TimeoutException());return;}try{future.complete(action.call());}catch(Exception e){future.completeExceptionally(e);}});try{return future.get(3,TimeUnit.SECONDS);}catch(TimeoutException e){future.cancel(false);throw e;}
     }
-    public boolean validOwner(Linking.Code code)throws Exception{return mainValue(()->{Player p=getServer().getPlayer(code.uuid());return p!=null&&p.isOnline()&&sessions.getOrDefault(code.uuid(),-1L)==code.session()&&p.hasPermission("dydiscord.link");});}
-    public boolean sessionValid(Linking.Code code){return sessions.getOrDefault(code.uuid(),-1L)==code.session();}
-    public void notifyLinked(Store.Link link){if(roles!=null)roles.enqueue(link.uuid());if(linkRewards!=null)linkRewards.afterLinked(link).exceptionally(e->{error(e);return null;});onMain(()->{Player p=getServer().getPlayer(link.uuid());if(p!=null){message(p,"linked",Map.of("name",link.name(),"discord",discordName(link,language(p))));}});}
+    public boolean validOwner(Linking.Code code)throws Exception{if(code.session()==Linking.OFFLINE)return true;return mainValue(()->{Player p=getServer().getPlayer(code.uuid());return p!=null&&p.isOnline()&&sessions.getOrDefault(code.uuid(),-1L)==code.session()&&p.hasPermission("dydiscord.link");});}
+    public boolean sessionValid(Linking.Code code){return code.session()==Linking.OFFLINE||sessions.getOrDefault(code.uuid(),-1L)==code.session();}
+    public void notifyLinked(Store.Link link){if(roles!=null)roles.enqueue(link.uuid());if(accountSync!=null)accountSync.linked(link);if(linkRewards!=null)linkRewards.afterLinked(link).exceptionally(e->{error(e);return null;});onMain(()->{Player p=getServer().getPlayer(link.uuid());if(p!=null){message(p,"linked",Map.of("name",link.name(),"discord",discordName(link,language(p))));}});}
     public void message(CommandSender sender,String key,Map<String,String> values){
         if(!Bukkit.isPrimaryThread()){onMain(()->message(sender,key,values));return;}if(sender instanceof Player p&&!p.isOnline()||closing)return;
         if(configuration.active()==null){boolean tr=sender instanceof Player p&&p.getLocale()!=null&&p.getLocale().toLowerCase(Locale.ROOT).startsWith("tr");sender.sendMessage(initializationFailed?(tr?"DyDiscord başlatılamadı. Sunucu kaydındaki başlangıç hatasını kontrol edin.":"DyDiscord could not start. Check the startup error in the server log."):(tr?"DyDiscord hazırlanıyor. Biraz sonra tekrar deneyin.":"DyDiscord is initializing. Please try again shortly."));return;}

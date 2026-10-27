@@ -218,3 +218,39 @@ log-claim-transferred: "The claim in {world} at {x}, {z} moved from **{from}** t
 # Text shown for log claim transferred.
 log-rtp: "**{player}** teleported randomly to {world} ({x}, {y}, {z})."
 # Text shown for log rtp.
+cheatcheck-dm: "**{staff}** started a cheat check on your Minecraft account **{player}**. Join the voice channel now and stay online in Minecraft until the check ends."
+# Text shown for cheatcheck dm.
+cheatcheck-voice: "Voice channel:"
+# Text shown for cheatcheck voice.
+cheatcheck-delivery-dm: "private message"
+# Text shown for cheatcheck delivery dm.
+cheatcheck-delivery-channel: "channel mention"
+# Text shown for cheatcheck delivery channel.
+cheatcheck-delivery-both: "private message and channel mention"
+# Text shown for cheatcheck delivery both.
+cheatcheck-delivery-failed: "not delivered"
+# Text shown for cheatcheck delivery failed.
+cheatcheck-delivery-unlinked: "no linked account"
+# Text shown for cheatcheck delivery unlinked.
+log-cheatcheck-started: "🔎 **{staff}** started a cheat check on **{player}** (Discord: {delivery})."
+# Text shown for log cheatcheck started.
+log-cheatcheck-ended: "✅ **{staff}** ended the cheat check on **{player}** after {minutes} min."
+# Text shown for log cheatcheck ended.
+log-cheatcheck-quit: "⚠️ **{player}** left the server during the cheat check by **{staff}**."
+# Text shown for log cheatcheck quit.
+log-report: "🚩 **{reporter}** reported **{player}**: {reason}"
+# Text shown for log report.
+log-report-location: "Location of {player}: {world} ({x}, {y}, {z})"
+# Text shown for log report location.
+log-warp-created: "**{player}** created the warp **{warp}** in {world} at {x}, {y}, {z}."
+# Text shown for log warp created.
+log-warp-moved: "**{player}** moved the warp **{warp}** to {world} at {x}, {y}, {z}."
+# Text shown for log warp moved.
+log-warp-deleted: "**{player}** deleted the warp **{warp}**."
+# Text shown for log warp deleted.
+log-home-public: "**{owner}** made the home **{home}** public."
+# Text shown for log home public.
+log-home-private: "**{owner}** made the home **{home}** private."
+# Text shown for log home private.
+log-home-teleport: "**{player}** teleported ({kind}) to **{name}** in {world}."
+# Text shown for log home teleport.

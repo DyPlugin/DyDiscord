@@ -218,3 +218,39 @@ log-claim-transferred: "El claim en {world} en {x}, {z} pasó de **{from}** a **
 # Text shown for log claim transferred.
 log-rtp: "**{player}** se teletransportó al azar a {world} ({x}, {y}, {z})."
 # Text shown for log rtp.
+cheatcheck-dm: "**{staff}** inició una revisión de trampas en tu cuenta de Minecraft **{player}**. Entra ahora al canal de voz y sigue conectado en Minecraft hasta que termine."
+# Text shown for cheatcheck dm.
+cheatcheck-voice: "Canal de voz:"
+# Text shown for cheatcheck voice.
+cheatcheck-delivery-dm: "mensaje privado"
+# Text shown for cheatcheck delivery dm.
+cheatcheck-delivery-channel: "mención en el canal"
+# Text shown for cheatcheck delivery channel.
+cheatcheck-delivery-both: "mensaje privado y mención en el canal"
+# Text shown for cheatcheck delivery both.
+cheatcheck-delivery-failed: "no entregado"
+# Text shown for cheatcheck delivery failed.
+cheatcheck-delivery-unlinked: "sin cuenta vinculada"
+# Text shown for cheatcheck delivery unlinked.
+log-cheatcheck-started: "🔎 **{staff}** inició una revisión de trampas a **{player}** (Discord: {delivery})."
+# Text shown for log cheatcheck started.
+log-cheatcheck-ended: "✅ **{staff}** terminó la revisión de **{player}** tras {minutes} min."
+# Text shown for log cheatcheck ended.
+log-cheatcheck-quit: "⚠️ **{player}** salió del servidor durante la revisión de **{staff}**."
+# Text shown for log cheatcheck quit.
+log-report: "🚩 **{reporter}** reportó a **{player}**: {reason}"
+# Text shown for log report.
+log-report-location: "Ubicación de {player}: {world} ({x}, {y}, {z})"
+# Text shown for log report location.
+log-warp-created: "**{player}** creó el warp **{warp}** en {world} en {x}, {y}, {z}."
+# Text shown for log warp created.
+log-warp-moved: "**{player}** movió el warp **{warp}** a {world} en {x}, {y}, {z}."
+# Text shown for log warp moved.
+log-warp-deleted: "**{player}** eliminó el warp **{warp}**."
+# Text shown for log warp deleted.
+log-home-public: "**{owner}** hizo pública la casa **{home}**."
+# Text shown for log home public.
+log-home-private: "**{owner}** hizo privada la casa **{home}**."
+# Text shown for log home private.
+log-home-teleport: "**{player}** se teletransportó ({kind}) a **{name}** en {world}."
+# Text shown for log home teleport.

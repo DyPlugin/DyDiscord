@@ -153,3 +153,35 @@ plugin-logs:
   # Needs DyRTP 1.0.0 or newer.
     teleports: true
     # Finished random teleports with their destination world.
+  dyhomes:
+  # Needs DyHomes 1.0.0 or newer.
+    warps: true
+    # Warps created, moved and deleted.
+    public-homes: true
+    # Homes made public or private.
+    teleports: false
+    # Every home, warp, spawn and /back teleport; off by default because it is frequent.
+cheat-check:
+# Discord side of /cheatcheck. Reload applies.
+  voice-channel-id: ""
+  # Voice channel the player is asked to join; blank leaves the channel out of the message.
+  notify: dm
+  # dm sends a private message, channel mentions the player in channel-id, both does both. A closed DM falls back to the channel.
+  channel-id: ""
+  # Guild text channel for channel notices, quoted as text.
+  log-channel-id: ""
+  # Staff log of started, ended and abandoned checks; blank uses plugin-logs.channel-id.
+reports:
+# Player reports from /report. Reload applies.
+  channel-id: ""
+  # Guild text channel for reports; blank keeps reports in game only.
+  ping-role-id: ""
+  # Optional role mentioned with each report, quoted as text.
+moderation:
+# Discord account sync for linked players. Reload applies; changing ban-sync to or from Discord reconnects the bot.
+  nickname-sync: false
+  # Set the Discord nickname of linked members to their Minecraft name. Needs Manage Nicknames; the server owner is skipped.
+  nickname-format: "{name}"
+  # Nickname pattern with {name}; at most 32 characters.
+  ban-sync: "off"
+  # off, minecraft-to-discord, discord-to-minecraft or both. Needs Ban Members on Discord for minecraft-to-discord.

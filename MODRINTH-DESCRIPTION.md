@@ -4,38 +4,36 @@
 
 DyDiscord is a Minecraft–Discord integration plugin for survival, SMP and community servers. Connect player accounts, bring conversations together and follow your server through your own Discord bot.
 
-DyDiscord combines private account linking, two-way chat, Minecraft-to-Discord roles, configurable rewards and giveaways in one plugin. **Version 1.1.0** adds a live server status card, DyClaim and DyRTP event logs, PlaceholderAPI placeholders, German, Spanish and Russian, MiniMessage formatting and a developer API, while preserving existing account links, custom settings and translations.
+DyDiscord combines private account linking, two-way chat, Minecraft-to-Discord roles, configurable rewards, giveaways and staff tools in one plugin. **Version 1.2.0** runs on Folia from the same JAR and adds cheat checks with a Discord voice call, player reports, required linking, nickname and ban sync and DyHomes logs, while preserving existing account links, custom settings and translations.
 
 ---
 
-## New in 1.1.0
+## New in 1.2.0
 
-**Server status card.** One Discord message shows Online or Offline, players, version and TPS (on Paper and its forks). DyDiscord edits the same message on a timer and marks it Offline on a normal shutdown. Turn it on with `status-card` in bot.yml.
+**Cheat checks.** `/cheatcheck <player>` (Turkish `/hile-kontrol`) puts a title on the player's screen, a warning in chat and a sound, repeated until the check ends. A linked player gets a Discord message, by DM or in a channel, asking them to join your voice channel. The player stays in place and can only use the commands you allow. Leaving during a check can run console commands such as a ban. Staff see every step in game and in a Discord log.
 
-**Logs from DyClaim and DyRTP.** Claims created and removed, trust changes, ownership transfers and random teleports are posted to a channel you choose. Each kind has its own switch under `plugin-logs`; a blank channel turns them off.
+**Player reports.** `/report <player> <reason>` (`/rapor`) tells online staff and posts the report, with the reported player's location, to a Discord channel. An optional role is mentioned.
 
-**PlaceholderAPI.** `%dydiscord_linked%`, `%dydiscord_discord_name%` and `%dydiscord_bot_connected%` for scoreboards, tab lists and chat formats.
+**Required linking.** With `linking.require-to-join`, players without a linked account cannot join; the kick screen shows their linking code and your invitation. Operators can be let through.
 
-**More languages.** German, Spanish and Russian join English and Turkish for Minecraft and Discord messages. `lang: auto` follows the Minecraft client language.
+**Nickname and ban sync.** Linked members can carry their Minecraft name as their Discord nickname. Bans can follow from Minecraft to Discord, from Discord to Minecraft, or both.
 
-**MiniMessage.** On Paper and Purpur, Minecraft messages may use tags such as `<green>` or `<gradient:#55ff55:#55ffff>` next to `&` codes. Names and chat from players are never read as tags. Spigot keeps `&` codes.
+**Folia.** The same JAR runs on Bukkit, Spigot, Paper, Purpur and Folia.
 
-**Modern cards.** Every bot message except relayed chat uses Discord's container layout with a coloured accent.
+**DyHomes logs.** Warps created, moved and deleted, homes made public and, if you want them, every DyHomes teleport.
 
-**For developers.** `DyDiscordAPI` looks up linked accounts, and `AccountLinkEvent` and `AccountUnlinkEvent` report changes.
-
-Version 1.0.2 added the `/dyd` and `/dyda` shortcuts, safer defaults, container giveaways and clearer setup errors.
+Version 1.1.0 added the status card, DyClaim and DyRTP logs, PlaceholderAPI, German, Spanish and Russian, MiniMessage and the developer API.
 
 ## Choose your server build
 
 | Package | JAR | First startup |
 | --- | --- | --- |
-| Small | `DyDiscord-1.1.0.jar` | Internet access to resolve required libraries |
-| Standalone | `DyDiscord-1.1.0-standalone.jar` | Libraries included; available on GitHub |
+| Small | `DyDiscord-1.2.0.jar` | Internet access to resolve required libraries |
+| Standalone | `DyDiscord-1.2.0-standalone.jar` | Libraries included; available on GitHub |
 
-Install **one** JAR per server. Both packages provide the same features for **Bukkit, Spigot, Paper and Purpur**, with **Minecraft 1.20.x–26.x** as the current compatibility range. Stop the server and back up the full DyDiscord folder before replacing the JAR. Existing accounts do not need to be linked again.
+Install **one** JAR per server. Both packages provide the same features for **Bukkit, Spigot, Paper, Purpur and Folia**, with **Minecraft 1.20.x–26.x** as the current compatibility range. Stop the server and back up the full DyDiscord folder before replacing the JAR. Existing accounts do not need to be linked again.
 
-Java 17 bytecode; use the runtime required by your server. Folia and proxy platforms are outside the current support claim. Optional integrations must support your selected server too. [Compatibility notes](https://github.com/DyPlugin/DyDiscord/blob/main/docs/compatibility-test.md) · [Upgrade guide](https://github.com/DyPlugin/DyDiscord/blob/main/docs/upgrade-and-rollback.md) · [Downloads](https://github.com/DyPlugin/DyDiscord/releases)
+Java 17 bytecode; use the runtime required by your server. Proxy platforms are outside the current support claim. Optional integrations must support your selected server too. [Compatibility notes](https://github.com/DyPlugin/DyDiscord/blob/main/docs/compatibility-test.md) · [Upgrade guide](https://github.com/DyPlugin/DyDiscord/blob/main/docs/upgrade-and-rollback.md) · [Downloads](https://github.com/DyPlugin/DyDiscord/releases)
 
 ## Why DyDiscord?
 
@@ -79,7 +77,7 @@ Relay actual server output to a separate console channel. Optionally authorize t
 
 The relay shows real server output without extra technical acceptance/rejection replies. Normal shutdown attempts a short yellow notification before disconnecting; bot restarts and reloads do not send it. Delivery cannot be guaranteed during crashes or network failures.
 
-A separate status card keeps one message up to date with the server state, and an optional log channel follows DyClaim and DyRTP activity.
+A separate status card keeps one message up to date with the server state, and an optional log channel follows DyClaim, DyRTP and DyHomes activity.
 
 ## Familiar commands
 
@@ -90,11 +88,13 @@ A separate status card keeps one message up to date with the server state, and a
 | `/dydiscord status` | View your linked account |
 | `/dydiscord unlink` | Start unlink confirmation |
 | `/dydiscord chat on` or `off` | Show or hide incoming Discord chat |
+| `/report <player> <reason>` | Report a player to the staff |
+| `/cheatcheck <player> [end]` | Start or end a cheat check (staff) |
 | `/dyda help [page]` | Browse permitted administrator commands |
 | `/dyda doctor` | Check setup, intents and permissions |
 | `/dyda reload` | Apply valid settings and translations |
 
-Turkish examples include `/dydiscord eşle`, `/dydiscord kaldır`, `/dydiscord sohbet aç`, `/dyda yardım` and `/dyda kontrol`. The long `/dydiscord admin` path remains available.
+Turkish examples include `/dydiscord eşle`, `/dydiscord kaldır`, `/dydiscord sohbet aç`, `/rapor`, `/hile-kontrol <oyuncu> [bitir]`, `/dyda yardım` and `/dyda kontrol`. The long `/dydiscord admin` path remains available.
 
 ## Get started
 
