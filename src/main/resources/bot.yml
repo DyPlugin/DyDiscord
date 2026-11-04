@@ -83,6 +83,24 @@ chat:
       # Announce deaths in the chat channel.
       color: "#FF5555"
       # Embed accent as a six-digit RGB hex color.
+    first-join:
+    # Players joining for the first time get this message instead of the normal join message.
+      enabled: false
+      # Welcome first-time players in the chat channel.
+      color: "#55FFFF"
+      # Embed accent as a six-digit RGB hex color.
+    advancement:
+    # Advancements that Minecraft announces in chat; the announceAdvancements game rule must be on.
+      enabled: false
+      # Announce advancements in the chat channel.
+      color: "#FFAA00"
+      # Embed accent as a six-digit RGB hex color.
+  webhook:
+  # Show Minecraft chat with each player's own name and head, through a webhook the bot creates in the chat channel.
+    enabled: false
+    # Needs the Manage Webhooks permission in the chat channel; without it chat is sent as the bot as before.
+    avatar-url: "https://mc-heads.net/avatar/{uuid}/64"
+    # Player head image; {uuid} and {name} are replaced. Must start with https://.
 
 boost-rewards:
 # Optional Discord boost rewards, executed as Minecraft console commands.

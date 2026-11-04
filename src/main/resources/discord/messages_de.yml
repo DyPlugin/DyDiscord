@@ -116,6 +116,10 @@ chat-to-minecraft: "&9[Discord] &7{role}&f{name} &8» &7{message}"
 # Minecraft colors apply only to this template; {role} adds a space only when present.
 chat-join: "{name} hat den Server betreten."
 # Public join event. Keep {name} unchanged.
+chat-first-join: "{name} hat den Server zum ersten Mal betreten. Willkommen!"
+# First join, when chat.events.first-join is on. Keep {name} unchanged.
+chat-advancement: "{name} hat den Fortschritt **{advancement}** erzielt."
+# Announced advancement. Keep {name} and {advancement} unchanged.
 chat-quit: "{name} hat den Server verlassen."
 # Public quit event. Keep {name} unchanged.
 chat-death: "{death}"

@@ -189,8 +189,34 @@ public final class Bot {
     }
     public void sendChat(dev.dydiscord.chat.ChatBridge.Outgoing message,java.util.function.BooleanSupplier current)throws Exception{
         TextChannel target=channel(plugin.settings().chat().channel());Member self=target.getGuild().getSelfMember();if(!self.hasPermission(target,Permission.VIEW_CHANNEL,Permission.MESSAGE_SEND)||message.color()!=null&&!self.hasPermission(target,Permission.MESSAGE_EMBED_LINKS))throw new IllegalStateException("Chat channel unavailable");
+        if(message.username()!=null&&sendWebhook(target,self,message,current))return;
         var action=message.color()==null?target.sendMessage(message.text()):target.sendMessageEmbeds(new EmbedBuilder().setDescription(message.text()).setColor(message.color()).build());
         action.setAllowedMentions(List.of()).mentionRepliedUser(false).setCheck(current::getAsBoolean).timeout(2,TimeUnit.SECONDS).submit().get(3,TimeUnit.SECONDS);
+    }
+    private static final String WEBHOOK_NAME="DyDiscord";
+    private volatile Webhook chatWebhook;private volatile boolean webhookWarned;
+    /**
+     * Sends chat as the player through a webhook the bot owns in the chat channel, creating it once. False means the
+     * webhook cannot be used (no Manage Webhooks, or Discord refused it); the caller then sends the message as the bot.
+     */
+    private boolean sendWebhook(TextChannel target,Member self,dev.dydiscord.chat.ChatBridge.Outgoing message,java.util.function.BooleanSupplier current){
+        if(!self.hasPermission(target,Permission.MANAGE_WEBHOOKS)){if(!webhookWarned){webhookWarned=true;plugin.getLogger().warning("chat.webhook needs the Manage Webhooks permission in the chat channel; chat is sent as the bot instead.");}return false;}
+        try{
+            Webhook hook=chatWebhook;
+            if(hook==null||!hook.getChannel().getId().equals(target.getId())){
+                hook=target.retrieveWebhooks().timeout(2,TimeUnit.SECONDS).submit().get(3,TimeUnit.SECONDS).stream()
+                        .filter(w->WEBHOOK_NAME.equals(w.getName())&&w.getToken()!=null&&w.getOwnerAsUser()!=null&&w.getOwnerAsUser().getId().equals(self.getId())).findFirst().orElse(null);
+                if(hook==null)hook=target.createWebhook(WEBHOOK_NAME).timeout(2,TimeUnit.SECONDS).submit().get(3,TimeUnit.SECONDS);
+                chatWebhook=hook;
+            }
+            hook.sendMessage(message.body()).setUsername(message.username()).setAvatarUrl(message.avatar()).setAllowedMentions(List.of()).mentionRepliedUser(false)
+                    .setCheck(current::getAsBoolean).timeout(2,TimeUnit.SECONDS).submit().get(3,TimeUnit.SECONDS);
+            webhookWarned=false;return true;
+        }catch(Exception failure){
+            chatWebhook=null;
+            if(!webhookWarned){webhookWarned=true;plugin.getLogger().warning("The chat webhook could not be used ("+failure.getClass().getSimpleName()+"); chat is sent as the bot instead.");}
+            return false;
+        }
     }
     public void serverShutdownNotice(boolean stopping){
         Settings settings=plugin.settings();if(!stopping||settings.consoleChannel().isEmpty()||!usable())return;

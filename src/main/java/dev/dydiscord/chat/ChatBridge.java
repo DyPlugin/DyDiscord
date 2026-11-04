@@ -14,7 +14,10 @@ import java.util.concurrent.atomic.*;
 
 /** Ephemeral queues only. No retry/replay of chat and no console execution path. */
 public final class ChatBridge implements AutoCloseable {
-    public record Outgoing(String text,Integer color,long policy,long session,Instant expires) {}
+    /** With a username, the message goes through the chat channel's webhook as {@code body}; {@code text} is the bot fallback. */
+    public record Outgoing(String text,Integer color,long policy,long session,Instant expires,String username,String avatar,String body) {
+        public Outgoing(String text,Integer color,long policy,long session,Instant expires){this(text,color,policy,session,expires,null,null,null);}
+    }
     record Context(Settings settings,long policy,long session,Instant expires,long epoch) {}
     private record Queued(Outgoing message,Settings settings,UUID sender,long epoch) {}
     private record Incoming(String role,int color,String name,String message,String replyAuthor,long policy,long session,Instant expires,Settings settings,long epoch) {}
@@ -61,9 +64,13 @@ public final class ChatBridge implements AutoCloseable {
         String reason=ChatText.plain(death,1200);for(Player participant:plugin.getServer().getOnlinePlayers())if(!visible(participant)&&reason.contains(participant.getName()))return false;return true;
     }
     public void minecraft(Player player,String message){minecraft(player,message,capture());}
-    void minecraft(Player player,String message,Context context){if(outboundPaused||!current(context)||!context.settings().chat().toDiscord()||!player.isOnline()||!visible(player)||muted(player)||!player.hasPermission("dydiscord.chat.send")||!outgoingRate.admit(player.getUniqueId().toString()))return;String content=ChatText.plain(message,800);if(content.isEmpty())return;offer(ChatText.discord(template("chat-to-discord"),ranks.rank(player),player.getName(),content),null,context,player.getUniqueId());}
+    void minecraft(Player player,String message,Context context){if(outboundPaused||!current(context)||!context.settings().chat().toDiscord()||!player.isOnline()||!visible(player)||muted(player)||!player.hasPermission("dydiscord.chat.send")||!outgoingRate.admit(player.getUniqueId().toString()))return;String content=ChatText.plain(message,800);if(content.isEmpty())return;String rank=ranks.rank(player),text=ChatText.discord(template("chat-to-discord"),rank,player.getName(),content);
+        if(context.settings().chat().webhook())offer(text,null,context,player.getUniqueId(),ChatText.webhookName(rank,player.getName()),ChatText.avatar(context.settings().chat().avatar(),player.getUniqueId(),player.getName()),ChatText.webhookBody(content));
+        else offer(text,null,context,player.getUniqueId());}
     public void event(String event,Player player,String death){event(event,player,death,capture());}
-    void event(String event,Player player,String death,Context context){if(!current(context))return;ChatSettings s=context.settings().chat();boolean enabled=switch(event){case "join"->s.join();case "quit"->s.quit();case "death"->s.death();default->false;};if(!enabled||!visible(player))return;int color=switch(event){case "join"->s.joinColor();case "quit"->s.quitColor();default->s.deathColor();};offer(ChatText.event(template("chat-"+event),player.getName(),death),color,context);}
+    void event(String event,Player player,String death,Context context){if(!current(context))return;ChatSettings s=context.settings().chat();boolean enabled=switch(event){case "join"->s.join();case "quit"->s.quit();case "death"->s.death();case "first-join"->s.firstJoin();case "advancement"->s.advancement();default->false;};if(!enabled||!visible(player))return;int color=switch(event){case "join"->s.joinColor();case "quit"->s.quitColor();case "first-join"->s.firstJoinColor();case "advancement"->s.advancementColor();default->s.deathColor();};
+        // For an advancement, the third value is its title.
+        offer(event.equals("advancement")?ChatText.advancement(template("chat-advancement"),player.getName(),death):ChatText.event(template("chat-"+event),player.getName(),death),color,context);}
     private String template(String key){String lang=plugin.bot().activeLanguage();return plugin.messages().get(true,lang,key);}
     public boolean offer(String text,Integer color){
         return offer(text,color,capture());
@@ -72,9 +79,12 @@ public final class ChatBridge implements AutoCloseable {
         return offer(text,color,context,null);
     }
     private boolean offer(String text,Integer color,Context context,UUID sender){
+        return offer(text,color,context,sender,null,null,null);
+    }
+    private boolean offer(String text,Integer color,Context context,UUID sender,String username,String avatar,String body){
         long admittedPolicy=context.policy();Settings admittedSettings=context.settings();
         if(closed||outboundPaused||!plugin.ready()||!plugin.bot().usable()||admittedSettings.chat().channel().isEmpty()||clock.instant().isBefore(pause)){outbound.clear();return false;}
-        if(!current(context)||text.isBlank()||text.length()>1900)return false;boolean admitted=outbound.offer(new Queued(new Outgoing(text,color,admittedPolicy,context.session(),context.expires()),admittedSettings,sender,context.epoch()));if(admitted)wake();return admitted;
+        if(!current(context)||text.isBlank()||text.length()>1900)return false;boolean admitted=outbound.offer(new Queued(new Outgoing(text,color,admittedPolicy,context.session(),context.expires(),username,avatar,body),admittedSettings,sender,context.epoch()));if(admitted)wake();return admitted;
     }
     public synchronized void flush(){
         outbound.removeIf(queued->!current(queued));

@@ -21,6 +21,14 @@ public final class ChatText {
     }
     private static String markdown(String value){return Messages.safeDiscord(value).replaceAll("([#>+!()\\-])","\\\\$1");}
     public static String event(String template,String name,String death){return substitute(template,Map.of("name",markdown(plain(name,64)),"death",markdown(plain(death,1200))));}
+    public static String advancement(String template,String name,String title){return substitute(template,Map.of("name",markdown(plain(name,64)),"advancement",markdown(plain(title,128))));}
+    /** Webhook display name: rank and player name, 1-80 characters; Discord rejects names containing "discord" or "clyde". */
+    public static String webhookName(String rank,String name){
+        String prefix=plain(rank,32),value=plain((prefix.isEmpty()?"":prefix+" ")+name,80);
+        return value.replaceAll("(?i)discord","Dc").replaceAll("(?i)clyde","Cly");
+    }
+    public static String webhookBody(String message){return markdown(plain(message,800));}
+    public static String avatar(String template,UUID id,String name){return template.replace("{uuid}",id.toString()).replace("{name}",java.net.URLEncoder.encode(plain(name,64),java.nio.charset.StandardCharsets.UTF_8).replace("+","%20"));}
     public static String substitute(String template,Map<String,String> values){Matcher m=SLOT.matcher(template);StringBuffer out=new StringBuffer();while(m.find())m.appendReplacement(out,Matcher.quoteReplacement(values.getOrDefault(m.group(1),"")));m.appendTail(out);return out.toString();}
     public static String reply(String author,String message){String name=identity(author);return name.isEmpty()?body(message):plain("↪ "+name+" — "+body(message),800);}
     private static String body(String value){return plain(MarkdownSanitizer.sanitize(plain(value,800)),800);}

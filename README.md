@@ -4,11 +4,17 @@
 
 DyDiscord is a Minecraft–Discord integration plugin for survival, SMP and community servers. Connect player accounts, bring conversations together and follow your server through your own Discord bot.
 
-DyDiscord combines private account linking, two-way chat, Minecraft-to-Discord roles, configurable rewards, giveaways and staff tools in one plugin. **Version 1.2.0** runs on Folia from the same JAR and adds cheat checks with a Discord voice call, player reports, required linking, nickname and ban sync and DyHomes logs, while preserving existing account links, custom settings and translations.
+DyDiscord combines private account linking, two-way chat, Minecraft-to-Discord roles, configurable rewards, giveaways and staff tools in one plugin. **Version 1.3.0** can show Minecraft chat in Discord under each player's own name and head, and announce advancements and first joins, while preserving existing account links, custom settings and translations.
 
 ---
 
-## New in 1.2.0
+## New in 1.3.0
+
+**Player names and heads.** With `chat.webhook.enabled`, Minecraft chat is posted through a channel webhook under the player's name and rank, with their head as the picture. The bot needs Manage Webhooks; without it chat is sent as the bot as before.
+
+**Advancements and first joins.** `chat.events.advancement` announces the advancements Minecraft announces in chat, and `chat.events.first-join` welcomes new players. Both start off.
+
+## Added in 1.2.0
 
 **Cheat checks.** `/cheatcheck <player>` (Turkish `/hile-kontrol`) puts a title on the player's screen, a warning in chat and a sound, repeated until the check ends. A linked player gets a Discord message, by DM or in a channel, asking them to join your voice channel. The player stays in place and can only use the commands you allow. Leaving during a check can run console commands such as a ban. Staff see every step in game and in a Discord log.
 
@@ -28,8 +34,8 @@ Version 1.1.0 added the status card, DyClaim and DyRTP logs, PlaceholderAPI, Ger
 
 | Package | JAR | First startup |
 | --- | --- | --- |
-| Small | `DyDiscord-1.2.0.jar` | Internet access to resolve required libraries |
-| Standalone | `DyDiscord-1.2.0-standalone.jar` | Libraries included; available on GitHub |
+| Small | `DyDiscord-1.3.0.jar` | Internet access to resolve required libraries |
+| Standalone | `DyDiscord-1.3.0-standalone.jar` | Libraries included; available on GitHub |
 
 Install **one** JAR per server. Both packages provide the same features for **Bukkit, Spigot, Paper, Purpur and Folia**, with **Minecraft 1.20.x–26.x** as the current compatibility range. Stop the server and back up the full DyDiscord folder before replacing the JAR. Existing accounts do not need to be linked again.
 
