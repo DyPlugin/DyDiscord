@@ -8,13 +8,16 @@ public record Settings(String prefix, String language, String serverName, String
         int confirmationTimeout, boolean botEnabled, String token, String tokenSource, String guild,
         String botLanguage, String botPrefix, boolean prefixEnabled, String activity, String panelChannel,
         boolean consoleEnabled, String consoleChannel, boolean commandsEnabled, boolean administrator,
-        Set<String> roles,String panelImage,boolean updateChecks,ChatSettings chat,RoleSettings roleSync,BoostSettings boostRewards,boolean panelEnabled,CommunitySettings community,LinkRewardSettings linkRewards,ToolsSettings tools,GiveawaySettings giveaways,AccountSettings accounts,IntegrationSettings integrations,ModerationSettings moderation) {
+        Set<String> roles,String panelImage,boolean updateChecks,ChatSettings chat,RoleSettings roleSync,BoostSettings boostRewards,boolean panelEnabled,CommunitySettings community,LinkRewardSettings linkRewards,ToolsSettings tools,GiveawaySettings giveaways,AccountSettings accounts,IntegrationSettings integrations,ModerationSettings moderation,FeatureSettings features) {
     @Override public String toString() { return "Settings[language="+language+", botLanguage="+botLanguage+", token=REDACTED]"; }
     public boolean needsRestart(Settings other) {
         return !token.equals(other.token) || !guild.equals(other.guild) || !botLanguage.equals(other.botLanguage)
             || prefixEnabled != other.prefixEnabled || commandsEnabled != other.commandsEnabled || chat.toMinecraft()!=other.chat.toMinecraft()
-            || memberIntentRequested()!=other.memberIntentRequested() || moderation.banFromDiscord()!=other.moderation.banFromDiscord();
+            || memberIntentRequested()!=other.memberIntentRequested() || moderation.banFromDiscord()!=other.moderation.banFromDiscord()
+            || features.tickets().enabled()!=other.features.tickets().enabled() || features.whois().enabled()!=other.features.whois().enabled();
     }
+    /** Features that read message text: message commands, console commands, Discord to Minecraft chat and ticket replies. */
+    public boolean contentIntentRequested(){return prefixEnabled||commandsEnabled||chat.toMinecraft()||features.tickets().enabled();}
     public boolean memberIntentRequested(){return roleSync.enabled()&&roleSync.memberEvents()||boostRewards.enabled();}
     public static Settings read(Map<String,Object> c, Map<String,Object> b, String environment) {
         number(c,"config-version",1,1,2); number(b,"config-version",1,1,2);
@@ -28,13 +31,14 @@ public record Settings(String prefix, String language, String serverName, String
         String token=string(b,"token",""); String source="file";
         if(environment!=null&&!environment.isBlank()){token=environment;source="environment";}
         if(token.length()>512 || token.chars().anyMatch(Character::isISOControl))throw invalid("token");
+        String guild=id(b,"guild-id");ChatSettings chat=ChatSettings.read(b,panel,console);RoleSettings roleSync=RoleSettings.read(b,guild,roles);
         return new Settings(bounded(c,"prefix","&7[&9DyDiscord&7]",128),lang,bounded(c,"server-name","Minecraft Server",100),invite,
             bool(c,"linking.enabled",true),number(c,"linking.code-length",6,6,16),number(c,"linking.code-expiry-seconds",300,30,900),
             number(c,"linking.generation-cooldown-seconds",30,5,300),number(c,"linking.max-attempts",5,1,10),
             number(c,"linking.attempt-window-seconds",300,30,900),number(c,"linking.confirmation-timeout-seconds",30,10,120),
             bool(b,"enabled",false),token,source,id(b,"guild-id"),botLanguage(b,lang),
             choice(b,"bot.prefix","dy!",Set.of("dy!")),bool(b,"bot.prefix-commands-enabled",true),"",
-            panel,bool(b,"console.enabled",false),console,bool(b,"console.commands.enabled",true),bool(b,"console.commands.allow-administrator",true),Set.copyOf(roles),image(b),bool(c,"updates.enabled",true),ChatSettings.read(b,panel,console),RoleSettings.read(b,id(b,"guild-id"),roles),BoostSettings.read(b),bool(b,"panel.enabled",true),CommunitySettings.read(c,b),LinkRewardSettings.read(c,b),ToolsSettings.read(c,b),GiveawaySettings.read(b),AccountSettings.read(b),IntegrationSettings.read(c,b),ModerationSettings.read(c,b,console));
+            panel,bool(b,"console.enabled",false),console,bool(b,"console.commands.enabled",true),bool(b,"console.commands.allow-administrator",true),Set.copyOf(roles),image(b),bool(c,"updates.enabled",true),chat,roleSync,BoostSettings.read(b),bool(b,"panel.enabled",true),CommunitySettings.read(c,b),LinkRewardSettings.read(c,b),ToolsSettings.read(c,b),GiveawaySettings.read(b),AccountSettings.read(b),IntegrationSettings.read(c,b),ModerationSettings.read(c,b,console),FeatureSettings.read(b,console,panel,chat.channel(),roleSync.managedIds(),guild));
     }
     private static String botLanguage(Map<String,Object> values,String game){String selected=choice(values,"bot.language","auto",dev.dydiscord.language.Messages.CHOICES);return selected.equals("auto")?(game.equals("auto")?"en":game):selected;}
     private static String image(Map<String,Object> values){String value=bounded(values,"panel.image-url","",2048);if(value.isEmpty())return value;try{URI uri=URI.create(value);if(!"https".equals(uri.getScheme())||uri.getHost()==null||uri.getRawUserInfo()!=null||uri.getPort()!=-1||value.chars().anyMatch(Character::isISOControl))throw invalid("panel.image-url");return value;}catch(IllegalArgumentException e){throw invalid("panel.image-url");}}

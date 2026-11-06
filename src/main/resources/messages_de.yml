@@ -443,3 +443,33 @@ require-link-unavailable: "&cDiscord-Verknüpfung ist Pflicht, aber gerade nicht
 # Text shown for require link unavailable.
 moderation-banned: "Du bist vom Discord-Server gebannt."
 # Text shown for moderation banned.
+ticket-usage: "&cVerwendung: /ticket <Nachricht> oder /ticket close"
+# /ticket: support tickets answered by staff from Discord.
+ticket-disabled: "&cSupport-Tickets sind auf diesem Server nicht aktiviert."
+# Text shown for ticket disabled.
+ticket-opened: "&aDein Ticket wurde an das Team gesendet. Antworten erscheinen hier."
+# Text shown for ticket opened.
+ticket-added: "&aDeine Nachricht wurde deinem offenen Ticket hinzugefügt."
+# Text shown for ticket added.
+ticket-closed: "&7Dein Ticket wurde geschlossen."
+# Text shown for ticket closed.
+ticket-none: "&7Du hast kein offenes Ticket."
+# Text shown for ticket none.
+ticket-cooldown: "&cWarte {seconds} Sekunden, bevor du ein weiteres Ticket öffnest."
+# Text shown for ticket cooldown.
+ticket-failed: "&cDas Ticket konnte gerade nicht gesendet werden. Versuche es später erneut."
+# Text shown for ticket failed.
+ticket-reply: "&9[Ticket] &f{staff}&7: &f{message}"
+# Text shown for ticket reply.
+ticket-staff: "&9[Ticket] &f{player} &7hat ein Ticket geöffnet: &f{message}"
+# Text shown for ticket staff.
+chat-attachment-image: "&b[Bild]"
+# Clickable labels for Discord attachments when chat.attachments is on.
+chat-attachment-video: "&b[Video]"
+# Text shown for chat attachment video.
+chat-attachment-file: "&b[Datei]"
+# Text shown for chat attachment file.
+chat-attachment-sticker: "&b[Sticker]"
+# Text shown for chat attachment sticker.
+chat-attachment-hover: "&7Klicken, um {name} zu öffnen"
+# Hover text of an attachment label; keep {name}.

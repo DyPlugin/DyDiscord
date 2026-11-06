@@ -21,8 +21,11 @@ public final class RoleEngine implements AutoCloseable {
     private final AtomicLong epoch=new AtomicLong();private volatile boolean closed,scanning;private Settings scanSettings;
     private String linkCursor="",targetCursor="";private boolean targetPhase,cleanupScan;private long batchCounter,currentBatch;private Instant nextSweep=Instant.MIN;
     private volatile String failure="";private Settings registered;
+    /** While role sync is off and nothing is left to clean up, the timer checks every 30 seconds instead of every second. */
+    private volatile long idleEpoch=-1;private int idleTicks;
     public RoleEngine(Store store,Supplier<Settings> settings,GroupProvider provider,RoleTransport transport,Clock clock,Consumer<Throwable> errors){this.store=store;this.settings=settings;this.provider=provider;this.transport=transport;this.clock=clock;this.errors=errors;}
     public void start(){startProvider(provider);timer.scheduleWithFixedDelay(()->{
+        if(idleEpoch==epoch.get()&&++idleTicks%30!=0)return;
         if(!closed&&tickQueued.compareAndSet(false,true))work(()->{try{runOnce();}finally{tickQueued.set(false);}return null;}).exceptionally(e->{tickQueued.set(false);if(!closed)errors.accept(e);return null;});
     },0,1000,TimeUnit.MILLISECONDS);}
     public <T> CompletableFuture<T> work(Callable<T> action){
@@ -57,6 +60,7 @@ public final class RoleEngine implements AutoCloseable {
     }
     public void startCleanup()throws Exception{if(settings.get().roleSync().enabled())throw new IllegalStateException("Disable role sync before cleanup");begin(true,true);}
     private void begin(boolean cleanup,boolean batch)throws Exception{
+        idleEpoch=-1;
         scanSettings=settings.get();store.roleRemember(scanSettings.guild(),scanSettings.roleSync().managedIds());
         linkCursor="";targetCursor="";targetPhase=false;cleanupScan=cleanup;scanning=true;currentBatch=batch?(batchCounter=Math.max(clock.instant().toEpochMilli(),batchCounter+1)):0;
         store.roleSweepStart(scanSettings.guild(),cleanup,currentBatch,store.roleHistory(scanSettings.guild()));
@@ -87,6 +91,7 @@ public final class RoleEngine implements AutoCloseable {
         if(!s.roleSync().enabled())resume(s);
         if(scanning&&scanSettings!=null)page(now);
         Optional<Store.RoleTarget> next=store.roleNext(now,s.roleSync().enabled(),s.guild());if(next.isPresent())reconcile(next.get(),s,now);
+        idleEpoch=!s.roleSync().enabled()&&scanSettings==null&&next.isEmpty()?epoch.get():-1;
         if(scanSettings!=null&&targetPhase&&targetCursor==null){
             Map<String,Long> counts=store.roleCounts(scanSettings.guild(),currentBatch);scanning=counts.getOrDefault("QUEUED",0L)>0;
             if(!scanning&&counts.getOrDefault("PENDING",0L)==0&&counts.getOrDefault("FAILED",0L)==0){store.roleSweepDone(scanSettings.guild(),cleanupScan);cleanupScan=false;scanSettings=null;}

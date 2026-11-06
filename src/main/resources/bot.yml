@@ -101,6 +101,8 @@ chat:
     # Needs the Manage Webhooks permission in the chat channel; without it chat is sent as the bot as before.
     avatar-url: "https://mc-heads.net/avatar/{uuid}/64"
     # Player head image; {uuid} and {name} are replaced. Must start with https://.
+  attachments: false
+  # Show Discord images, files and stickers in Minecraft as clickable [image], [file] and [sticker] links. Only Discord's own media links open.
 
 boost-rewards:
 # Optional Discord boost rewards, executed as Minecraft console commands.
@@ -203,3 +205,45 @@ moderation:
   # Nickname pattern with {name}; at most 32 characters.
   ban-sync: "off"
   # off, minecraft-to-discord, discord-to-minecraft or both. Needs Ban Members on Discord for minecraft-to-discord.
+tickets:
+# Support tickets from /ticket: each opens a thread in the channel below, and staff replies there reach the player in game. Reload applies the channel; turning it on or off needs a bot restart.
+  enabled: false
+  # Needs Message Content intent to read staff replies, plus Create Private Threads (or Create Public Threads) and Send Messages in Threads.
+  channel-id: ""
+  # Guild text channel for ticket threads, quoted as text; must differ from console, panel and chat channels.
+  private-threads: true
+  # Private threads are seen only by staff with Manage Threads and mentioned members; false uses public threads.
+  ping-role-id: ""
+  # Optional staff role mentioned in each new ticket thread, quoted as text.
+  cooldown-seconds: 60
+  # Wait between new tickets from the same player, in seconds (0-3600). Adding to an open ticket has no wait.
+alerts:
+# Server health alerts posted to a staff channel; a blank channel disables them. Reload applies.
+  channel-id: ""
+  # Guild text channel ID, quoted as text; must differ from the console channel.
+  low-tps: 15
+  # Alert when TPS stays below this value for a minute (1-19); 0 turns it off. Paper and its forks report TPS.
+  memory-percent: 90
+  # Alert when used memory stays at or above this percentage of the maximum for a minute (50-99); 0 turns it off.
+  player-milestones: []
+  # Online player counts announced when reached, for example [50, 100]; up to ten values.
+  cooldown-minutes: 30
+  # Minimum minutes between two alerts of the same kind (5-1440).
+  ping-role-id: ""
+  # Optional role mentioned with each alert, quoted as text.
+whois:
+# Discord /whois <player>: linked account and last seen, for staff only. Turning it on or off needs a bot restart.
+  enabled: false
+  # Register the private /whois slash command.
+  allowed-role-ids: [""]
+  # Roles allowed to use /whois; [""] limits it to members with Manage Server or Administrator.
+discord-groups:
+# Optional Discord -> Minecraft: Discord roles give LuckPerms groups to linked players. Linking alone grants nothing.
+  enabled: false
+  # Opt in explicitly; needs LuckPerms. Only groups DyDiscord added are removed again; groups given by hand stay. Turning it off leaves granted groups in place.
+  rules: []
+  # Rules: role-id: "123456789012345678", group: vip. One group per rule; lowercase LuckPerms group names; roles managed by roles must not be used.
+  staff-groups: [""]
+  # Staff-like groups (admin, mod, owner and similar names) and groups with the * permission are only granted when listed here.
+  recheck-seconds: 300
+  # Recheck online linked players periodically, in seconds (60-3600); joins, links and unlinks are checked at once.

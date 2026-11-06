@@ -258,3 +258,33 @@ log-home-private: "**{owner}** сделал дом **{home}** приватным
 # Text shown for log home private.
 log-home-teleport: "**{player}** телепортировался ({kind}) к **{name}** в {world}."
 # Text shown for log home teleport.
+slash-whois: "Показать привязанный аккаунт игрока и время последнего входа"
+# Staff /whois command; slash descriptions are 1-100 characters and a bot restart applies them.
+whois-option: "Ник в Minecraft, упоминание или ID в Discord"
+# Text shown for whois option.
+whois-linked: "**{player}** привязан к <@{discord_id}> ({discord}).\nПривязан: <t:{linked}:D>"
+# Private /whois reply; keep the placeholders and the <@...> and <t:...> markup.
+whois-not-linked: "**{player}** в сети, но не привязал аккаунт Discord."
+# Text shown for whois not linked.
+whois-not-found: "Для {query} привязанный аккаунт не найден."
+# Text shown for whois not found.
+whois-online: "🟢 Сейчас в сети"
+# Text shown for whois online.
+whois-last-seen: "Последний вход: <t:{time}:R>"
+# Text shown for whois last seen.
+whois-never: "Последний вход: неизвестно"
+# Text shown for whois never.
+ticket-thread-name: "Обращение: {player}"
+# Support ticket thread title and messages; keep the placeholders.
+ticket-opened-discord: "🎫 Новое обращение от **{player}**:\n{message}\n\nОтветы в этой ветке отправляются игроку в игру."
+# Text shown for ticket opened discord.
+ticket-message: "**{player}**: {message}"
+# Text shown for ticket message.
+ticket-closed-discord: "🔒 **{player}** закрыл это обращение."
+# Text shown for ticket closed discord.
+alert-low-tps: "⚠️ Низкий TPS: **{tps}** (порог {threshold})."
+# Health alerts in the alerts channel; keep the placeholders.
+alert-memory: "⚠️ Высокое использование памяти: **{percent}%** ({used} МБ из {max} МБ)."
+# Text shown for alert memory.
+alert-players: "🎉 В сети **{count}** игроков — достигнута отметка {milestone}!"
+# Text shown for alert players.

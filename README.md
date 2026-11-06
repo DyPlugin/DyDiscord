@@ -4,11 +4,27 @@
 
 DyDiscord is a Minecraft–Discord integration plugin for survival, SMP and community servers. Connect player accounts, bring conversations together and follow your server through your own Discord bot.
 
-DyDiscord combines private account linking, two-way chat, Minecraft-to-Discord roles, configurable rewards, giveaways and staff tools in one plugin. **Version 1.3.0** can show Minecraft chat in Discord under each player's own name and head, and announce advancements and first joins, while preserving existing account links, custom settings and translations.
+DyDiscord combines private account linking, two-way chat, Minecraft-to-Discord roles, configurable rewards, giveaways and staff tools in one plugin. **Version 1.4.0** adds support tickets answered from Discord, a staff `/whois`, server health alerts, Discord-to-Minecraft groups and image links in chat, and is lighter on busy servers, while preserving existing account links, custom settings and translations.
 
 ---
 
-## New in 1.3.0
+## New in 1.4.0
+
+**Support tickets.** `/ticket <message>` opens a thread in your tickets channel. Staff reply in the thread and the player reads it in game, even after rejoining. `/ticket close` closes it.
+
+**Staff lookups.** The Discord command `/whois <player>` privately shows a player's linked account and when they were last seen. Only members with Manage Server, or the roles you choose, can use it.
+
+**Health alerts.** Low TPS, high memory use and player-count milestones are posted to a staff channel, with a cooldown per kind.
+
+**Discord roles to LuckPerms groups.** Linked players get a LuckPerms group while they hold a Discord role. Groups given by hand are never removed, and staff groups need your explicit permission.
+
+**Images in chat.** Discord images, files and stickers appear in Minecraft as clickable `[image]` links.
+
+**Lighter and faster.** Fewer Discord events, faster chat relay and message rendering, quicker reloads and quieter background work.
+
+Every new option starts off.
+
+## Added in 1.3.0
 
 **Player names and heads.** With `chat.webhook.enabled`, Minecraft chat is posted through a channel webhook under the player's name and rank, with their head as the picture. The bot needs Manage Webhooks; without it chat is sent as the bot as before.
 
@@ -34,8 +50,8 @@ Version 1.1.0 added the status card, DyClaim and DyRTP logs, PlaceholderAPI, Ger
 
 | Package | JAR | First startup |
 | --- | --- | --- |
-| Small | `DyDiscord-1.3.0.jar` | Internet access to resolve required libraries |
-| Standalone | `DyDiscord-1.3.0-standalone.jar` | Libraries included; available on GitHub |
+| Small | `DyDiscord-1.4.0.jar` | Internet access to resolve required libraries |
+| Standalone | `DyDiscord-1.4.0-standalone.jar` | Libraries included; available on GitHub |
 
 Install **one** JAR per server. Both packages provide the same features for **Bukkit, Spigot, Paper, Purpur and Folia**, with **Minecraft 1.20.x–26.x** as the current compatibility range. Stop the server and back up the full DyDiscord folder before replacing the JAR. Existing accounts do not need to be linked again.
 
@@ -63,13 +79,13 @@ Forward public Minecraft chat to Discord, Discord chat to Minecraft, or both. Me
 
 Minecraft ranks can come from LuckPerms, with Vault Chat as a display fallback. Discord messages use the member's server display name and highest eligible role, including its primary color. Players can use `/dydiscord chat on|off` to show or hide incoming Discord chat for themselves.
 
-Forwarded messages do not create Discord mention notifications. Bot/webhook messages, edits and attachments are not relayed. Unknown Minecraft chat listeners pause outbound forwarding to protect private or moderated conversations; those systems need a supported integration.
+Forwarded messages do not create Discord mention notifications. Bot/webhook messages and edits are not relayed; with `chat.attachments`, images, files and stickers appear as clickable links. Unknown Minecraft chat listeners pause outbound forwarding to protect private or moderated conversations; those systems need a supported integration.
 
 ## Keep Discord roles in step
 
 Give linked members configured Discord roles without requiring LuckPerms. With LuckPerms, map real direct, inherited and temporary Minecraft group memberships to Discord role IDs. Temporary ranks are checked while players are offline, and unlinking or changed rules retain the information needed to clean up old managed roles.
 
-Synchronization runs **Minecraft → Discord only**. Only configured roles are managed; unrelated roles stay untouched. The bot needs **Manage Roles** and sufficient role hierarchy. Privileged, integration-managed and console-access roles are blocked from automatic distribution.
+Role synchronization runs **Minecraft → Discord**. In the other direction, optional `discord-groups` rules give LuckPerms groups for Discord roles; staff groups need explicit permission and groups given by hand are never removed. Only configured roles are managed; unrelated roles stay untouched. The bot needs **Manage Roles** and sufficient role hierarchy. Privileged, integration-managed and console-access roles are blocked from automatic distribution.
 
 ## Reward participation
 
@@ -83,7 +99,7 @@ Relay actual server output to a separate console channel. Optionally authorize t
 
 The relay shows real server output without extra technical acceptance/rejection replies. Normal shutdown attempts a short yellow notification before disconnecting; bot restarts and reloads do not send it. Delivery cannot be guaranteed during crashes or network failures.
 
-A separate status card keeps one message up to date with the server state, and an optional log channel follows DyClaim, DyRTP and DyHomes activity.
+A separate status card keeps one message up to date with the server state, and an optional log channel follows DyClaim, DyRTP and DyHomes activity. Health alerts warn staff about low TPS, high memory use and player milestones, and support tickets and `/whois` help staff answer players from Discord.
 
 ## Familiar commands
 
@@ -95,12 +111,13 @@ A separate status card keeps one message up to date with the server state, and a
 | `/dydiscord unlink` | Start unlink confirmation |
 | `/dydiscord chat on` or `off` | Show or hide incoming Discord chat |
 | `/report <player> <reason>` | Report a player to the staff |
+| `/ticket <message>` or `close` | Open, add to or close a support ticket |
 | `/cheatcheck <player> [end]` | Start or end a cheat check (staff) |
 | `/dyda help [page]` | Browse permitted administrator commands |
 | `/dyda doctor` | Check setup, intents and permissions |
 | `/dyda reload` | Apply valid settings and translations |
 
-Turkish examples include `/dydiscord eşle`, `/dydiscord kaldır`, `/dydiscord sohbet aç`, `/rapor`, `/hile-kontrol <oyuncu> [bitir]`, `/dyda yardım` and `/dyda kontrol`. The long `/dydiscord admin` path remains available.
+Turkish examples include `/dydiscord eşle`, `/dydiscord kaldır`, `/dydiscord sohbet aç`, `/rapor`, `/destek <mesaj>`, `/hile-kontrol <oyuncu> [bitir]`, `/dyda yardım` and `/dyda kontrol`. The long `/dydiscord admin` path remains available.
 
 ## Get started
 

@@ -442,3 +442,33 @@ require-link-unavailable: "&cGiriş için Discord eşlemesi gerekiyor ama şu an
 # Text shown for require link unavailable.
 moderation-banned: "Discord sunucusundan yasaklandın."
 # Text shown for moderation banned.
+ticket-usage: "&cKullanım: /destek <mesaj> veya /destek kapat"
+# /ticket: support tickets answered by staff from Discord.
+ticket-disabled: "&cBu sunucuda destek talepleri açık değil."
+# Text shown for ticket disabled.
+ticket-opened: "&aTalebin yetkililere iletildi. Yanıtları burada görünecek."
+# Text shown for ticket opened.
+ticket-added: "&aMesajın açık talebine eklendi."
+# Text shown for ticket added.
+ticket-closed: "&7Talebin kapatıldı."
+# Text shown for ticket closed.
+ticket-none: "&7Açık bir talebin yok."
+# Text shown for ticket none.
+ticket-cooldown: "&cYeni talep açmak için {seconds} saniye bekle."
+# Text shown for ticket cooldown.
+ticket-failed: "&cTalep şu anda gönderilemedi. Daha sonra tekrar dene."
+# Text shown for ticket failed.
+ticket-reply: "&9[Destek] &f{staff}&7: &f{message}"
+# Text shown for ticket reply.
+ticket-staff: "&9[Destek] &f{player} &7talep açtı: &f{message}"
+# Text shown for ticket staff.
+chat-attachment-image: "&b[görsel]"
+# Clickable labels for Discord attachments when chat.attachments is on.
+chat-attachment-video: "&b[video]"
+# Text shown for chat attachment video.
+chat-attachment-file: "&b[dosya]"
+# Text shown for chat attachment file.
+chat-attachment-sticker: "&b[çıkartma]"
+# Text shown for chat attachment sticker.
+chat-attachment-hover: "&7{name} dosyasını açmak için tıkla"
+# Hover text of an attachment label; keep {name}.

@@ -28,6 +28,11 @@ commands:
     aliases: [rapor, dyreport]
     usage: /report <player> <reason>
     permission: dydiscord.report
+  ticket:
+    description: Open a support ticket that staff answer from Discord
+    aliases: [destek, talep, dyticket]
+    usage: /ticket <message> | /ticket close
+    permission: dydiscord.ticket
 permissions:
   dydiscord.player:
     default: true
@@ -42,6 +47,7 @@ permissions:
       dydiscord.chat.receive: true
       dydiscord.chat.preferences: true
       dydiscord.report: true
+      dydiscord.ticket: true
   dydiscord.admin:
     default: op
     children:
@@ -79,6 +85,7 @@ permissions:
       dydiscord.cheatcheck: true
       dydiscord.cheatcheck.notify: true
       dydiscord.report.notify: true
+      dydiscord.ticket.notify: true
   dydiscord.invite:
     default: false
   dydiscord.help:
@@ -176,4 +183,10 @@ permissions:
     default: false
   dydiscord.report.notify:
     description: See player reports in game and skip the report cooldown
+    default: false
+  dydiscord.ticket:
+    description: Open support tickets with /ticket
+    default: false
+  dydiscord.ticket.notify:
+    description: See new tickets in game and skip the ticket cooldown
     default: false

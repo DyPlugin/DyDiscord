@@ -258,3 +258,33 @@ log-home-private: "**{owner}** hat das Home **{home}** privat gemacht."
 # Text shown for log home private.
 log-home-teleport: "**{player}** hat sich ({kind}) zu **{name}** in {world} teleportiert."
 # Text shown for log home teleport.
+slash-whois: "Verknüpftes Konto und letzte Aktivität eines Spielers anzeigen"
+# Staff /whois command; slash descriptions are 1-100 characters and a bot restart applies them.
+whois-option: "Minecraft-Name, Discord-Erwähnung oder Discord-ID"
+# Text shown for whois option.
+whois-linked: "**{player}** ist mit <@{discord_id}> ({discord}) verknüpft.\nVerknüpft: <t:{linked}:D>"
+# Private /whois reply; keep the placeholders and the <@...> and <t:...> markup.
+whois-not-linked: "**{player}** ist online, hat aber kein verknüpftes Discord-Konto."
+# Text shown for whois not linked.
+whois-not-found: "Für {query} wurde kein verknüpftes Konto gefunden."
+# Text shown for whois not found.
+whois-online: "🟢 Gerade online"
+# Text shown for whois online.
+whois-last-seen: "Zuletzt gesehen: <t:{time}:R>"
+# Text shown for whois last seen.
+whois-never: "Zuletzt gesehen: unbekannt"
+# Text shown for whois never.
+ticket-thread-name: "Ticket: {player}"
+# Support ticket thread title and messages; keep the placeholders.
+ticket-opened-discord: "🎫 Neues Ticket von **{player}**:\n{message}\n\nAntworten in diesem Thread werden dem Spieler im Spiel angezeigt."
+# Text shown for ticket opened discord.
+ticket-message: "**{player}**: {message}"
+# Text shown for ticket message.
+ticket-closed-discord: "🔒 **{player}** hat dieses Ticket geschlossen."
+# Text shown for ticket closed discord.
+alert-low-tps: "⚠️ Die TPS sind niedrig: **{tps}** (Warnung unter {threshold})."
+# Health alerts in the alerts channel; keep the placeholders.
+alert-memory: "⚠️ Die Speicherauslastung ist hoch: **{percent} %** ({used} MB von {max} MB)."
+# Text shown for alert memory.
+alert-players: "🎉 **{count}** Spieler sind online – die Marke von {milestone} Spielern ist erreicht!"
+# Text shown for alert players.

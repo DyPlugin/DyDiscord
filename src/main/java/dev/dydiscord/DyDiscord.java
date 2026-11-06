@@ -48,6 +48,9 @@ public final class DyDiscord extends JavaPlugin implements Listener {
     public static final int BSTATS_ID=34918;
     /** Links of online players, for placeholders and the API; storage stays on the I/O thread. */
     private final Map<UUID,Store.Link> onlineLinks=new ConcurrentHashMap<>();
+    /** 1.4.0: tickets, health alerts and Discord -> Minecraft groups; the feature data file is only created when used. */
+    private dev.dydiscord.storage.FeatureStore featureStore;private dev.dydiscord.support.Tickets tickets;private dev.dydiscord.alerts.Alerts alerts;private volatile dev.dydiscord.roles.DiscordGroups discordGroups;
+    public dev.dydiscord.support.Tickets tickets(){return tickets;}public dev.dydiscord.roles.DiscordGroups discordGroups(){return discordGroups;}
     private StatusCard statusCard;private dev.dydiscord.hook.PluginLogs pluginLogs;private dev.dydiscord.hook.PlaceholderHook placeholders;private dev.dydiscord.bstats.bukkit.Metrics metrics;
     private final Set<String> warnedTranslations=ConcurrentHashMap.newKeySet();
     private void translationWarnings(){long count=messages().missing().stream().filter(warnedTranslations::add).count();if(count>0)getLogger().warning(ConsoleDiagnostics.text(this,"error-translations-fallback",Map.of("count",Long.toString(count))));}
@@ -60,8 +63,9 @@ public final class DyDiscord extends JavaPlugin implements Listener {
         PluginCommand discord=getServer().getPluginCommand("discord");if(discord!=null&&discord.getPlugin()!=this)getLogger().warning("/discord is owned by another plugin. Use /dydiscord or /dydiscord:dydiscord.");
         getServer().getPluginManager().registerEvents(this,this);
         cheatCheck=new dev.dydiscord.moderation.CheatCheck(this);reports=new dev.dydiscord.moderation.Reports(this);accountSync=new dev.dydiscord.moderation.AccountSync(this);
-        for(var command:Map.of("cheatcheck",(TabExecutor)cheatCheck,"report",reports).entrySet()){PluginCommand registered=Objects.requireNonNull(getCommand(command.getKey()));registered.setExecutor(command.getValue());registered.setTabCompleter(command.getValue());}
-        for(Listener listener:List.of(cheatCheck,accountSync,new dev.dydiscord.moderation.JoinGate(this)))getServer().getPluginManager().registerEvents(listener,this);
+        featureStore=new dev.dydiscord.storage.FeatureStore(getDataFolder().toPath().resolve("data/features.db"));tickets=new dev.dydiscord.support.Tickets(this,featureStore);alerts=new dev.dydiscord.alerts.Alerts(this);
+        for(var command:Map.of("cheatcheck",(TabExecutor)cheatCheck,"report",reports,"ticket",tickets).entrySet()){PluginCommand registered=Objects.requireNonNull(getCommand(command.getKey()));registered.setExecutor(command.getValue());registered.setTabCompleter(command.getValue());}
+        for(Listener listener:List.of(cheatCheck,accountSync,tickets,new dev.dydiscord.moderation.JoinGate(this)))getServer().getPluginManager().registerEvents(listener,this);
         for(Player p:getServer().getOnlinePlayers())sessions.put(p.getUniqueId(),++sessionCounter);
         submit(()->{
             initializationLanguage=ConsoleDiagnostics.detectLanguage(getDataFolder().toPath());configuration.load();translationWarnings();store=new Store(getDataFolder().toPath().resolve("data/dydiscord.db"));preferences.putAll(store.preferences());store.accountListener(this::accountChanged);for(UUID online:sessions.keySet())store.byUuid(online).ifPresent(link->{if(sessions.containsKey(online))onlineLinks.put(online,link);});
@@ -69,27 +73,29 @@ public final class DyDiscord extends JavaPlugin implements Listener {
             var groups=mainValue(()->new dev.dydiscord.roles.LuckPermsGroups(this));
             roles=new dev.dydiscord.roles.RoleEngine(store,this::settings,groups,new dev.dydiscord.roles.JdaRoleTransport(this),clock,e->error(e));roleCommands=new dev.dydiscord.roles.RoleCommands(this,roles);
             roles.validateSettings(settings());
+            var writer=mainValue(()->new dev.dydiscord.roles.LuckPermsWriter(this));Bot client=bot;
+            discordGroups=new dev.dydiscord.roles.DiscordGroups(this::settings,store,featureStore,new dev.dydiscord.roles.DiscordGroups.Members(){public boolean available(){return client.usable();}public Set<String> roles(String id)throws Exception{return client.memberRoles(id);}},writer,()->Set.copyOf(onlineLinks.keySet()),clock,this::groupWarning,e->error(e));
             try{boostStore=new dev.dydiscord.boost.BoostStore(getDataFolder().toPath().resolve("data/boosts.db"));boosts=new dev.dydiscord.boost.BoostBridge(new dev.dydiscord.boost.BukkitBoostHost(this),boostStore,clock);store.linkListener(boosts::signal);}catch(Exception failure){error(failure);getLogger().warning(ConsoleDiagnostics.text(this,"error-boost-data",Map.of()));}
             try{rewardStore=new dev.dydiscord.reward.LinkRewardStore(getDataFolder().toPath().resolve("data/rewards.db"));rewardStore.seedExisting(store);
             linkRewards=new dev.dydiscord.reward.LinkRewardService(new dev.dydiscord.reward.BukkitLinkRewardHost(this),rewardStore,clock);}catch(Exception failure){error(failure);getLogger().warning(ConsoleDiagnostics.text(this,"error-link-reward-data",Map.of()));}
             communityCommands=new dev.dydiscord.community.CommunityCommands(this);
             try{giveaways=new dev.dydiscord.giveaway.GiveawayService(this);}catch(Exception failure){error(failure);getLogger().warning(ConsoleDiagnostics.text(this,"error-giveaway-data",Map.of()));}
             statusCard=new StatusCard(this);pluginLogs=new dev.dydiscord.hook.PluginLogs(this);
-            mainValue(()->{ready=true;getLogger().info("DyDiscord "+getDescription().getVersion()+" enabled!");console.attach();chatEvents.register();chat.start();statusCard.refresh();pluginLogs.hookAll();placeholders();startMetrics();return null;});
-            roles.start();if(boosts!=null)boosts.start();updates=new dev.dydiscord.update.UpdateChecker(this);updates.refresh();bot.start();return null;
+            mainValue(()->{ready=true;getLogger().info("DyDiscord "+getDescription().getVersion()+" enabled!");console.attach();chatEvents.register();chat.start();statusCard.refresh();alerts.refresh();pluginLogs.hookAll();placeholders();startMetrics();return null;});
+            roles.start();discordGroups.start();if(boosts!=null)boosts.start();updates=new dev.dydiscord.update.UpdateChecker(this);updates.refresh();bot.start();return null;
         }).exceptionally(e->{initializationFailed=true;warn("startup-failed");error(e);getLogger().severe(ConsoleDiagnostics.text(this,"error-startup",Map.of()));return null;});
         scheduling().globalTimer(()->{if(ready&&!closing)submit(()->{linking.cleanup();return null;});},200,200);
     }
     @Override public void onDisable(){
-        if(cheatCheck!=null)cheatCheck.close();if(adminWarnings!=null)adminWarnings.close();if(giveaways!=null)giveaways.close();if(linkRewards!=null)linkRewards.close();
+        if(cheatCheck!=null)cheatCheck.close();if(adminWarnings!=null)adminWarnings.close();if(alerts!=null)alerts.close();if(discordGroups!=null)discordGroups.close();if(giveaways!=null)giveaways.close();if(linkRewards!=null)linkRewards.close();
         if(boosts!=null)boosts.close();
         closing=true;ready=false;if(roleCommands!=null)roleCommands.close();if(roles!=null)roles.close();if(chat!=null)chat.close();if(statusCard!=null&&configuration.active()!=null)statusCard.offline();if(bot!=null&&configuration.active()!=null)bot.serverShutdownNotice(dev.dydiscord.chat.ShutdownNotice.stopping(getServer()));if(placeholders!=null){placeholders.unregister();placeholders=null;}if(metrics!=null)metrics.shutdown();if(linking!=null)linking.invalidate();if(console!=null)console.close();
         if(updates!=null)updates.close();if(bot!=null)bot.stop();io.shutdown();try{if(!io.awaitTermination(5,TimeUnit.SECONDS))io.shutdownNow();}catch(InterruptedException e){Thread.currentThread().interrupt();io.shutdownNow();}
-        if(rewardStore!=null)try{rewardStore.close();}catch(Exception e){error(e);}if(boostStore!=null)try{boostStore.close();}catch(Exception e){error(e);}if(store!=null)try{store.close();}catch(Exception e){error(e);}getLogger().info("DyDiscord disabled!");
+        if(rewardStore!=null)try{rewardStore.close();}catch(Exception e){error(e);}if(boostStore!=null)try{boostStore.close();}catch(Exception e){error(e);}if(featureStore!=null)try{featureStore.close();}catch(Exception e){error(e);}if(store!=null)try{store.close();}catch(Exception e){error(e);}getLogger().info("DyDiscord disabled!");
     }
-    @EventHandler public void join(PlayerJoinEvent event){Player p=event.getPlayer();sessions.put(p.getUniqueId(),++sessionCounter);UUID uuid=p.getUniqueId();String name=p.getName();if(updates!=null)updates.notify(p);if(roles!=null)roles.enqueue(uuid);if(ready)submit(()->{store.updateName(uuid,name);store.byUuid(uuid).ifPresent(link->{if(sessions.containsKey(uuid))onlineLinks.put(uuid,link);});return null;}).exceptionally(e->{error(e);return null;});}
-    @EventHandler public void providerEnabled(PluginEnableEvent event){if(ready){if(pluginLogs!=null)pluginLogs.hook(event.getPlugin());if(event.getPlugin().getName().equals("PlaceholderAPI"))placeholders();}if(roles!=null&&event.getPlugin().getName().equalsIgnoreCase("LuckPerms"))roles.provider(new dev.dydiscord.roles.LuckPermsGroups(this));}
-    @EventHandler public void providerDisabled(PluginDisableEvent event){if(pluginLogs!=null)pluginLogs.unhook(event.getPlugin());if(event.getPlugin().getName().equals("PlaceholderAPI"))placeholders=null;if(roles!=null&&event.getPlugin().getName().equalsIgnoreCase("LuckPerms"))roles.provider(new dev.dydiscord.roles.GroupProvider(){public boolean available(){return false;}public Result groups(UUID uuid,Map<String,String> context){return Result.unknown("provider-unavailable");}});}
+    @EventHandler public void join(PlayerJoinEvent event){Player p=event.getPlayer();sessions.put(p.getUniqueId(),++sessionCounter);UUID uuid=p.getUniqueId();String name=p.getName();if(updates!=null)updates.notify(p);if(roles!=null)roles.enqueue(uuid);if(discordGroups!=null)discordGroups.enqueue(uuid);if(ready)submit(()->{store.updateName(uuid,name);store.byUuid(uuid).ifPresent(link->{if(sessions.containsKey(uuid))onlineLinks.put(uuid,link);});return null;}).exceptionally(e->{error(e);return null;});}
+    @EventHandler public void providerEnabled(PluginEnableEvent event){if(ready){if(pluginLogs!=null)pluginLogs.hook(event.getPlugin());if(event.getPlugin().getName().equals("PlaceholderAPI"))placeholders();}if(event.getPlugin().getName().equalsIgnoreCase("LuckPerms")){if(roles!=null)roles.provider(new dev.dydiscord.roles.LuckPermsGroups(this));if(discordGroups!=null)discordGroups.writer(new dev.dydiscord.roles.LuckPermsWriter(this));}}
+    @EventHandler public void providerDisabled(PluginDisableEvent event){if(discordGroups!=null&&event.getPlugin().getName().equalsIgnoreCase("LuckPerms"))discordGroups.writer(null);if(pluginLogs!=null)pluginLogs.unhook(event.getPlugin());if(event.getPlugin().getName().equals("PlaceholderAPI"))placeholders=null;if(roles!=null&&event.getPlugin().getName().equalsIgnoreCase("LuckPerms"))roles.provider(new dev.dydiscord.roles.GroupProvider(){public boolean available(){return false;}public Result groups(UUID uuid,Map<String,String> context){return Result.unknown("provider-unavailable");}});}
     @EventHandler public void leave(PlayerQuitEvent event){UUID uuid=event.getPlayer().getUniqueId();sessions.remove(uuid);if(onlineLinks!=null)onlineLinks.remove(uuid);if(updates!=null)updates.leave(uuid);if(linking!=null)submit(()->{linking.leave(uuid);return null;});}
     public void cancel(CommandSender sender){String actor=actor(sender);submit(()->{linking.cancel(actor);message(sender,"cancelled",Map.of());return null;}).exceptionally(e->{failed(sender,e);return null;});}
     public boolean ready(){return ready&&!closing;}public Settings settings(){return configuration.active().settings();}public Messages messages(){return configuration.active().messages();}
@@ -100,6 +106,7 @@ public final class DyDiscord extends JavaPlugin implements Listener {
     private void accountChanged(Store.Link link,boolean linked){
         if(onlineLinks==null)return;
         if(linked){if(sessions.containsKey(link.uuid()))onlineLinks.put(link.uuid(),link);}else onlineLinks.computeIfPresent(link.uuid(),(id,cached)->cached.version().equals(link.version())?null:cached);
+        if(discordGroups!=null)discordGroups.enqueue(link.uuid());
         var account=dev.dydiscord.api.DyDiscordAPI.account(link);
         onMain(()->getServer().getPluginManager().callEvent(linked?new dev.dydiscord.api.event.AccountLinkEvent(account):new dev.dydiscord.api.event.AccountUnlinkEvent(account)));
     }
@@ -124,7 +131,15 @@ public final class DyDiscord extends JavaPlugin implements Listener {
         }catch(RuntimeException failure){getLogger().warning("bStats could not start: "+failure.getMessage());}
     }
     /** Settings that apply without a restart outside the bot connection. */
-    private void applyIntegrations(){onMain(()->{if(statusCard!=null)statusCard.refresh();placeholders();});}
+    private void applyIntegrations(){if(discordGroups!=null)discordGroups.refresh();onMain(()->{if(statusCard!=null)statusCard.refresh();if(alerts!=null)alerts.refresh();placeholders();});}
+    /** Console notes for Discord -> Minecraft group rules that are skipped; each is logged once until the next reload. */
+    private void groupWarning(String key){
+        String group=key.substring(key.indexOf(':')+1);
+        getLogger().warning(switch(key.substring(0,key.indexOf(':'))){
+            case "staff"->"Discord groups: \""+group+"\" looks like a staff group and is not granted. List it in discord-groups.staff-groups to allow it.";
+            case "wildcard"->"Discord groups: \""+group+"\" has the * permission and is not granted unless it is listed in discord-groups.staff-groups.";
+            default->"Discord groups: LuckPerms has no group \""+group+"\"; the rule is skipped.";});
+    }
     public dev.dydiscord.boost.BoostBridge boosts(){return boosts;}
     public dev.dydiscord.reward.LinkRewardService linkRewards(){return linkRewards;}
     public dev.dydiscord.giveaway.GiveawayService giveaways(){return giveaways;}

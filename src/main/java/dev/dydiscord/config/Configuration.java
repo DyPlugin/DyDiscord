@@ -77,7 +77,10 @@ public final class Configuration {
     }
     private Map<String,String> sources()throws IOException{Map<String,String> result=new LinkedHashMap<>();for(String file:FILES)result.put(file,digest(Files.readString(folder.resolve(file))));return result;}
     private void requireSources(Map<String,String> sources)throws IOException{for(var entry:sources.entrySet())if(!digest(Files.readString(folder.resolve(entry.getKey()))).equals(entry.getValue()))throw new IOException("Configuration changed during validation; retry reload");}
-    private static String upgrade(String file,String text)throws IOException{try(InputStream in=Configuration.class.getClassLoader().getResourceAsStream(file)){if(in==null)throw new IOException("Missing bundled resource");return SchemaUpgrade.merge(text,new String(in.readAllBytes(),StandardCharsets.UTF_8),file.equals("config.yml")||file.equals("bot.yml"));}}
+    /** Bundled defaults are read from the JAR once; every load, reload and setting change used to read them again. */
+    private static final Map<String,String> BUNDLED=new java.util.concurrent.ConcurrentHashMap<>();
+    private static String bundled(String file)throws IOException{String cached=BUNDLED.get(file);if(cached!=null)return cached;try(InputStream in=Configuration.class.getClassLoader().getResourceAsStream(file)){if(in==null)throw new IOException("Missing bundled resource");String text=new String(in.readAllBytes(),StandardCharsets.UTF_8);BUNDLED.put(file,text);return text;}}
+    private static String upgrade(String file,String text)throws IOException{return SchemaUpgrade.merge(text,bundled(file),file.equals("config.yml")||file.equals("bot.yml"));}
     private static String digest(String text){try{return HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(text.getBytes(StandardCharsets.UTF_8)));}catch(java.security.NoSuchAlgorithmException impossible){throw new IllegalStateException(impossible);}}
     public interface Validator {void validate(Settings settings)throws Exception;}
     /** Compare under the same lock as edits, including un-reloaded owner changes on disk. */

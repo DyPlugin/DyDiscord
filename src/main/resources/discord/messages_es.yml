@@ -258,3 +258,33 @@ log-home-private: "**{owner}** hizo privada la casa **{home}**."
 # Text shown for log home private.
 log-home-teleport: "**{player}** se teletransportó ({kind}) a **{name}** en {world}."
 # Text shown for log home teleport.
+slash-whois: "Muestra la cuenta vinculada y la última conexión de un jugador"
+# Staff /whois command; slash descriptions are 1-100 characters and a bot restart applies them.
+whois-option: "Nombre de Minecraft, mención o ID de Discord"
+# Text shown for whois option.
+whois-linked: "**{player}** está vinculado a <@{discord_id}> ({discord}).\nVinculado: <t:{linked}:D>"
+# Private /whois reply; keep the placeholders and the <@...> and <t:...> markup.
+whois-not-linked: "**{player}** está conectado, pero no tiene una cuenta de Discord vinculada."
+# Text shown for whois not linked.
+whois-not-found: "No se encontró ninguna cuenta vinculada para {query}."
+# Text shown for whois not found.
+whois-online: "🟢 Conectado ahora"
+# Text shown for whois online.
+whois-last-seen: "Última vez: <t:{time}:R>"
+# Text shown for whois last seen.
+whois-never: "Última vez: desconocida"
+# Text shown for whois never.
+ticket-thread-name: "Ticket: {player}"
+# Support ticket thread title and messages; keep the placeholders.
+ticket-opened-discord: "🎫 Nuevo ticket de **{player}**:\n{message}\n\nLas respuestas en este hilo se envían al jugador en el juego."
+# Text shown for ticket opened discord.
+ticket-message: "**{player}**: {message}"
+# Text shown for ticket message.
+ticket-closed-discord: "🔒 **{player}** cerró este ticket."
+# Text shown for ticket closed discord.
+alert-low-tps: "⚠️ Los TPS están bajos: **{tps}** (aviso por debajo de {threshold})."
+# Health alerts in the alerts channel; keep the placeholders.
+alert-memory: "⚠️ El uso de memoria es alto: **{percent} %** ({used} MB de {max} MB)."
+# Text shown for alert memory.
+alert-players: "🎉 ¡Hay **{count}** jugadores conectados y se alcanzó la marca de {milestone}!"
+# Text shown for alert players.

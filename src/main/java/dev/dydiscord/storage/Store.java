@@ -132,8 +132,11 @@ public final class Store implements AutoCloseable {
     private void requireWrite()throws SQLException{if(!writable)throw new SQLException("Data mutations unavailable");}
     public synchronized Optional<Link> byUuid(UUID uuid)throws SQLException{return find("uuid",uuid.toString());}
     public synchronized Optional<Link> byDiscord(String id)throws SQLException{return find("discord",id);}
-    private Optional<Link> find(String column,String value)throws SQLException{
-        try(PreparedStatement s=db.prepareStatement("SELECT * FROM links WHERE "+column+"=?")){s.setString(1,value);try(ResultSet r=s.executeQuery()){return r.next()?Optional.of(new Link(UUID.fromString(r.getString("uuid")),r.getString("discord"),r.getString("name"),Instant.parse(r.getString("linked_at")),r.getString("version"),r.getString("discord_name"))):Optional.empty();}}
+    /** The most recently linked account with this Minecraft name, ignoring case; for staff lookups only. */
+    public synchronized Optional<Link> byName(String name)throws SQLException{return query("SELECT * FROM links WHERE name=? COLLATE NOCASE ORDER BY linked_at DESC LIMIT 1",name);}
+    private Optional<Link> find(String column,String value)throws SQLException{return query("SELECT * FROM links WHERE "+column+"=?",value);}
+    private Optional<Link> query(String sql,String value)throws SQLException{
+        try(PreparedStatement s=db.prepareStatement(sql)){s.setString(1,value);try(ResultSet r=s.executeQuery()){return r.next()?Optional.of(new Link(UUID.fromString(r.getString("uuid")),r.getString("discord"),r.getString("name"),Instant.parse(r.getString("linked_at")),r.getString("version"),r.getString("discord_name"))):Optional.empty();}}
     }
     public synchronized Link link(UUID uuid,String discord,String name,Instant now)throws SQLException{
         return link(uuid,discord,name,now,()->true);

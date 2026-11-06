@@ -186,7 +186,7 @@ public final class LuckPermsGroups implements GroupProvider {
     }
 
     /** Invoke public interfaces rather than plugin implementation classes, which may be nonpublic. */
-    private static Object call(Object owner, String name, Object... args) throws ReflectiveOperationException {
+    static Object call(Object owner, String name, Object... args) throws ReflectiveOperationException {
         Objects.requireNonNull(owner);
         Deque<Class<?>> types = new ArrayDeque<>();
         for (Class<?> current = owner.getClass(); current != null; current = current.getSuperclass()) {

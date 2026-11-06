@@ -258,3 +258,33 @@ log-home-private: "**{owner}**, **{home}** evini gizli yaptı."
 # Text shown for log home private.
 log-home-teleport: "**{player}** ({kind}) {world} dünyasındaki **{name}** noktasına ışınlandı."
 # Text shown for log home teleport.
+slash-whois: "Bir oyuncunun eşli hesabını ve son görülmesini göster"
+# Staff /whois command; slash descriptions are 1-100 characters and a bot restart applies them.
+whois-option: "Minecraft adı, Discord etiketi veya Discord ID"
+# Text shown for whois option.
+whois-linked: "**{player}**, <@{discord_id}> ({discord}) hesabıyla eşli.\nEşleme: <t:{linked}:D>"
+# Private /whois reply; keep the placeholders and the <@...> and <t:...> markup.
+whois-not-linked: "**{player}** çevrimiçi, ancak eşli bir Discord hesabı yok."
+# Text shown for whois not linked.
+whois-not-found: "{query} için eşli hesap bulunamadı."
+# Text shown for whois not found.
+whois-online: "🟢 Şu anda çevrimiçi"
+# Text shown for whois online.
+whois-last-seen: "Son görülme: <t:{time}:R>"
+# Text shown for whois last seen.
+whois-never: "Son görülme: bilinmiyor"
+# Text shown for whois never.
+ticket-thread-name: "Destek: {player}"
+# Support ticket thread title and messages; keep the placeholders.
+ticket-opened-discord: "🎫 **{player}** yeni bir destek talebi açtı:\n{message}\n\nBu konudaki yanıtlar oyuncuya oyunda iletilir."
+# Text shown for ticket opened discord.
+ticket-message: "**{player}**: {message}"
+# Text shown for ticket message.
+ticket-closed-discord: "🔒 **{player}** bu talebi kapattı."
+# Text shown for ticket closed discord.
+alert-low-tps: "⚠️ TPS düşük: **{tps}** (uyarı sınırı {threshold})."
+# Health alerts in the alerts channel; keep the placeholders.
+alert-memory: "⚠️ Bellek kullanımı yüksek: **%{percent}** ({max} MB içinden {used} MB)."
+# Text shown for alert memory.
+alert-players: "🎉 **{count}** oyuncu çevrimiçi; {milestone} oyuncu hedefine ulaşıldı!"
+# Text shown for alert players.

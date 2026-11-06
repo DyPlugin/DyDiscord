@@ -20,6 +20,8 @@ public final class StatusCard {
     public record Snapshot(ServerInfo.Snapshot server,double tps) {}
     private final DyDiscord plugin;private final AtomicBoolean publishing=new AtomicBoolean();
     private dev.dydiscord.util.Tasks.Task task;private int interval;
+    /** The stored card location, read from the database once and then kept in memory; null until first read. */
+    private volatile Optional<String[]> location;
     public StatusCard(DyDiscord plugin){this.plugin=plugin;}
 
     /** Applies the current settings; call on the main thread after startup and every reload. */
@@ -49,12 +51,12 @@ public final class StatusCard {
         String channelId=plugin.settings().integrations().statusChannel();TextChannel channel=plugin.bot().channel(channelId);
         if(!channel.getGuild().getSelfMember().hasPermission(channel,Permission.VIEW_CHANNEL,Permission.MESSAGE_SEND,Permission.MESSAGE_EMBED_LINKS))throw new IllegalStateException("Status card channel permissions unavailable");
         MessageEmbed card=card(plugin.messages(),plugin.bot().activeLanguage(),snapshot,online,Instant.now());
-        Optional<String[]> stored=plugin.store().statusCard();
+        Optional<String[]> stored=location;if(stored==null)location=stored=plugin.store().statusCard();
         if(stored.isPresent()&&stored.get()[0].equals(channelId)){
             try{plugin.bot().await(channel.editMessageById(stored.get()[1],PanelView.update(Cards.of(card))).setAllowedMentions(List.of()));return;}
             catch(ErrorResponseException missing){if(missing.getErrorResponse()!=ErrorResponse.UNKNOWN_MESSAGE)throw missing;}
         }
-        String id=plugin.bot().await(channel.sendMessage(PanelView.create(Cards.of(card))).setAllowedMentions(List.of())).getId();plugin.store().statusCard(channelId,id);
+        String id=plugin.bot().await(channel.sendMessage(PanelView.create(Cards.of(card))).setAllowedMentions(List.of())).getId();plugin.store().statusCard(channelId,id);location=Optional.of(new String[]{channelId,id});
     }
     public static MessageEmbed card(Messages messages,String lang,Snapshot snapshot,boolean online,Instant now){
         ServerInfo.Snapshot server=snapshot.server();
@@ -69,5 +71,5 @@ public final class StatusCard {
         return card.build();
     }
     /** Paper and its forks report TPS; Spigot does not, so the field is left out there. */
-    private double tps(){try{double[] values=(double[])plugin.getServer().getClass().getMethod("getTPS").invoke(plugin.getServer());return values.length>0?values[0]:-1;}catch(ReflectiveOperationException|RuntimeException unavailable){return -1;}}
+    private double tps(){return dev.dydiscord.util.Tps.current(plugin.getServer());}
 }

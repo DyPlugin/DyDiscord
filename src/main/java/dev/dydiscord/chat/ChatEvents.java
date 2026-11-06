@@ -13,6 +13,9 @@ import java.util.*;
 public final class ChatEvents implements Listener {
     private final DyDiscord plugin;private final Set<Event> seen=Collections.newSetFromMap(new IdentityHashMap<>());private final Deque<Event> order=new ArrayDeque<>();
     private volatile boolean paper,adapterFailed;private boolean warned,conflictWarned;private volatile HandlerList paperHandlers,synchronousPaperHandlers;
+    /** Bukkit keeps one baked listener array per handler list until a listener is added or removed; reuse the answer until then. */
+    private RegisteredListener[][] bakedHandlers;private List<String> bakedBlockers=List.of();
+    private volatile Object plainSerializer;
     public ChatEvents(DyDiscord plugin){this.plugin=plugin;}
     @SuppressWarnings("unchecked") public void register(){
         plugin.getServer().getPluginManager().registerEvents(this,plugin);
@@ -21,10 +24,13 @@ public final class ChatEvents implements Listener {
         catch(ReflectiveOperationException|LinkageError failure){paper=true;adapterFailed=true;plugin.warn("setup-chat-adapter");}
     }
     private synchronized boolean first(Event event){if(!seen.add(event))return false;order.addLast(event);if(order.size()>512)seen.remove(order.removeFirst());return true;}
-    private List<String> blockers(){
-        List<RegisteredListener> listeners=new ArrayList<>(List.of(AsyncPlayerChatEvent.getHandlerList().getRegisteredListeners()));listeners.addAll(List.of(PlayerChatEvent.getHandlerList().getRegisteredListeners()));if(paperHandlers!=null)listeners.addAll(List.of(paperHandlers.getRegisteredListeners()));
-        if(synchronousPaperHandlers!=null)listeners.addAll(List.of(synchronousPaperHandlers.getRegisteredListeners()));
-        return listeners.stream().filter(listener->listener.getPlugin()!=plugin).map(listener->{String name=ChatText.plain(listener.getPlugin().getName(),64);return name.isBlank()?"?":name;}).distinct().sorted().toList();
+    private synchronized List<String> blockers(){
+        HandlerList paperList=paperHandlers,synchronousList=synchronousPaperHandlers;
+        RegisteredListener[][] current={AsyncPlayerChatEvent.getHandlerList().getRegisteredListeners(),PlayerChatEvent.getHandlerList().getRegisteredListeners(),paperList==null?null:paperList.getRegisteredListeners(),synchronousList==null?null:synchronousList.getRegisteredListeners()};
+        if(bakedHandlers!=null){boolean same=true;for(int i=0;i<current.length;i++)if(current[i]!=bakedHandlers[i]){same=false;break;}if(same)return bakedBlockers;}
+        List<RegisteredListener> listeners=new ArrayList<>();for(RegisteredListener[] handlers:current)if(handlers!=null)listeners.addAll(List.of(handlers));
+        List<String> names=listeners.stream().filter(listener->listener.getPlugin()!=plugin).map(listener->{String name=ChatText.plain(listener.getPlugin().getName(),64);return name.isBlank()?"?":name;}).distinct().sorted().toList();
+        bakedHandlers=current;bakedBlockers=names;return names;
     }
     private boolean compatible(){boolean safe=blockers().isEmpty();if(safe)conflictWarned=false;else if(!conflictWarned){conflictWarned=true;plugin.warn("setup-chat-conflict");}return safe;}
     /** Read-only handler snapshots: no player state or network requests. */
@@ -42,7 +48,7 @@ public final class ChatEvents implements Listener {
         if(!plugin.chat().current(context))return;
         Player player=(Player)Ranks.call(event,"getPlayer");Set<?> viewers=(Set<?>)Ranks.call(event,"viewers");Set<UUID> recipients=new HashSet<>();for(Object viewer:viewers)if(viewer instanceof Player p)recipients.add(p.getUniqueId());
         boolean cancelled=event instanceof Cancellable c&&c.isCancelled();if(!compatible()||!ChatBridge.publicChat(cancelled,!plugin.chat().visible(player),ChatBridge.muted(player),recipients,publicPlayers()))return;
-        Object component=Ranks.call(event,"message");Class<?> serializer=Class.forName("net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer");Object plain=serializer.getMethod("plainText").invoke(null);plugin.chat().minecraft(player,(String)Ranks.call(plain,"serialize",component),context);
+        Object component=Ranks.call(event,"message");Object plain=plainSerializer;if(plain==null)plainSerializer=plain=Class.forName("net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer").getMethod("plainText").invoke(null);plugin.chat().minecraft(player,(String)Ranks.call(plain,"serialize",component),context);
     }catch(java.lang.reflect.InvocationTargetException failure){if(failure.getCause() instanceof LinkageError)adapterFailed=true;if(!warned){warned=true;plugin.warn("setup-chat-adapter");}}
     catch(ReflectiveOperationException|LinkageError failure){adapterFailed=true;if(!warned){warned=true;plugin.warn("setup-chat-adapter");}}
     catch(RuntimeException failure){if(!warned){warned=true;plugin.warn("setup-chat-adapter");}}});}

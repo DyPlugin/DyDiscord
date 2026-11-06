@@ -43,15 +43,15 @@ public final class Bot {
     private final Map<String,Form> forms=new ConcurrentHashMap<>();
     private volatile JDA jda;private volatile State state=State.DISABLED;private volatile Settings applied;private volatile String activeLanguage="";private volatile boolean content,members;
     public boolean roleMemberEvents(){return members&&usable();}
-    private boolean intentsReady(){return (!applied.prefixEnabled()&&!applied.commandsEnabled()&&!applied.chat().toMinecraft()||content)&&(!applied.memberIntentRequested()||members);}
+    private boolean intentsReady(){return (!applied.contentIntentRequested()||content)&&(!applied.memberIntentRequested()||members);}
     private volatile Instant lastWarning=Instant.EPOCH;
     private volatile Instant nextInviteAttempt=Instant.EPOCH;private volatile String inviteGuild="";
     private final DiscordAccess access=new DiscordAccess();
     private final IngressLimit prefixLimit,interactionLimit,modalLimit;
-    private final StaffNotices staff;
-    public StaffNotices staff(){return staff;}
+    private final StaffNotices staff;private final TicketThreads tickets;
+    public StaffNotices staff(){return staff;}public TicketThreads tickets(){return tickets;}
     JDA client(){return jda;}
-    public Bot(DyDiscord plugin)throws Exception{this.plugin=plugin;staff=new StaffNotices(plugin,this);panel=new PanelService(plugin.store());prefixLimit=new IngressLimit(plugin.clock());interactionLimit=new IngressLimit(plugin.clock());modalLimit=new IngressLimit(plugin.clock());}
+    public Bot(DyDiscord plugin)throws Exception{this.plugin=plugin;staff=new StaffNotices(plugin,this);tickets=new TicketThreads(plugin,this);panel=new PanelService(plugin.store());prefixLimit=new IngressLimit(plugin.clock());interactionLimit=new IngressLimit(plugin.clock());modalLimit=new IngressLimit(plugin.clock());}
     public State state(){return state;}public long generation(){return generation.get();}public Settings applied(){return applied;}public boolean usable(){return jda!=null&&jda.getStatus()==JDA.Status.CONNECTED&&!activeLanguage.isEmpty()&&(state==State.CONNECTED||state==State.DEGRADED);}public PanelService panel(){return panel;}public boolean content(){return content;}
     public boolean alive(long g){return generation.get()==g&&plugin.ready()&&jda!=null;}
     public void start(){synchronized(lifecycle){startLocked();}}
@@ -62,11 +62,12 @@ public final class Bot {
         Settings s=plugin.settings();if(!s.botEnabled()){state=State.DISABLED;plugin.getLogger().info("Discord bot is disabled. Configure bot.yml to connect.");return;}
         if(s.token().isBlank()||s.guild().isEmpty()){state=State.FAILED;plugin.warn("setup-bot-unavailable");return;}
         if(jda!=null)return;applied=s;activeLanguage="";state=State.STARTING;long g=generation.incrementAndGet();
-        content=s.prefixEnabled()||s.commandsEnabled()||s.chat().toMinecraft();members=s.memberIntentRequested();connect(s,g,content);
+        content=s.contentIntentRequested();members=s.memberIntentRequested();connect(s,g,content);
     }
     private void connect(Settings s,long g,boolean withContent){
         try{
-            EnumSet<GatewayIntent> intents=EnumSet.of(GatewayIntent.GUILD_MESSAGES);if(withContent)intents.add(GatewayIntent.MESSAGE_CONTENT);if(members)intents.add(GatewayIntent.GUILD_MEMBERS);if(s.moderation().banFromDiscord())intents.add(GatewayIntent.GUILD_MODERATION);
+            // Guild message events are only useful with their text; without it they are not requested at all, which keeps a busy guild's traffic off the bot.
+            EnumSet<GatewayIntent> intents=EnumSet.noneOf(GatewayIntent.class);if(withContent){intents.add(GatewayIntent.GUILD_MESSAGES);intents.add(GatewayIntent.MESSAGE_CONTENT);}if(members)intents.add(GatewayIntent.GUILD_MEMBERS);if(s.moderation().banFromDiscord())intents.add(GatewayIntent.GUILD_MODERATION);
             jda=JDABuilder.createLight(s.token(),intents).setEnableShutdownHook(false).setAutoReconnect(true).setRequestTimeoutRetry(false)
                 .setHttpClientBuilder(new okhttp3.OkHttpClient.Builder().connectTimeout(4,TimeUnit.SECONDS).readTimeout(8,TimeUnit.SECONDS).callTimeout(10,TimeUnit.SECONDS))
                 .addEventListeners(new Events(g)).build();
@@ -144,10 +145,14 @@ public final class Bot {
         String chatProblem=s.chat().toDiscord()&&plugin.chatEvents()!=null?plugin.chatEvents().problem(language):"";
         lines.add((tr?"Sohbet: ":"Chat: ")+(chatProblem.isEmpty()?toggle(s.chat().toDiscord(),tr):(tr?"duraklatıldı":"paused"))+" MC → DC | "+toggle(s.chat().toMinecraft(),tr)+" DC → MC"+(plugin.chatEvents()==null?"":" | "+plugin.chatEvents().adapter()));
         if(!chatProblem.isEmpty())lines.add(chatProblem);
-        if(doctor){if(s.token().isEmpty())lines.add((tr?"Doldurulması gerekiyor: ":"Missing: ")+"bot.yml token");if(s.guild().isEmpty())lines.add((tr?"Doldurulması gerekiyor: ":"Missing: ")+"bot.yml guild-id");if(s.panelEnabled()&&s.panelChannel().isEmpty())lines.add((tr?"Doldurulması gerekiyor: ":"Missing: ")+"bot.yml panel.channel-id");if(!content&&(s.prefixEnabled()||s.commandsEnabled()||s.chat().toMinecraft()))lines.add(tr?"Developer Portal'da Message Content iznini açın. Bu izin olmadan yalnızca / komutları ve hesap paneli kullanılabilir.":"Enable Message Content intent or use slash/panel only.");
+        if(doctor){if(s.token().isEmpty())lines.add((tr?"Doldurulması gerekiyor: ":"Missing: ")+"bot.yml token");if(s.guild().isEmpty())lines.add((tr?"Doldurulması gerekiyor: ":"Missing: ")+"bot.yml guild-id");if(s.panelEnabled()&&s.panelChannel().isEmpty())lines.add((tr?"Doldurulması gerekiyor: ":"Missing: ")+"bot.yml panel.channel-id");if(!content&&s.contentIntentRequested())lines.add(tr?"Developer Portal'da Message Content iznini açın. Bu izin olmadan yalnızca / komutları ve hesap paneli kullanılabilir.":"Enable Message Content intent or use slash/panel only.");
             if(usable()){for(String id:List.of(s.panelEnabled()?s.panelChannel():"",s.consoleChannel(),s.chat().channel()))if(!id.isEmpty())try{validateChannel(id,id.equals(s.consoleChannel()));lines.add((tr?"Kanal ":"Channel ")+id+(tr?": doğrulandı":": validated"));}catch(Exception e){lines.add((tr?"Kanal ":"Channel ")+id+(tr?": erişilemiyor, izin eksik veya görünürlük güvenli değil":": unavailable, missing permissions or unsafe visibility"));}}
         }
         if(s.roleSync().enabled()){boolean available=plugin.roles()!=null&&plugin.roles().failure().isEmpty()&&usable();lines.add((tr?"Rol eşitlemesi: ":"Role synchronization: ")+(available?(tr?"kullanılabilir":"available"):(tr?"bekliyor veya kurulum sorunu var":"waiting or setup issue")));}
+        var features=s.features();
+        if(features.tickets().enabled())lines.add((tr?"Destek talepleri: ":"Tickets: ")+(content&&usable()?(tr?"kullanılabilir":"available"):(tr?"bekliyor veya Message Content izni yok":"waiting or Message Content unavailable")));
+        if(features.alerts().enabled())lines.add((tr?"Sunucu uyarıları: ":"Health alerts: ")+toggle(true,tr));
+        if(features.groups().enabled())lines.add((tr?"Discord → Minecraft grupları: ":"Discord → Minecraft groups: ")+(plugin.discordGroups()!=null&&plugin.discordGroups().writerAvailable()?(tr?"kullanılabilir":"available"):(tr?"LuckPerms bekleniyor":"waiting for LuckPerms")));
         if(s.linkRewards().enabled())lines.add((tr?"İlk eşleme ödülleri: ":"First-link rewards: ")+(plugin.linkRewards()!=null&&plugin.linkRewards().healthy()?(tr?"kayıt sistemi kullanılabilir":"receipt store available"):(tr?"kayıt sistemi kullanılamıyor":"receipt store unavailable")));
         if(s.boostRewards().enabled()){
             boolean healthy=plugin.boosts()!=null&&plugin.boosts().healthy();int pending=plugin.boosts()==null?0:plugin.boosts().pending();
@@ -252,13 +257,16 @@ public final class Bot {
     private void register(long g)throws Exception{
         long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(90);
         Guild guild=guild();if(guild==null)throw new IllegalStateException("Configured guild is unavailable");Set<String> owned=plugin.store().commands(guild.getId());List<Command> existing=awaitRegistration(guild.retrieveCommands(),g,deadline);Set<String> newIds=new HashSet<>();String lang=applied.botLanguage();
-        for(String function:List.of("help","link","account","unlink","status","server","players","ip","links")){
+        List<String> functions=new ArrayList<>(List.of("help","link","account","unlink","status","server","players","ip","links"));if(applied.features().whois().enabled())functions.add("whois");
+        for(String function:functions){
             if(!alive(g))throw new IllegalStateException("Expired bot session");
             String name=Words.display(function,lang);if(existing.stream().anyMatch(c->c.getName().equals(name)&&!owned.contains(c.getId())))throw new IllegalStateException("Unmanaged slash name collision");
             String description=plugin.messages().get(true,lang,"slash-"+function);
             Command previous=existing.stream().filter(c->c.getName().equals(name)).findFirst().orElse(null);
-            if(previous!=null&&previous.getType()==Command.Type.SLASH&&description.equals(previous.getDescription())&&previous.getOptions().isEmpty()){newIds.add(previous.getId());continue;}
-            Command command=awaitRegistration(guild.upsertCommand(Commands.slash(name,description)),g,deadline);if(!alive(g))throw new IllegalStateException("Expired bot session");plugin.store().command(guild.getId(),command.getId());newIds.add(command.getId());
+            var data=Commands.slash(name,description);boolean whois=function.equals("whois");
+            if(whois){data.addOption(net.dv8tion.jda.api.interactions.commands.OptionType.STRING,Words.display("player",lang),plugin.messages().get(true,lang,"whois-option"),true);data.setDefaultPermissions(Whois.defaultPermissions(applied.features().whois()));}
+            if(previous!=null&&previous.getType()==Command.Type.SLASH&&description.equals(previous.getDescription())&&(whois?Whois.sameShape(previous,data):previous.getOptions().isEmpty())){newIds.add(previous.getId());continue;}
+            Command command=awaitRegistration(guild.upsertCommand(data),g,deadline);if(!alive(g))throw new IllegalStateException("Expired bot session");plugin.store().command(guild.getId(),command.getId());newIds.add(command.getId());
         }
         for(Command command:existing)if(owned.contains(command.getId())&&!newIds.contains(command.getId())){awaitRegistration(guild.deleteCommandById(command.getId()),g,deadline);if(!alive(g))throw new IllegalStateException("Expired bot session");plugin.store().forgetCommand(command.getId());}
         synchronized(this){if(!alive(g))throw new IllegalStateException("Expired bot session");activeLanguage=lang;}
@@ -271,6 +279,19 @@ public final class Bot {
         try{return pending.get(remaining+TimeUnit.SECONDS.toNanos(2),TimeUnit.NANOSECONDS);}
         catch(ExecutionException failure){if(failure.getCause() instanceof Exception cause)throw cause;throw failure;}
         catch(TimeoutException|InterruptedException failure){pending.cancel(true);if(failure instanceof InterruptedException)Thread.currentThread().interrupt();throw failure;}
+    }
+    private void whois(SlashCommandInteractionEvent event,long g){
+        Settings policy=plugin.settings();
+        if(!policy.features().whois().enabled()||!Whois.allowed(event.getMember(),policy.features().whois())){event.reply(PanelView.create(Cards.text(text("no-permission",Map.of())))).setEphemeral(true).setAllowedMentions(List.of()).queue(v->{},plugin::error);return;}
+        var option=event.getOptions().isEmpty()?null:event.getOptions().get(0);String query=option==null?"":option.getAsString();String lang=activeLanguage();
+        event.deferReply(true).queue(h->plugin.submit(()->{if(!alive(g))return null;String body=Whois.lookup(plugin,query,lang);h.editOriginal(PanelView.update(Cards.text(body))).setAllowedMentions(List.of()).timeout(10,TimeUnit.SECONDS).queue(v->{},plugin::error);return null;})
+            .exceptionally(e->{reply(h,"failed",Map.of("event",plugin.error(failureCause(e))));return null;}),plugin::error);
+    }
+    /** Role IDs of a guild member from a fresh lookup, for Discord to Minecraft groups; null when the user is not in the guild. */
+    public Set<String> memberRoles(String discordId)throws Exception{
+        Guild guild=guild();if(guild==null||!usable())throw new IllegalStateException("Bot unavailable");
+        try{Member member=await(guild.retrieveMemberById(discordId).useCache(false));Set<String> ids=new HashSet<>();for(Role role:member.getRoles())ids.add(role.getId());return ids;}
+        catch(ErrorResponseException missing){if(missing.getErrorResponse()==ErrorResponse.UNKNOWN_MEMBER||missing.getErrorResponse()==ErrorResponse.UNKNOWN_USER)return null;throw missing;}
     }
     private boolean context(Interaction interaction,long g){return alive(g)&&usable()&&interaction.isFromGuild()&&interaction.getGuild()!=null&&interaction.getGuild().getId().equals(applied.guild())&&interaction.getMember()!=null&&!interaction.getUser().isBot();}
     private static Throwable failureCause(Throwable failure){while((failure instanceof CompletionException||failure instanceof ExecutionException)&&failure.getCause()!=null)failure=failure.getCause();return failure;}
@@ -317,6 +338,7 @@ public final class Bot {
                 case "account","unlink"->event.deferReply(true).queue(h->account(h,event.getUser().getId(),action.equals("unlink"),g),plugin::error);
                 case "help"->event.reply(PanelView.create(Cards.of(HelpView.card(plugin.messages(),activeLanguage(),plugin.settings().panelEnabled())))).setEphemeral(true).setAllowedMentions(List.of()).queue(v->{},plugin::error);
                 case "server","players","ip","links"->{String channel=event.getChannel().getId();event.deferReply(true).queue(h->plugin.submit(()->{if(informationCurrent(g,policy,channel))h.editOriginal(PanelView.update(Cards.of(information(action,g,policy,channel)))).setAllowedMentions(List.of()).setCheck(()->informationCurrent(g,policy,channel)).timeout(10,TimeUnit.SECONDS).queue(v->{},plugin::error);return null;}).exceptionally(e->{plugin.error(e);return null;}),plugin::error);}
+                case "whois"->whois(event,g);
                 case "status"->event.reply(PanelView.create(Cards.of(embed("status",Map.of("version",plugin.getDescription().getVersion(),"state",text("state-"+state.name().toLowerCase(Locale.ROOT),Map.of())))))).setEphemeral(true).queue(v->{},plugin::error);
                 default->event.reply(PanelView.create(Cards.text(text("no-permission",Map.of())))).setEphemeral(true).queue(v->{},plugin::error);
             }
@@ -350,7 +372,8 @@ public final class Bot {
         }
         @Override public void onMessageReceived(MessageReceivedEvent event){
             if(!alive(g)||!usable()||!content||!event.isFromGuild()||!event.getGuild().getId().equals(applied.guild())||event.getAuthor().isBot()||event.isWebhookMessage())return;
-            Settings s=plugin.settings();if(event.getChannel().getId().equals(s.consoleChannel())){plugin.console().receive(event,g);return;}
+            Settings s=plugin.settings();
+            if(event.isFromThread()&&s.features().tickets().enabled()&&plugin.tickets()!=null&&tickets.ticketThread(event.getChannel().asThreadChannel(),s)){plugin.tickets().reply(event.getChannel().getId(),event.getMember()==null?event.getAuthor().getName():event.getMember().getEffectiveName(),event.getMessage().getContentDisplay());return;}if(event.getChannel().getId().equals(s.consoleChannel())){plugin.console().receive(event,g);return;}
             if(event.getChannel().getId().equals(s.chat().channel())&&plugin.chat()!=null)plugin.chat().receive(event,g);
             if(!s.prefixEnabled())return;String input=event.getMessage().getContentRaw();if(!input.startsWith(s.botPrefix())||input.length()>128)return;
             String word=input.substring(s.botPrefix().length());if(word.contains(" "))return;String action=Words.canonical(word);

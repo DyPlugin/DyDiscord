@@ -94,10 +94,16 @@ public final class PluginLogs implements Listener {
     }
     private static String name(UUID id){if(id==null)return "?";String name=Bukkit.getOfflinePlayer(id).getName();return name==null?id.toString().substring(0,8):name;}
     /** Calls a public method through a public declaring type, so implementation classes may stay private. */
+    private static final Map<String,java.lang.reflect.Method> METHODS=new java.util.concurrent.ConcurrentHashMap<>();
     private static Object call(Object target,String method)throws ReflectiveOperationException{
-        for(Class<?> type=target.getClass();type!=null;type=type.getSuperclass()){
-            if(java.lang.reflect.Modifier.isPublic(type.getModifiers()))try{return type.getMethod(method).invoke(target);}catch(NoSuchMethodException next){}
-            for(Class<?> face:type.getInterfaces())if(java.lang.reflect.Modifier.isPublic(face.getModifiers()))try{return face.getMethod(method).invoke(target);}catch(NoSuchMethodException next){}
+        // One lookup per event class and accessor; the classes of the other plugins do not change while they are loaded.
+        String key=target.getClass().getName()+'@'+System.identityHashCode(target.getClass())+'#'+method;java.lang.reflect.Method cached=METHODS.get(key);if(cached!=null)return cached.invoke(target);
+        java.lang.reflect.Method found=find(target.getClass(),method);if(METHODS.size()<256)METHODS.put(key,found);return found.invoke(target);
+    }
+    private static java.lang.reflect.Method find(Class<?> owner,String method)throws NoSuchMethodException{
+        for(Class<?> type=owner;type!=null;type=type.getSuperclass()){
+            if(java.lang.reflect.Modifier.isPublic(type.getModifiers()))try{return type.getMethod(method);}catch(NoSuchMethodException next){}
+            for(Class<?> face:type.getInterfaces())if(java.lang.reflect.Modifier.isPublic(face.getModifiers()))try{return face.getMethod(method);}catch(NoSuchMethodException next){}
         }
         throw new NoSuchMethodException(method);
     }

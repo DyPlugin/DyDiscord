@@ -11,6 +11,13 @@ public final class Messages {
     public static final List<String> LANGUAGES=List.of("en","tr","de","es","ru");
     /** Accepted language settings and preferences. */
     public static final Set<String> CHOICES=Set.of("en","tr","de","es","ru","auto");
+    private static final Pattern SLOT=Pattern.compile("\\{([a-z_]+)}"),LEGACY=Pattern.compile("&([0-9a-fk-orA-FK-OR])"),CONTROL=Pattern.compile("[\\p{Cntrl}]");
+    /** Bundled message files never change at runtime; parse each once instead of on every load and reload. */
+    private static final Map<String,Optional<Map<String,Object>>> BUNDLED=new java.util.concurrent.ConcurrentHashMap<>();
+    private static Map<String,Object> bundled(String resource)throws IOException{
+        Optional<Map<String,Object>> cached=BUNDLED.get(resource);if(cached!=null)return cached.orElse(null);
+        try(InputStream in=Messages.class.getClassLoader().getResourceAsStream(resource)){Optional<Map<String,Object>> parsed=in==null?Optional.empty():Optional.of(Collections.unmodifiableMap(Configuration.parse(new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8))));BUNDLED.putIfAbsent(resource,parsed);return parsed.orElse(null);}
+    }
     private final Map<String,Map<String,String>> packs;
     private final Set<String> missing;
     private Messages(Map<String,Map<String,String>> packs,Set<String> missing){this.packs=Map.copyOf(packs);this.missing=Set.copyOf(missing);}
@@ -18,8 +25,8 @@ public final class Messages {
     /** Newly introduced keys migrate in the selected language; existing owner text is untouched. */
     public static boolean releaseKey(String key){
         if(key.startsWith("chat-compatibility-")||Set.of("account-date","account-roles","copy-code-hint","confirm-click-hint","invite-click-hint","help-admin-topics","help-bot-language","invite-auto-unavailable").contains(key))return true;
-        return List.of("language-name-","status-card-","log-","cheatcheck-","player-report-","require-link-","moderation-","error-","chat-personal-","chat-already-","chat-enabled","chat-disabled","setting-unchanged","help-prefix","help-bot-guild","help-topic-","setup-","startup-","help-page","help-card-","giveaway-","players-","addresses-","address-","links-","notice-","help-chat-","help-announce","help-giveaway-").stream().anyMatch(key::startsWith)
-            ||Set.of("slash-players","slash-ip","slash-links","help-community","server-started","information-channel-only","link-welcome","community-notice","report-saved","validation-result","setup-guide","reward-preview","help-maintenance","help-restart-notice","help-support-report","help-config-validate","help-translations-validate","help-setup","help-rewards-preview","chat-first-join","chat-advancement").contains(key);
+        return List.of("language-name-","status-card-","log-","cheatcheck-","player-report-","require-link-","moderation-","error-","chat-personal-","chat-already-","chat-enabled","chat-disabled","setting-unchanged","help-prefix","help-bot-guild","help-topic-","setup-","startup-","help-page","help-card-","giveaway-","players-","addresses-","address-","links-","notice-","help-chat-","help-announce","help-giveaway-","ticket-","whois-","alert-","chat-attachment-").stream().anyMatch(key::startsWith)
+            ||Set.of("slash-players","slash-ip","slash-links","help-community","server-started","information-channel-only","link-welcome","community-notice","report-saved","validation-result","setup-guide","reward-preview","help-maintenance","help-restart-notice","help-support-report","help-config-validate","help-translations-validate","help-setup","help-rewards-preview","chat-first-join","chat-advancement","slash-whois").contains(key);
     }
     public void validatePanel(String serverName){for(String lang:LANGUAGES){
         // Validate structured help before publishing a reload, rather than failing on Discord.
@@ -40,32 +47,29 @@ public final class Messages {
     public String render(boolean discord,String lang,String key,Map<String,String> values){
         String template=get(discord,lang,key);
         // Format only templates; externally supplied values never become color/mention markup.
-        if(!discord)template=template.replaceAll("&([0-9a-fk-orA-FK-OR])","§$1");
-        Matcher m=Pattern.compile("\\{([a-z_]+)}").matcher(template);StringBuffer out=new StringBuffer();
+        if(!discord)template=LEGACY.matcher(template).replaceAll("§$1");
+        Matcher m=SLOT.matcher(template);StringBuffer out=new StringBuffer();
         while(m.find()){String v=values.getOrDefault(m.group(1),m.group());v=discord?safeDiscord(v):dev.dydiscord.util.Colors.escapeTags(safeMinecraft(v));m.appendReplacement(out,Matcher.quoteReplacement(v));}m.appendTail(out);
         // MiniMessage tags in Minecraft templates apply where the server ships Adventure; inserted values stay as typed.
         return discord?out.toString():dev.dydiscord.util.Colors.tags(out.toString());
     }
-    public static String safeMinecraft(String s){return s.replace("§","").replaceAll("[\\p{Cntrl}]"," ");}
-    public static String safeDiscord(String s){return s.replace("\\","\\\\").replace("@","@\u200b").replace("`","ˋ").replace("*","\\*").replace("_","\\_").replace("~","\\~").replace("|","\\|").replace("[","\\[").replace("]","\\]").replace("<","‹").replaceAll("[\\p{Cntrl}]"," ");}
-    public static Set<String> placeholders(String s){Set<String> set=new HashSet<>();Matcher m=Pattern.compile("\\{([a-z_]+)}").matcher(s);while(m.find())set.add(m.group(1));return set;}
+    public static String safeMinecraft(String s){return CONTROL.matcher(s.replace("§","")).replaceAll(" ");}
+    public static String safeDiscord(String s){return CONTROL.matcher(s.replace("\\","\\\\").replace("@","@\u200b").replace("`","ˋ").replace("*","\\*").replace("_","\\_").replace("~","\\~").replace("|","\\|").replace("[","\\[").replace("]","\\]").replace("<","‹")).replaceAll(" ");}
+    public static Set<String> placeholders(String s){Set<String> set=new HashSet<>();Matcher m=SLOT.matcher(s);while(m.find())set.add(m.group(1));return set;}
     private static boolean compatible(String surface,String lang,String key,String value,String bundled)throws IOException{
         if(placeholders(value).equals(placeholders(bundled)))return true;
         if(!surface.isEmpty()&&key.equals("account")&&placeholders(value).contains("name")&&Set.of("name","discord","date").containsAll(placeholders(value)))return true;
         // Existing owner translations may retain the previous account/confirmation fields.
         if(key.equals("already-linked")&&placeholders(value).isEmpty())return true;
         if(!Set.of("linked","account","confirm").contains(key))return false;
-        try(InputStream in=Messages.class.getClassLoader().getResourceAsStream("legacy/release-101/"+surface+"messages_"+lang+".yml")){
-            if(in==null)return false;
-            Object old=Configuration.parse(new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8)).get(key);
-            return old instanceof String text&&placeholders(value).equals(placeholders(text));
-        }
+        Map<String,Object> legacy=bundled("legacy/release-101/"+surface+"messages_"+lang+".yml");if(legacy==null)return false;
+        Object old=legacy.get(key);return old instanceof String text&&placeholders(value).equals(placeholders(text));
     }
     public static Messages load(Path folder)throws IOException{
         Map<String,Map<String,String>> packs=new HashMap<>();Set<String> missing=new HashSet<>();
         for(String surface:List.of("","discord/"))for(String lang:LANGUAGES){
             String file=surface+"messages_"+lang+".yml";
-            Map<String,Object> bundled;try(InputStream in=Messages.class.getClassLoader().getResourceAsStream(surface+"messages_en.yml")){if(in==null)throw new IOException("Missing messages");bundled=Configuration.parse(new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8));}
+            Map<String,Object> bundled=bundled(surface+"messages_en.yml");if(bundled==null)throw new IOException("Missing messages");
             Map<String,Object> custom=new HashMap<>(Configuration.read(folder.resolve(file)));Map<String,String> result=new HashMap<>();
             upgradeDefaults(surface,lang,custom);
             for(var entry:bundled.entrySet()){if(!custom.containsKey(entry.getKey()))missing.add(file+":"+entry.getKey());Object v=custom.getOrDefault(entry.getKey(),entry.getValue());int max=4000;if(!surface.isEmpty()){String key=entry.getKey();max=key.startsWith("slash-")?100:switch(key){case "panel-title","giveaway-title","players-title","addresses-title","links-title","address-java","address-bedrock","players-more"->256;case "giveaway-enter","giveaway-leave","giveaway-leave-cancel"->80;case "modal-title","code-label"->45;case "link","account-button","unlink","confirm-button","cancel-button"->80;case "footer"->100;case "help","status","private-prompt","commands-prompt","commands-help","panel-disabled","panel-missing","console-prefix","console-rejected","console-result"->1600;default->3500;};}if(!(v instanceof String s)||s.length()>max||!surface.isEmpty()&&Set.of("giveaway-enter","giveaway-leave","giveaway-leave-cancel").contains(entry.getKey())&&s.isBlank()||!compatible(surface,lang,entry.getKey(),s,(String)entry.getValue()))throw new IOException("Invalid message: "+file+":"+entry.getKey());result.put(entry.getKey(),s);}
@@ -75,8 +79,8 @@ public final class Messages {
     /** Upgrade only shipped legacy values. Owner-written translations retain strict validation. */
     private static void upgradeDefaults(String surface,String lang,Map<String,Object> custom)throws IOException{
         // New server facts retain the selected language even before migration writes.
-        try(InputStream stream=Messages.class.getClassLoader().getResourceAsStream(surface+"messages_"+lang+".yml")){
-            if(stream==null)throw new IOException("Missing server messages");var current=Configuration.parse(new String(stream.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8));
+        {
+            var current=bundled(surface+"messages_"+lang+".yml");if(current==null)throw new IOException("Missing server messages");
             for(String key:(surface.isEmpty()?List.of("panel-disabled","help-panel-enable","help-panel-disable"):List.of("server-info-title","server-info-players","server-info-version","slash-server","help-server","panel-disabled","commands-prompt","commands-help")))custom.putIfAbsent(key,current.get(key));
         }
         boolean tr=lang.equals("tr");Map<String,String> legacy=new HashMap<>();
@@ -91,19 +95,16 @@ public final class Messages {
             legacy.put("linked",tr?"Hesaplarınız eşlendi.":"Your accounts are now linked.");
             legacy.put("panel-description",tr?"Minecraft ve Discord hesaplarınızı bağlayın.\nOyunda /discord eşle yazın, ardından Hesap Eşle butonuna basıp kodunuzu girin. Hesap bilgilerinizi yalnızca siz görürsünüz.":"Connect your Minecraft and Discord accounts.\nRun /discord link in-game, then select Link Account and enter your code. Only you can see your account details.");
         }
-        try(InputStream in=Messages.class.getClassLoader().getResourceAsStream(surface+"messages_"+lang+".yml")){
-            if(in==null)throw new IOException("Missing messages");Map<String,Object> defaults=Configuration.parse(new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8));
+        {
+            Map<String,Object> defaults=bundled(surface+"messages_"+lang+".yml");if(defaults==null)throw new IOException("Missing messages");
             if(!surface.isEmpty()&&Objects.equals(custom.get("chat-to-minecraft"),"&9[Discord] &7{role}&f{name} &8>> &7{message}"))custom.put("chat-to-minecraft",defaults.get("chat-to-minecraft"));
-            try(InputStream previous=Messages.class.getClassLoader().getResourceAsStream("legacy/simplify-101/"+surface+"messages_"+lang+".yml")){
-                if(previous!=null){Map<String,Object> shipped=Configuration.parse(new String(previous.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8));shipped.forEach((key,value)->{if(defaults.containsKey(key)&&Objects.equals(value,custom.get(key)))custom.put(key,defaults.get(key));});}
-            }
-            try(InputStream previous=Messages.class.getClassLoader().getResourceAsStream("legacy/release-101/"+surface+"messages_"+lang+".yml")){
-                if(previous!=null){Map<String,Object> shipped=Configuration.parse(new String(previous.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8));shipped.forEach((key,value)->{if(defaults.containsKey(key)&&Objects.equals(value,custom.get(key)))custom.put(key,defaults.get(key));});}
+            for(String release:List.of("simplify-101","release-101")){
+                Map<String,Object> shipped=bundled("legacy/"+release+"/"+surface+"messages_"+lang+".yml");
+                if(shipped!=null)shipped.forEach((key,value)->{if(defaults.containsKey(key)&&Objects.equals(value,custom.get(key)))custom.put(key,defaults.get(key));});
             }
             defaults.forEach((key,value)->{if(key.startsWith("state-")||key.startsWith("language-name-")||key.equals("update-available")||key.startsWith("chat-")||key.equals("server-stopping")||releaseKey(key))custom.putIfAbsent(key,value);});
-            if(tr)try(InputStream previous=Messages.class.getClassLoader().getResourceAsStream("legacy/"+surface+"messages_tr.yml")){
-                if(previous==null)throw new IOException("Missing legacy messages");
-                Map<String,Object> shipped=Configuration.parse(new String(previous.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8));
+            if(tr){
+                Map<String,Object> shipped=bundled("legacy/"+surface+"messages_tr.yml");if(shipped==null)throw new IOException("Missing legacy messages");
                 boolean complete=custom.keySet().containsAll(shipped.keySet());
                 shipped.forEach((key,value)->{if(Objects.equals(value,custom.get(key)))custom.put(key,defaults.get(key));});
                 if(complete)defaults.forEach(custom::putIfAbsent);

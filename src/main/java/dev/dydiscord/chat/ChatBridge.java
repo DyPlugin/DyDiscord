@@ -20,7 +20,7 @@ public final class ChatBridge implements AutoCloseable {
     }
     record Context(Settings settings,long policy,long session,Instant expires,long epoch) {}
     private record Queued(Outgoing message,Settings settings,UUID sender,long epoch) {}
-    private record Incoming(String role,int color,String name,String message,String replyAuthor,long policy,long session,Instant expires,Settings settings,long epoch) {}
+    private record Incoming(String role,int color,String name,String message,String replyAuthor,long policy,long session,Instant expires,Settings settings,long epoch,List<ChatText.Attachment> attachments) {}
     private final DyDiscord plugin;private final Ranks ranks;private final Clock clock;private final IngressLimit incomingRate,outgoingRate;
     private final ArrayBlockingQueue<Queued> outbound=new ArrayBlockingQueue<>(128);private final ArrayBlockingQueue<Incoming> inbound=new ArrayBlockingQueue<>(64);
     private final Map<String,Instant> received=new LinkedHashMap<>();private final AtomicLong policy=new AtomicLong();private final AtomicBoolean drainScheduled=new AtomicBoolean(),sendScheduled=new AtomicBoolean();
@@ -102,13 +102,23 @@ public final class ChatBridge implements AutoCloseable {
     public static Role highestRole(List<Role> ordered){return ordered.stream().filter(role->!role.isPublicRole()&&!role.isManaged()).max(Comparator.comparingInt(Role::getPosition)).orElse(null);}
     public static int primaryRoleColor(Role role){return role==null?0:role.getColors().getPrimaryRaw();}
     public static boolean human(boolean bot,boolean webhook,boolean fresh,String content,String prefix){return !bot&&!webhook&&fresh&&!content.isBlank()&&!content.startsWith(prefix);}
+    /** Attachments and stickers of a Discord message, when chat.attachments is on; at most five, Discord media hosts only. */
+    public static List<ChatText.Attachment> attachments(Message message){
+        List<ChatText.Attachment> items=new ArrayList<>();
+        for(Message.Attachment file:message.getAttachments()){if(items.size()>=ChatText.MAX_ATTACHMENTS)break;items.add(new ChatText.Attachment(file.isImage()?"image":file.isVideo()?"video":"file",file.getFileName(),file.getUrl()));}
+        for(var sticker:message.getStickers()){if(items.size()>=ChatText.MAX_ATTACHMENTS)break;items.add(new ChatText.Attachment("sticker",sticker.getName(),sticker.getIconUrl()));}
+        items.removeIf(item->!ChatText.discordMedia(item.url()));return List.copyOf(items);
+    }
     public void receive(MessageReceivedEvent event,long session){
         long admittedPolicy=policy.get(),epoch=inboundEpoch.get();Settings settings=plugin.settings();String raw=event.getMessage().getContentRaw();Instant created=event.getMessage().getTimeCreated().toInstant();
-        if(closed||inboundPaused||!settings.chat().toMinecraft()||!event.isFromGuild()||!event.getGuild().getId().equals(plugin.bot().applied().guild())||!event.getChannel().getId().equals(settings.chat().channel())||event.getMember()==null||!human(event.getAuthor().isBot(),event.isWebhookMessage(),!created.isBefore(clock.instant().minusSeconds(5))&&!created.isAfter(clock.instant().plusSeconds(5)),raw,settings.botPrefix())||!plugin.bot().content()||!plugin.bot().alive(session))return;
-        synchronized(received){received.values().removeIf(time->!clock.instant().isBefore(time));if(received.containsKey(event.getMessageId())||received.size()>=4096)return;received.put(event.getMessageId(),clock.instant().plusSeconds(60));}
-        if(!incomingRate.admit(event.getAuthor().getId()))return;Role role=highestRole(event.getMember().getRoles());String content=ChatText.plain(event.getMessage().getContentDisplay(),800);if(content.isEmpty())return;
+        List<ChatText.Attachment> files=settings.chat().attachments()?attachments(event.getMessage()):List.of();
+        // A message with only an image or sticker has no text; with chat.attachments on it is relayed as its links.
+        String checked=raw.isBlank()&&!files.isEmpty()?"\u200b":raw;
+        if(closed||inboundPaused||!settings.chat().toMinecraft()||!event.isFromGuild()||!event.getGuild().getId().equals(plugin.bot().applied().guild())||!event.getChannel().getId().equals(settings.chat().channel())||event.getMember()==null||!human(event.getAuthor().isBot(),event.isWebhookMessage(),!created.isBefore(clock.instant().minusSeconds(5))&&!created.isAfter(clock.instant().plusSeconds(5)),checked,settings.botPrefix())||!plugin.bot().content()||!plugin.bot().alive(session))return;
+        synchronized(received){Instant now=clock.instant();for(var it=received.values().iterator();it.hasNext();){if(now.isBefore(it.next()))break;it.remove();}if(received.containsKey(event.getMessageId())||received.size()>=4096)return;received.put(event.getMessageId(),clock.instant().plusSeconds(60));}
+        if(!incomingRate.admit(event.getAuthor().getId()))return;Role role=highestRole(event.getMember().getRoles());String content=ChatText.plain(event.getMessage().getContentDisplay(),800);if(content.isEmpty()&&files.isEmpty())return;
         Message referenced=event.getMessage().getReferencedMessage();String replyAuthor=referenced==null?"":ChatText.plain(referenced.getAuthor().getName(),64);
-        Incoming message=new Incoming(role==null?"":ChatText.plain(role.getName(),64),primaryRoleColor(role),ChatText.plain(event.getMember().getEffectiveName(),64),content,replyAuthor,admittedPolicy,session,clock.instant().plusSeconds(5),settings,epoch);
+        Incoming message=new Incoming(role==null?"":ChatText.plain(role.getName(),64),primaryRoleColor(role),ChatText.plain(event.getMember().getEffectiveName(),64),content,replyAuthor,admittedPolicy,session,clock.instant().plusSeconds(5),settings,epoch,files);
         if(closed||inboundPaused||epoch!=inboundEpoch.get()||admittedPolicy!=policy.get()||!settings.equals(plugin.settings())||!plugin.bot().alive(session))return;
         if(inbound.offer(message)&&drainScheduled.compareAndSet(false,true))plugin.onMain(this::drain);
     }
@@ -118,6 +128,7 @@ public final class ChatBridge implements AutoCloseable {
                 Incoming message=inbound.poll();if(message==null)break;
                 if(closed||inboundPaused||message.epoch()!=inboundEpoch.get()||!plugin.ready()||!plugin.settings().chat().toMinecraft()||message.policy()!=policy.get()||!message.settings().equals(plugin.settings())||!plugin.bot().alive(message.session())||!plugin.bot().usable()||!clock.instant().isBefore(message.expires()))continue;
                 var text=ChatText.minecraft(template("chat-to-minecraft"),message.role(),message.color(),message.name(),message.message(),message.replyAuthor());
+                if(!message.attachments().isEmpty()){String lang=plugin.bot().activeLanguage();ChatText.attachments(text,message.attachments(),kind->plugin.messages().get(false,lang,"chat-attachment-"+kind),plugin.messages().get(false,lang,"chat-attachment-hover"));}
                 for(Player player:plugin.getServer().getOnlinePlayers()){
                     ChatPreferences.Preference pref=preferences.peek(player.getUniqueId());
                     if(pref==null){load(player.getUniqueId());continue;}
