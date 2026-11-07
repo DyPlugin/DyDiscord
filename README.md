@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/images/logo.png" alt="DyDiscord logo" width="128"></p>
+
 # DyDiscord — Minecraft and Discord Made Simple
 
 **Link your accounts. Share your chat. Connect your community.**
